@@ -11,7 +11,7 @@ import orderRedcuer from "../feature/order/orderSlice";
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["user", "book","cart" ,"wishlist"],
+  whitelist: ["user", "book", "cart", "wishlist"],
 };
 
 // combine reducer
