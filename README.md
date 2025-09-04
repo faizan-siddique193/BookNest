@@ -55,22 +55,58 @@ An online bookstore built with **MERN stack** (MongoDB, Express, React, Node.js)
 
 ```bash
 bookstore-app/
-├── backend/
-│   ├── models/        # Mongoose schemas (User, Book, Cart, Order, Payment)
-│   ├── routes/        # API routes
-│   ├── controllers/   # Express controllers
-│   ├── middlewares/   # Auth & error handlers
-│   └── server.js      # Main backend entry
+BookStore/
+├── backend/                          # Backend folder
+│   ├── .env                           # Environment variables
+│   ├── .env.sample                    # Sample environment file
+│   ├── .gitignore                     # Git ignore file
+│   ├── app.log                         # Log file
+│   ├── package.json                    # Node.js dependencies
+│   └── src/                            # Source code folder
+│       ├── config/                     # Configurations (Firebase, DB, etc.)
+│       ├── controllers/                # API route controllers
+│       ├── db/                         # Database connection
+│       ├── middlewares/                # Express middlewares
+│       ├── models/                      # Database models
+│       ├── routes/                      # Express routes
+│       ├── secret/                      # Secret keys (service accounts)
+│       └── utils/                       # Utility functions (logger, errors, etc.)
 │
-├── frontend/
-│   ├── src/
-│   │   ├── components/   # Reusable UI components
-│   │   ├── pages/        # App pages (Home, Cart, Checkout, Orders, etc.)
-│   │   ├── redux/        # Redux slices
-│   │   └── App.js        # Main React entry
-│   └── public/
-│
-└── README.md
+├── frontend/                          # Frontend folder
+│   ├── .env                            # Environment variables
+│   ├── .env.sample                     # Sample environment file
+│   ├── .gitignore                      # Git ignore file
+│   ├── eslint.config.js                # ESLint config
+│   ├── index.html                       # HTML entry point
+│   ├── package.json                     # Node.js dependencies
+│   ├── postcss.config.js               # PostCSS configuration
+│   ├── Readme.md                        # Project readme
+│   ├── tailwind.config.js              # Tailwind CSS config
+│   ├── vite.config.js                  # Vite configuration
+│   ├── public/                          # Public static files
+│   └── src/                             # Source code
+│       ├── App.css                      # App CSS
+│       ├── App.jsx                      # App root component
+│       ├── index.css                     # Global CSS
+│       ├── main.jsx                      # React entry point
+│       ├── api/                          # API calls (axios, etc.)
+│       ├── app/                          # Redux store and slices
+│       ├── assets/                       # Images, GIFs, icons
+│       ├── Component/                    # Shared components
+│       │   ├── admin/                    # Admin-specific components
+│       │   ├── book/                     # Book-specific components
+│       │   ├── cart/                     # Cart components
+│       │   ├── checkout/                 # Checkout components
+│       │   └── customer/                 # Customer-specific components
+│       ├── config/                       # App configuration
+│       ├── constant/                     # App constants
+│       ├── features/                     # Redux features or hooks
+│       └── pages/                        # Pages
+│           ├── admin/                    # Admin pages
+│           ├── customer/                 # Customer pages
+│           ├── order/                    # Order pages
+│           └── book/                     # Book pages
+
 ```
 
 ---
@@ -80,8 +116,7 @@ bookstore-app/
 ### 1️⃣ Clone the repo
 
 ```bash
-git clone https://github.com/your-username/bookstore-app.git
-cd bookstore-app
+git clone https://github.com/your-username/BookNest.git
 ```
 
 ### 2️⃣ Setup Backend
@@ -116,16 +151,12 @@ npm install
 Run frontend:
 
 ```bash
-npm start
+npm dev
 ```
 
 ---
 
-## 📸 Screenshots (optional)
 
-*Add here some images of UI: home page, cart, checkout, order confirmation.*
-
----
 
 ## 🔮 Future Improvements
 
