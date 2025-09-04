@@ -116,7 +116,8 @@ BookStore/
 ### 1️⃣ Clone the repo
 
 ```bash
-git clone https://github.com/your-username/BookNest.git
+git clone https://github.com/faizan-siddique193/BookNest.git
+
 ```
 
 ### 2️⃣ Setup Backend
@@ -124,15 +125,6 @@ git clone https://github.com/your-username/BookNest.git
 ```bash
 cd backend
 npm install
-```
-
-Create a `.env` file:
-
-```env
-PORT=5000
-MONGO_URI=mongodb+srv://your-cluster
-JWT_SECRET=your-secret
-STRIPE_SECRET_KEY=your-stripe-key
 ```
 
 Run backend:
@@ -148,23 +140,13 @@ cd frontend
 npm install
 ```
 
+
+
 Run frontend:
 
 ```bash
 npm dev
 ```
-
----
-
-
-
-## 🔮 Future Improvements
-
-* Wishlist / Favorites
-* Email notifications for order confirmation
-* Admin dashboard
-* Ratings & Reviews for books
-
 ---
 
 ## 👨‍💻 Author
