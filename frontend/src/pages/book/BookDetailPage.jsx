@@ -17,9 +17,12 @@ import {
   AddComment,
   AboutAuthor,
   BookDescription,
+  Breadcrumb,
 } from "../../Component/index";
 import { useDispatch } from "react-redux";
 import { getBookById } from "../../feature/book/bookAction";
+import { toast } from "react-toastify";
+import { addToCart } from "../../feature/cart/cartAction";
 
 const BookDetailPage = () => {
   const [activeTab, setActiveTab] = useState("description");
@@ -43,8 +46,15 @@ const BookDetailPage = () => {
     fetchBookSlug();
   }, [slug, dispatch]);
 
-  // fetch athor information
-  
+  // Add to cart function
+  const handleAddToCart = async (bookId) => {
+    try {
+      await dispatch(addToCart({ bookId })).unwrap();
+      toast.success("Book added to cart");
+    } catch (error) {
+      toast.error(error?.message || "Failed to add book to cart");
+    }
+  };
 
   const [review, setReview] = useState({
     rating: 5,
@@ -95,33 +105,13 @@ const BookDetailPage = () => {
     <div className="bg-background min-h-screen">
       {/* Breadcrumb */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <nav className="flex" aria-label="Breadcrumb">
-          <ol className="flex items-center space-x-2">
-            <li>
-              <Link
-                to="/home"
-                className="text-muted hover:text-accent transition-colors text-sm"
-              >
-                Home
-              </Link>
-            </li>
-            <li className="flex items-center">
-              <ChevronRight className="h-4 w-4 text-muted" />
-              <Link
-                to="/home/books"
-                className="ml-2 text-muted hover:text-accent transition-colors text-sm"
-              >
-                Books
-              </Link>
-            </li>
-            <li className="flex items-center">
-              <ChevronRight className="h-4 w-4 text-muted" />
-              <span className="ml-2 text-sm font-medium text-primary truncate max-w-xs md:max-w-md">
-                {book?.title}
-              </span>
-            </li>
-          </ol>
-        </nav>
+        <Breadcrumb
+          items={[
+            { label: "Home", path: "/home" },
+            { label: "Books", path: "/home/books" },
+            { label: "Book Detail", path: "#" },
+          ]}
+        />
       </div>
 
       {/* Main Book Display */}
@@ -203,8 +193,8 @@ const BookDetailPage = () => {
                   </p>
                 </div>
               </div>
-
-              <p className="text-primary mb-8">{book?.description}</p>
+              {/* Delete this comment */}
+              {/* <p className="text-primary mb-8 ">{book?.description}</p> */}
 
               <div className="flex flex-wrap items-center gap-4 mb-8">
                 <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
@@ -232,6 +222,7 @@ const BookDetailPage = () => {
                       : "bg-gray-200 text-muted cursor-not-allowed"
                   }`}
                   disabled={book?.stock <= 0}
+                  onClick={handleAddToCart(book?._id)}
                 >
                   <ShoppingCart className="h-5 w-5 mr-2" />
                   Add to Cart
@@ -266,7 +257,8 @@ const BookDetailPage = () => {
               >
                 Description
               </button>
-              <button
+              {/* TODO: DELETE THIS COMMENT */}
+              {/* <button
                 className={`py-4 px-6 font-medium text-sm transition-colors ${
                   activeTab === "author"
                     ? "text-accent border-b-2 border-accent"
@@ -275,7 +267,7 @@ const BookDetailPage = () => {
                 onClick={() => setActiveTab("author")}
               >
                 About the Author
-              </button>
+              </button> */}
               <button
                 className={`py-4 px-6 font-medium text-sm transition-colors ${
                   activeTab === "reviews"
@@ -292,10 +284,12 @@ const BookDetailPage = () => {
 
           {/* Tabs Content */}
           <div className="p-6">
-            {activeTab === "description" && <BookDescription description="" />}
+            {activeTab === "description" && (
+              <BookDescription description={book?.description} />
+            )}
 
-            {/* about author */}
-            {activeTab === "author" && <AboutAuthor />}
+            {/* TODO: about author */}
+            {/* {activeTab === "author" && <AboutAuthor />} */}
 
             {activeTab === "reviews" && (
               <div>

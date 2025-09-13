@@ -23,6 +23,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createOrder } from "../../feature/order/orderAction";
 import { toast } from "react-toastify";
 import { getCartItem } from "../../feature/cart/cartAction";
+import { clearCart } from "../../feature/cart/cartSlice";
 
 const CheckoutPage = () => {
   const [activeStep, setActiveStep] = useState("shipping");
@@ -44,11 +45,16 @@ const CheckoutPage = () => {
       return;
     }
     try {
-      await dispatch(
+      const response = await dispatch(
         createOrder({ ...shippingFormData, paymentMethod })
       ).unwrap();
-      await dispatch(getCartItem()).unwrap();
-      navigate("/home/order-confirmation");
+
+      // TODO: delete this after debugging
+      console.log("Order Response in the checkoutpage:: ", response);
+
+      navigate(`/home/order-confirmation/${response.data._id}`);
+      dispatch(clearCart());
+      localStorage.removeItem("persist:cart");
       setOrderSuccess(true);
     } catch (error) {
       toast.error("Something went wrong. Please try again");

@@ -15,6 +15,8 @@ import {
   WishlistPage,
   CheckoutPage,
   OrderConfirmation,
+  FeaturedBooks,
+  LatestBooks,
 } from "./pages/index.js";
 import Home from "./pages/Home.jsx";
 import BookDetailPage from "./pages/Book/BookDetailPage.jsx";
@@ -35,6 +37,8 @@ const App = () => {
             <Route index element={<Home />} /> {/* /home */}
             <Route path="books" element={<BookListing />} />
             <Route path="books/:slug" element={<BookDetailPage />} />
+            <Route path="books/featured" element={<FeaturedBooks />} />
+            <Route path="books/latest" element={<LatestBooks />} />
             <Route
               path="books/category/:category"
               element={<BooksByCategory />}
@@ -43,9 +47,13 @@ const App = () => {
             <Route path="cart" element={<CartPage />} />
             <Route path="checkout" element={<CheckoutPage />} />
             <Route path="profile" element={<ProfilePage />} />
-            <Route path="order-confirmation" element={<OrderConfirmation />} />
+            <Route
+              path="order-confirmation/:orderId"
+              element={<OrderConfirmation />}
+            />
           </Route>
 
+          {/* admin routes */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="books" element={<BookLayout />}>
               <Route index element={<BookManagement />} />

@@ -2,7 +2,7 @@ import BookCard from "./book/booklisting/BookCard";
 import Breadcrumb from "./book/booklisting/Breadcrumb";
 import Card from "./card";
 import Categories from "./Categories";
-import FeaturedBooks from "./FeaturedBooks";
+import FeaturedBooks from "./book/booklisting/FeaturedBooks";
 import FiltersSidebar from "./book/booklisting/FiltersSidebar";
 import Footer from "./Footer";
 import HeroSection from "./Hero";
@@ -30,7 +30,12 @@ import ShippingForm from "./checkout/ShippingForm";
 import PaymentForm from "./checkout/PaymentForm";
 import ShippingSummary from "./checkout/ShippingSummary";
 import PaymentMethod from "./checkout/PaymentMethod";
+import BookCardSkeleton from "./BookCardSkeleton";
+import BookTableSkeleton from "./admin/BookTableSkeleton";
+
 export {
+  BookTableSkeleton,
+  BookCardSkeleton,
   PaymentMethod,
   ShippingSummary,
   PaymentForm,

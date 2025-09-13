@@ -11,6 +11,20 @@ const axiosInstance = axios.create({
 });
 
 // Attach token interceptor
+const getToken = async () => {
+  return new Promise((resolve, reject) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      unsubscribe();
+      if (user) {
+        const token = await getIdToken(user);
+        resolve(token);
+      } else {
+        reject("User not logged in");
+      }
+    });
+  });
+};
+
 axiosInstance.interceptors.request.use(
   async (config) => {
     const user = auth.currentUser;

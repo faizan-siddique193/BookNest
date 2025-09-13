@@ -1,52 +1,30 @@
 // src/pages/BookListingPage.jsx
 import React, { useState, useEffect } from "react";
 import Breadcrumb from "../../Component/book/booklisting/Breadcrumb";
-import FiltersSidebar from "../../Component/book/booklisting/FiltersSidebar";
-import SortBar from "../../Component/book/booklisting/SortBar";
 import BookGrid from "../../Component/book/booklisting/BookGrid";
 import Pagination from "../../Component/book/booklisting/Pagination";
-import { useDispatch } from "react-redux";
-import { getBooksByCategory, getBooks } from "../../feature/book/bookAction";
-import { useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { getBooks } from "../../feature/book/bookAction";
 import { toast } from "react-toastify";
-import { clearBookState } from "../../feature/book/bookSlice";
-import { useCallback } from "react";
-
+import { BookCardSkeleton } from "../../Component";
 const BookListingPage = () => {
-  /*  const [filters, setFilters] = useState({
-    categories: [],
-    priceRange: [0, 100],
-    rating: null,
-    availability: "all",
-    format: "all",
-  }); */
-
   const [viewMode, setViewMode] = useState("grid");
-  const [books, setBooks] = useState([]);
-  const [totalPages, setTotalPages] = useState(1);
-  const [currentPage, setCurrentPage] = useState(1);
-
   const dispatch = useDispatch();
-
+  const { loading, currentPage, books, totalPages } = useSelector(
+    (state) => state.book
+  );
+  
   useEffect(() => {
     const fetchBooks = async () => {
       try {
-        const booksFromStore = await dispatch(
-          getBooks({ currentPage })
-        ).unwrap();
-        setBooks(booksFromStore.books || []);
-        setTotalPages(booksFromStore.totalPages);
-        dispatch(clearBookState());
+        await dispatch(getBooks({ currentPage })).unwrap();
       } catch (error) {
-        toast.error(error?.message || "Failed to load books");
-      } /* finally {
-        setLoading(false);
-      } */
+        toast.error("Something went wrong while getting books");
+      }
     };
 
     fetchBooks();
   }, [dispatch, currentPage]);
-
 
   const categories = [
     "Programming Languages",
@@ -57,11 +35,15 @@ const BookListingPage = () => {
     "Computer Science Fundamentals",
   ];
 
-  /*  const handleFilterChange = (newFilters) => {
-    setFilters({ ...filters, ...newFilters });
-    setCurrentPage(1); // Reset to first page when filters change
-  }; */
-
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mx-auto">
+        {[...Array(4)].map((_, idx) => (
+          <BookCardSkeleton key={idx} />
+        ))}
+      </div>
+    );
+  }
   return (
     <div className="bg-background min-h-screen">
       {/* Page Header */}
@@ -101,7 +83,7 @@ const BookListingPage = () => {
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
-              onPageChange={setCurrentPage}
+              onPageChange={(page) => dispatch(getBooks({ currentPage: page }))}
             />
           </div>
         </div>

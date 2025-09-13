@@ -12,6 +12,6 @@ orderRouter.route("/create").post(verifyFirebaseToken, placeOrder);
 orderRouter
   .route("update/:orderId")
   .patch(verifyFirebaseToken, updateOrderStatus);
-orderRouter.route("get/:orderId").get(verifyFirebaseToken, getOrderById);
+orderRouter.route("/get/:orderId").get(verifyFirebaseToken, getOrderById);
 orderRouter.route("/get/orders").get(verifyFirebaseToken, getMyOrders);
 export default orderRouter;

@@ -16,6 +16,7 @@ export const createBook = createAsyncThunk(
       image,
       stock,
       publishYear,
+      isFeatured,
     },
     { rejectWithValue }
   ) => {
@@ -31,7 +32,8 @@ export const createBook = createAsyncThunk(
         pageCount,
         image,
         stock,
-        publishYear
+        publishYear,
+        isFeatured
       );
 
       const response = await axiosInstance.post(
@@ -47,6 +49,7 @@ export const createBook = createAsyncThunk(
           image,
           stock,
           publishYear,
+          isFeatured,
         },
         {
           headers: {
@@ -106,6 +109,7 @@ export const deleteBook = createAsyncThunk(
   }
 );
 
+// get book by id/slug
 export const getBookById = createAsyncThunk(
   "book/getbyid",
   async ({ slug }, { rejectWithValue }) => {
@@ -121,23 +125,29 @@ export const getBookById = createAsyncThunk(
   }
 );
 
+// get all books
 export const getBooks = createAsyncThunk(
   "book/get",
   async ({ currentPage }, { rejectWithValue }) => {
     try {
+      console.log("Current Page:: ", currentPage);
+
+      console.log("Thunk is running");
+
       const response = await axiosInstance.get(
         `/book/getbooks?p=${currentPage}`
       );
 
       // TODO: verify delete book response
       console.log("GetBookBy book response::", response.data.data);
-      return response.data.data;
+      return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
   }
 );
 
+// get books by category
 export const getBooksByCategory = createAsyncThunk(
   "book/bycategory",
   async ({ category, currentPage }, { rejectWithValue }) => {
@@ -153,4 +163,63 @@ export const getBooksByCategory = createAsyncThunk(
   }
 );
 
+// Get Featured Books
+export const getFeaturedBooks = createAsyncThunk(
+  "book/getFeaturedBooks",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get("/book/get/featured");
+      // TODO: DELTE THIS COMMENT
+      console.log("Featured Books:: ", response.data.data);
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch featured books"
+      );
+    }
+  }
+);
+
+// Get Latest Books
+export const getLatestBooks = createAsyncThunk(
+  "book/getLatestBooks",
+  async (_, { rejectWithValue }) => {
+    console.log("Thunk fired: getLatestBooks");
+
+    try {
+      const response = await axiosInstance.get("/book/get/latest");
+      // TODO: REMOVE THIS COMMENT
+      console.log("latest Books:: ", response.data.data);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch latest books"
+      );
+    }
+  }
+);
+
+// get books for admin to manage it
+export const getBooksForAdmin = createAsyncThunk(
+  "book/getForAdmin",
+  async ({ token, currentPage }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        `/book/admin/getbooks?p=${currentPage}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // TODO: verify delete book response
+      console.log("GetBookBy book response::", response.data.data);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message);
+    }
+  }
+);
 const searchBook = createAsyncThunk();

@@ -38,7 +38,7 @@ const Navbar = () => {
     {
       id: 3,
       title: "Best Seller",
-      link: "/home/best-seller",
+      link: "/home/books/featured",
     },
   ];
   return (
@@ -58,15 +58,24 @@ const Navbar = () => {
           {/* Navigation Links - Hidden on mobile */}
           <div className="hidden md:flex ml-10">
             <div className="flex items-center space-x-8">
-              {navLinks.map((object) => (
-                <Link
-                  key={object.id}
-                  to={object.link}
-                  className="text-secondary hover:text-accent px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  {object.title}
-                </Link>
-              ))}
+              {navLinks.map((navlink) =>
+                navlink.title === "Categories" ? (
+                  <a
+                    href={navlink.link}
+                    className="text-secondary hover:text-accent px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    {navlink.title}
+                  </a>
+                ) : (
+                  <Link
+                    key={navlink.id}
+                    to={navlink.link}
+                    className="text-secondary hover:text-accent px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    {navlink.title}
+                  </Link>
+                )
+              )}
             </div>
           </div>
 
@@ -185,12 +194,12 @@ const Navbar = () => {
         <div className="md:hidden my-3">
           <div className="">
             <div className="flex items-center justify-evenly space-x-8">
-              {navLinks.map((object) => (
+              {navLinks.map((navlink) => (
                 <Link
-                  to={object.link}
+                  to={navlink.link}
                   className="text-secondary hover:text-accent px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
-                  {object.title}
+                  {navlink.title}
                 </Link>
               ))}
             </div>

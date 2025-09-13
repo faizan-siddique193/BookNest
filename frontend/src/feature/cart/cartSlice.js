@@ -54,6 +54,11 @@ const cartSlice = createSlice({
         }, 0);
       }
     },
+
+    // clear redux persist
+    clearCart: (state) => {
+      Object.assign(state, initialState);
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(addToCart.pending, (state) => {
@@ -133,5 +138,6 @@ export const {
   clearCartState,
   removeItemOptimistic,
   updateQuantityOptimistic,
+  clearCart,w
 } = cartSlice.actions;
 export default cartSlice.reducer;

@@ -65,6 +65,10 @@ const bookSchema = new Schema(
       type: Number,
       required: true,
     },
+    isFeatured: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
@@ -76,17 +80,19 @@ bookSchema.pre("validate", function (next) {
     this.slug = slugify(this.title, { lower: true, strict: true });
   }
 
-    // Ensure category matches enum exactly
+  // Ensure category matches enum exactly
   if (this.category) {
     this.category = this.category.toLowerCase(); // simple lowercase
-    if (![
-      "programming-languages",
-      "web-development",
-      "data-science-ai",
-      "cybersecurity-networking",
-      "cloud-devops",
-      "computer-science-fundamentals",
-    ].includes(this.category)) {
+    if (
+      ![
+        "programming-languages",
+        "web-development",
+        "data-science-ai",
+        "cybersecurity-networking",
+        "cloud-devops",
+        "computer-science-fundamentals",
+      ].includes(this.category)
+    ) {
       return next(new Error("Invalid category"));
     }
   }
@@ -97,6 +103,5 @@ bookSchema.pre("validate", function (next) {
 
   next();
 });
-
 
 export const Book = mongoose.model("Book", bookSchema);

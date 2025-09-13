@@ -70,7 +70,7 @@ const CartPage = () => {
           </p>
           <Link
             to="/home/books"
-            className="inline-flex items-center px-6 py-3 bg-accent text-white rounded-lg font-medium hover:bg-accent/90 transition-colors"
+            className="mt-6 inline-block px-6 py-3 bg-primary text-white rounded-xl shadow hover:bg-primary/90 transition"
           >
             Browse Books
           </Link>

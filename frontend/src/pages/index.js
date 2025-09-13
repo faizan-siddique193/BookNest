@@ -5,6 +5,8 @@ import DashboardOverview from "./admin/DashboardOverview";
 import EditBook from "./admin/EditBook";
 import BookListing from "./book/BookListing";
 import BooksByCategory from "./book/BooksByCategory";
+import FeaturedBooks from "./book/FeaturedBooks";
+import LatestBooks from "./book/LatestBooks";
 import WishlistPage from "./book/WishlistPage";
 import CheckoutPage from "./order/CheckoutPage";
 import OrderConfirmation from "./order/OrderConfirmation";
@@ -12,6 +14,8 @@ import SignUp from "./SignUp";
 import SignIn from "./SingIn";
 
 export {
+  LatestBooks,
+  FeaturedBooks,
   OrderConfirmation,
   CheckoutPage,
   WishlistPage,

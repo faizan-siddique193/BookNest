@@ -3,6 +3,7 @@ import React from "react";
 import Breadcrumb from "../../Component/book/booklisting/Breadcrumb";
 import BookGrid from "../../Component/book/booklisting/BookGrid";
 import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 const WishlistPage = () => {
   const { wishlist } = useSelector((state) => state.wishlist);
@@ -25,7 +26,7 @@ const WishlistPage = () => {
         {wishlist?.length > 0 ? (
           <BookGrid books={wishlist} viewMode="grid" />
         ) : (
-          <div className="flex flex-col items-center justify-center py-20 px-4 bg-white shadow-sm rounded-2xl">
+          <div className="flex flex-col items-center justify-center py-20 px-4  rounded-2xl">
             <div className="flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-6">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -53,12 +54,12 @@ const WishlistPage = () => {
               and save your favorites here!
             </p>
 
-            <a
-              href="/home/books"
+            <Link
+              to="/home/books"
               className="mt-6 inline-block px-6 py-3 bg-primary text-white rounded-xl shadow hover:bg-primary/90 transition"
             >
               Browse Books
-            </a>
+            </Link>
           </div>
         )}
       </main>

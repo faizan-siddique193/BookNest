@@ -16,6 +16,7 @@ const createBook = asyncHandler(async (req, res) => {
     averageRating,
     stock,
     publishYear,
+    isFeatured,
   } = req.body;
   if (
     [
@@ -29,6 +30,7 @@ const createBook = asyncHandler(async (req, res) => {
       averageRating,
       stock,
       publishYear,
+      isFeatured,
     ].some((field) =>
       typeof field === "string"
         ? field.trim() === ""
@@ -70,6 +72,7 @@ const createBook = asyncHandler(async (req, res) => {
     averageRating,
     stock,
     publishYear,
+    isFeatured,
   });
 
   if (!book) {
@@ -249,6 +252,84 @@ const getBooksByCategory = asyncHandler(async (req, res) => {
     )
   );
 });
+
+// get featured books
+const getFeaturedBooks = asyncHandler(async (req, res) => {
+  const featuredBooks = await Book.find({ isFeatured: true });
+
+  if (!featuredBooks) {
+    res.json(new ApiResponse(404, "Featured books are not available"));
+  }
+
+  res.json(
+    new ApiResponse(200, featuredBooks, "Featured books found successfully")
+  );
+});
+
+// get latest books
+const getLatestBooks = asyncHandler(async (req, res) => {
+  const days = parseInt(req.query.days) || 30; // default to last 30 days
+  const now = new Date();
+  const cutoffDate = new Date(now);
+  cutoffDate.setDate(cutoffDate.getDate() - days);
+
+  const latestBooks = await Book.find({
+    createdAt: { $gte: cutoffDate },
+  }).sort({ createdAt: -1 });
+
+  if (!latestBooks || latestBooks.length === 0) {
+    return res.json(new ApiResponse(404, "Books not found"));
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, latestBooks, "Latest books fetched successfully")
+    );
+});
+
+// get all books for admin
+
+const getAllBooksForAdmin = asyncHandler(async (req, res) => {
+  const { p } = req.query;
+  const page = parseInt(p) || 1;
+  const limit = 10;
+  const skip = (page - 1) * limit;
+  //check authorization for creation of book
+  const { uid } = req.user;
+
+  //   find user and check it role
+  const user = await User.findOne({ firebaseUserId: uid });
+
+  if (!user) {
+    throw new ApiError(404, "User was not found");
+  }
+
+  if (user.role !== "admin") {
+    throw new ApiError(401, "UnAuthorized user");
+  }
+
+  const books = await Book.find({}).skip(skip).limit(limit);
+  const totalBooks = await Book.countDocuments();
+  if (!books || books.length === 0) {
+    return res.status(404).json("No books found");
+  }
+
+  return res.json(
+    new ApiResponse(
+      200,
+      {
+        books,
+        totalPages: Math.ceil(totalBooks / limit),
+        currentPage: page,
+        hasNext: page * limit < totalBooks,
+        hasPrev: page > 1,
+      },
+      "Books found successfully"
+    )
+  );
+});
+
 export {
   createBook,
   updateBook,
@@ -257,4 +338,7 @@ export {
   getAllBooks,
   autocompleteSearch,
   getBooksByCategory,
+  getFeaturedBooks,
+  getLatestBooks,
+  getAllBooksForAdmin,
 };

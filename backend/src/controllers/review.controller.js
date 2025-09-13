@@ -5,9 +5,9 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { Review } from "../models/Review.js";
 import { Book } from "../models/Book.js";
 import { Order } from "../models/Order.js";
-// import { User } from "../models/User.js"; 
+// import { User } from "../models/User.js";
 
-// recompute book rating 
+// recompute book rating
 const recomputeBookRating = async (bookId) => {
   const stats = await Review.aggregate([
     { $match: { bookId: new mongoose.Types.ObjectId(bookId) } },
@@ -32,7 +32,7 @@ const recomputeBookRating = async (bookId) => {
 
 export const createReview = asyncHandler(async (req, res) => {
   const bookId = req.params.bookId;
-  const userUid = req.user.user_id; 
+  const userUid = req.user.user_id;
   const { rating, comment } = req.body;
 
   if (!rating || rating < 1 || rating > 5) {
@@ -76,7 +76,6 @@ export const createReview = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, review, "Review created successfully."));
 });
 
-
 // get book reviews
 export const getBookReviews = asyncHandler(async (req, res) => {
   const bookId = req.params.bookId;
@@ -114,7 +113,6 @@ export const getBookReviews = asyncHandler(async (req, res) => {
     )
   );
 });
-
 
 // get my reviews
 export const getMyReviews = asyncHandler(async (req, res) => {
@@ -159,7 +157,8 @@ export const updateReview = asyncHandler(async (req, res) => {
   }
 
   if (rating !== undefined) {
-    if (rating < 1 || rating > 5) throw new ApiError(400, "Rating must be between 1 and 5.");
+    if (rating < 1 || rating > 5)
+      throw new ApiError(400, "Rating must be between 1 and 5.");
     review.rating = rating;
   }
   if (comment !== undefined) review.comment = comment;

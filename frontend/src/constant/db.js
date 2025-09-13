@@ -14,3 +14,53 @@ export const categoriesOption = [
     name: "Computer Science Fundamentals",
   },
 ];
+
+export const footerExploreLinks = [
+  {
+    title: "Home",
+    path: "/home",
+  },
+  {
+    title: "Books",
+    path: "/home/books",
+  },
+  {
+    title: "Bestseller",
+    path: "/home/books/featured",
+  },
+  {
+    title: "New Releases",
+    path: "/home/books/latest",
+  },
+  {
+    title: "Categories",
+    path: "/",
+  },
+];
+
+export const footerSupportLinks =  [
+  {
+    title: "Contact us",
+    path: "#",
+  },
+  {
+    title: "FAQ",
+    path: "#",
+  },
+  {
+    title: "Shipping Policy",
+    path: "",
+  },
+  {
+    title: "Return Policy",
+    path: "",
+  },
+  {
+    title: "Privacy Policy",
+    path: "",
+  },
+  {
+    title: "Term of services",
+    path: "",
+  },
+];

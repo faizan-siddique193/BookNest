@@ -1,15 +1,16 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axiosInstance from "../../api/axiosInstance";
+import { axiosInstance } from "../../api/axiosInstance";
 
 // Create Order
 export const createOrder = createAsyncThunk(
   "order/create",
   async (data, { rejectWithValue }) => {
     try {
-        // TODO: REMOVE THIS COMMENT
+      // TODO: REMOVE THIS COMMENT
       console.log("Data fields in the create order action:: ", data);
 
       const response = await axiosInstance.post("/order/create", data);
+      console.log("Order response at order action:: ", response.data.data);
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -37,9 +38,13 @@ export const getMyOrders = createAsyncThunk(
 // Get Order By ID
 export const getOrderById = createAsyncThunk(
   "order/getOrderById",
-  async (orderId, { rejectWithValue }) => {
+  async ({ orderId, token }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get(`/order/get/${orderId}`);
+      const response = await axiosInstance.get(`/order/get/${orderId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
     } catch (error) {
       return rejectWithValue(

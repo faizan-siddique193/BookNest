@@ -1,45 +1,29 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Book, Plus, Search, Loader2, Loader } from "lucide-react";
-import { motion } from "framer-motion";
-import { useDispatch } from "react-redux";
-import { getBooks } from "../../feature/book/bookAction";
+import { Book, Plus, Loader2 } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getBooks,
+  deleteBook,
+  getBooksForAdmin,
+} from "../../feature/book/bookAction";
 import { toast } from "react-toastify";
-import { clearBookState } from "../../feature/book/bookSlice";
-import { AdminDataTable, Pagination } from "../../Component/index";
+import {
+  AdminDataTable,
+  BookTableSkeleton,
+  Pagination,
+} from "../../Component/index";
 import { auth } from "../../config/firebase";
 import { getIdToken, onAuthStateChanged } from "firebase/auth";
 import Swal from "sweetalert2";
-import { deleteBook } from "../../feature/book/bookAction";
+
 const BookManagement = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [books, setBooks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const dispatch = useDispatch();
-  const [totalPages, setTotalPages] = useState(1);
-  const [currentPage, setCurrentPage] = useState(1);
   const [token, setToken] = useState("");
+  const dispatch = useDispatch();
 
-  // fetch books
-  let fetchBooks;
-  useEffect(() => {
-    fetchBooks = async () => {
-      try {
-        const booksFromStore = await dispatch(
-          getBooks({ currentPage })
-        ).unwrap();
-        setBooks(booksFromStore.data.books || []);
-        setTotalPages(booksFromStore.data.totalPages);
-        dispatch(clearBookState());
-      } catch (error) {
-        toast.error(error?.message || "Failed to load books");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBooks();
-  }, [dispatch, currentPage]);
+  const { adminBooks, currentPage, totalPages, loading } = useSelector(
+    (state) => state.book
+  );
 
   // Get current user token
   useEffect(() => {
@@ -52,41 +36,48 @@ const BookManagement = () => {
     return unsubscribe;
   }, []);
 
-  // memoerize a set current page function
-  const handlePageChange = useCallback((page) => {
-    setCurrentPage(page);
-  }, []);
+  // fetch books
+  const fetchBooks = useCallback(async () => {
+    try {
+      await dispatch(getBooksForAdmin({ token, currentPage })).unwrap();
+    } catch (error) {
+      toast.error("Something went wrong while fetching books");
+    }
+  }, [dispatch, currentPage]);
+
+  useEffect(() => {
+    fetchBooks();
+  }, [fetchBooks]);
 
   // delete a book
-  const handleDelete = useCallback((slug) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await dispatch(deleteBook({ token, slug })).unwrap();
-          Swal.fire({
-            title: "Deleted!",
-            text: "Your file has been deleted.",
-            icon: "success",
-          });
-          fetchBooks();
-        } catch (error) {
-          Swal.fire(
-            "Error",
-            error?.message || "Failed to delete book",
-            "error"
-          );
+  const handleDelete = useCallback(
+    (slug) => {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            await dispatch(deleteBook({ token, slug })).unwrap();
+            Swal.fire("Deleted!", "Your book has been deleted.", "success");
+            fetchBooks();
+          } catch (error) {
+            Swal.fire(
+              "Error",
+              error?.message || "Failed to delete book",
+              "error"
+            );
+          }
         }
-      }
-    });
-  }, []);
+      });
+    },
+    [dispatch, token, fetchBooks]
+  );
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6">
@@ -111,15 +102,18 @@ const BookManagement = () => {
       {/* main content */}
       {!loading ? (
         <>
-          <AdminDataTable books={books} handleBookDelete={handleDelete} />
+          <AdminDataTable books={adminBooks} handleBookDelete={handleDelete} />
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            onPageChange={handlePageChange}
+            onPageChange={(page) => {
+              // if you need to trigger page change from Redux
+              dispatch(getBooks({ page }));
+            }}
           />
         </>
       ) : (
-        <Loader2 className="animate-spin m-auto text-accent" />
+        <BookTableSkeleton />
       )}
     </div>
   );
