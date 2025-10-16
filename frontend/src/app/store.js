@@ -6,6 +6,7 @@ import authReducer from "../feature/auth/authSlice";
 import bookReducer from "../feature/book/bookSlice";
 import cartReducer from "../feature/cart/cartSlice";
 import wishlistReducer from "../feature/wishlist/wishlistSlice";
+import paymentReducer from "../feature/payment/paymentSlice";
 import orderRedcuer from "../feature/order/orderSlice";
 
 const persistConfig = {
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
   cart: cartReducer,
   wishlist: wishlistReducer,
   order: orderRedcuer,
+  payment: paymentReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

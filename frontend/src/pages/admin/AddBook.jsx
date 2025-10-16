@@ -82,6 +82,7 @@ const AddBook = () => {
       image: "",
       stock: "",
       publishYear: "",
+      isFeatured: false,
     },
   });
 
@@ -280,6 +281,18 @@ const AddBook = () => {
           {errors.image && (
             <span className="text-red-600 text-xs">{errors.image.message}</span>
           )}
+          {/* Is Featured */}
+          <div className="flex items-center gap-3">
+            <input
+              id="isFeatured"
+              type="checkbox"
+              {...register("isFeatured")}
+              className="h-4 w-4 text-accent border-gray-300 "
+            />
+            <label htmlFor="isFeatured" className="text-sm text-[#2D2D2D]">
+              Mark as Featured
+            </label>
+          </div>
 
           {/* Submit */}
           <button

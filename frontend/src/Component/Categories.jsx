@@ -57,7 +57,7 @@ const bookCategories = [
 
 const Categories = () => {
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8 bg-background">
+    <section id="category" className="py-16 px-4 sm:px-6 lg:px-8 bg-background">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-12">

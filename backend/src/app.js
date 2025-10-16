@@ -1,5 +1,4 @@
 import express from "express";
-morgan;
 import cors from "cors";
 import userRouter from "./routes/user.route.js";
 import bookRouter from "./routes/book.route.js";
@@ -9,6 +8,7 @@ import morgan from "morgan";
 import whishListRouter from "./routes/wishlist.route.js";
 import orderRouter from "./routes/order.route.js";
 import reviewRouter from "./routes/review.route.js";
+import paymentRouter from "./routes/payment.route.js";
 const app = express();
 app.use(
   cors({
@@ -19,6 +19,8 @@ app.use(
 
 // get logs of api
 const morganFormat = ":method :url :status :response-time ms";
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
@@ -44,6 +46,6 @@ app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/wishlist", whishListRouter);
 app.use("/api/v1/order", orderRouter);
 app.use("/api/v1/review", reviewRouter);
-
+app.use("/api/v1/payment", paymentRouter);
 // http://localhost:5000/api/v1/books
 export default app;

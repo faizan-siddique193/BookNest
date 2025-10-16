@@ -1,63 +1,76 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  ArrowLeft,
-  CreditCard,
-  Truck,
-  Wallet,
-  CheckCircle,
-  MapPin,
-  User,
-  Mail,
-  Phone,
-  Loader2,
-} from "lucide-react";
+import { Wallet, CheckCircle, Loader2 } from "lucide-react";
 import {
   Breadcrumb,
   OrderSummary,
-  PaymentForm,
   ShippingForm,
   PaymentMethod,
 } from "../../Component/index";
 import { useDispatch, useSelector } from "react-redux";
 import { createOrder } from "../../feature/order/orderAction";
+import { startStripePayment } from "../../feature/payment/paymentAction";
 import { toast } from "react-toastify";
-import { getCartItem } from "../../feature/cart/cartAction";
 import { clearCart } from "../../feature/cart/cartSlice";
 
 const CheckoutPage = () => {
   const [activeStep, setActiveStep] = useState("shipping");
   const [paymentMethod, setPaymentMethod] = useState("stripe");
-  const [orderSuccess, setOrderSuccess] = useState(false);
   const [shippingFormData, setShippingFormData] = useState(null);
-
-  // TODO: shipping form data
-  console.log("Shipping Form Data:: ", shippingFormData);
-  console.log("Payment Method:: ", paymentMethod);
+  const [orderSuccess, setOrderSuccess] = useState(false);
 
   const { loading } = useSelector((state) => state.order);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // place order
   const handlePlaceOrder = async () => {
     if (!shippingFormData) {
       toast.error("Please fill out the shipping form.");
       return;
     }
+
     try {
-      const response = await dispatch(
+      // Step 1: Create order on backend
+      const orderResponse = await dispatch(
         createOrder({ ...shippingFormData, paymentMethod })
       ).unwrap();
 
-      // TODO: delete this after debugging
-      console.log("Order Response in the checkoutpage:: ", response);
+      const orderId = orderResponse.data._id;
 
-      navigate(`/home/order-confirmation/${response.data._id}`);
-      dispatch(clearCart());
-      localStorage.removeItem("persist:cart");
-      setOrderSuccess(true);
+      // Step 2: Handle cash order
+      if (paymentMethod === "cash") {
+        navigate(`/home/order-confirmation/${orderId}`);
+        dispatch(clearCart());
+        localStorage.removeItem("persist:cart");
+        setOrderSuccess(true);
+        return;
+      }
+
+      // Step 3: Handle Stripe payment
+      if (paymentMethod === "stripe") {
+        const response = await dispatch(
+          startStripePayment({ orderId })
+        ).unwrap();
+
+        // clear cart
+        dispatch(clearCart());
+        localStorage.removeItem("persist:cart");
+
+        console.log("Stripe checkout response:", response);
+
+        //  Access the url from response.data
+        if (!response.data?.url) {
+          toast.error("Stripe session creation failed");
+          return;
+        }
+
+        //  Redirect to Stripe checkout
+        window.location.href = response.data.url;
+        // navigate(response.data.url);
+      }
     } catch (error) {
-      toast.error("Something went wrong. Please try again");
+      toast.error(error || "something went wrong while placing an order");
     }
   };
 
@@ -73,35 +86,6 @@ const CheckoutPage = () => {
             Thank you for your purchase. Your order has been received and is
             being processed.
           </p>
-          <div className="bg-gray-50 rounded-lg p-6 mb-6 text-left">
-            <h3 className="font-medium text-primary mb-3">Order Summary</h3>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-muted">Order Number:</span>
-                <span className="font-medium text-primary">
-                  #ORD-{Math.floor(Math.random() * 10000)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted">Date:</span>
-                <span className="font-medium text-primary">
-                  {new Date().toLocaleDateString()}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted">Total:</span>
-                {/*  <span className="font-bold text-success">
-                  ${total.toFixed(2)}
-                </span> */}
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted">Payment Method:</span>
-                <span className="font-medium text-primary capitalize">
-                  {paymentMethod.replace("-", " ")}
-                </span>
-              </div>
-            </div>
-          </div>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link
               to="/home/books"
@@ -109,12 +93,12 @@ const CheckoutPage = () => {
             >
               Continue Shopping
             </Link>
-            <Link
+            {/* <Link
               to="/orders"
               className="px-6 py-3 border border-primary text-primary rounded-lg font-medium hover:bg-primary/10 transition-colors"
             >
               View Order Details
-            </Link>
+            </Link> */}
           </div>
         </div>
       </div>
@@ -124,7 +108,6 @@ const CheckoutPage = () => {
   return (
     <div className="bg-background min-h-screen py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Navigation Back */}
         <Breadcrumb
           items={[
             { label: "Home", path: "/home" },
@@ -134,16 +117,14 @@ const CheckoutPage = () => {
           ]}
         />
 
-        {/* Page Heading */}
         <h1 className="text-3xl font-bold text-primary mb-8 flex items-center mt-5">
           <Wallet className="h-8 w-8 mr-3" />
           Checkout & Payment
         </h1>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Main Checkout Form */}
+          {/* Left Side */}
           <div className="lg:w-2/3">
-            {/* Progress Steps */}
             <div className="flex mb-8">
               <button
                 className={`flex-1 py-4 font-medium border-b-2 transition-colors ${
@@ -162,13 +143,12 @@ const CheckoutPage = () => {
                     : "border-gray-200 text-muted"
                 }`}
                 onClick={() => setActiveStep("payment")}
-                disabled={activeStep !== "payment"}
+                disabled={!shippingFormData}
               >
                 Payment
               </button>
             </div>
 
-            {/* Shipping Form */}
             {activeStep === "shipping" && (
               <ShippingForm
                 setShippingFormData={setShippingFormData}
@@ -176,7 +156,6 @@ const CheckoutPage = () => {
               />
             )}
 
-            {/* Payment Form */}
             {activeStep === "payment" && (
               <div>
                 <PaymentMethod
@@ -188,25 +167,24 @@ const CheckoutPage = () => {
                   <button
                     disabled={loading}
                     type="submit"
-                    className="px-6 py-3 bg-accent text-white rounded-lg font-medium hover:bg-accent/90 transition-colors"
+                    className="px-6 py-3 bg-accent text-white rounded-lg font-medium hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={handlePlaceOrder}
                   >
                     {loading ? (
-                      <Loader2
-                        size={25}
-                        className="text-white h-5 w-5 animate-spin"
-                      />
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-5 w-5 text-white animate-spin" />
+                        <span>Processing...</span>
+                      </div>
                     ) : (
                       "Place Order"
                     )}
                   </button>
                 </div>
-                <PaymentForm />{" "}
               </div>
             )}
           </div>
 
-          {/* Order Summary */}
+          {/* Right Side - Order Summary */}
           <OrderSummary />
         </div>
       </div>

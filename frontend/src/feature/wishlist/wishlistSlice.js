@@ -21,7 +21,24 @@ const wishlistSlice = createSlice({
       state.success = false;
       state.error = null;
     },
+
+    addWishlistOptimistic: (state, action) => {
+      const book = action.payload; // should be the complete book object
+
+      const exists = state.wishlist.find((item) => item._id === book._id);
+
+      if (!exists) {
+        state.wishlist.push(book);
+      }
+    },
+
+    removeWishlistOptimistic: (state, action) => {
+      const bookId = action.payload;
+
+      state.wishlist = state.wishlist.filter((b) => b._id !== bookId);
+    },
   },
+
   extraReducers: (builder) => {
     builder
       // add
@@ -65,5 +82,9 @@ const wishlistSlice = createSlice({
   },
 });
 
-export const { clearWishlistState } = wishlistSlice.actions;
+export const {
+  clearWishlistState,
+  addWishlistOptimistic,
+  removeWishlistOptimistic,
+} = wishlistSlice.actions;
 export default wishlistSlice.reducer;

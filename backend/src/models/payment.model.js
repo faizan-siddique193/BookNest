@@ -27,8 +27,8 @@ const paymentSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "succeeded", "failed"],
-      default: "pending",
+      enum: ["PENDING", "COMPLETED", "FAILED"],
+      default: "PENDING",
       index: true,
     },
     transactionId: {
@@ -37,11 +37,11 @@ const paymentSchema = new Schema(
       sparse: true, // allow null duplicates
       index: true,
     },
-    // Useful to store gateway responses or verification payloads
-    providerMeta: {
-      type: Schema.Types.Mixed,
-      default: {},
-    },
+    // // Useful to store gateway responses or verification payloads
+    // providerMeta: {
+    //   type: Schema.Types.Mixed,
+    //   default: {},
+    // },
   },
   { timestamps: true }
 );

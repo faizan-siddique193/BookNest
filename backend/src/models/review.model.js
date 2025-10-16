@@ -3,19 +3,21 @@ import mongoose, { Schema } from "mongoose";
 const reviewSchema = new Schema(
   {
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      type: String,
       required: true,
+      index: true,
     },
     bookId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Book",
       required: true,
+      index: true,
     },
     rating: {
       type: Number,
       min: 1,
       max: 5,
+      index: true,
     },
     comment: {
       type: String,
@@ -27,4 +29,3 @@ const reviewSchema = new Schema(
 );
 
 export const Review = mongoose.model("Review", reviewSchema);
-

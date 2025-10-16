@@ -55,7 +55,9 @@ const LatestBooks = () => {
 
         {/* Books Grid */}
         <div>
-          <BookGrid books={latestBooks.slice(0, 5)} />
+          <BookGrid
+            books={Array.isArray(latestBooks) ? latestBooks.slice(0, 5) : []}
+          />
         </div>
 
         {/* Mobile View All Button */}

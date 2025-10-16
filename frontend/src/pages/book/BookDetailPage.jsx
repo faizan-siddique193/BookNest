@@ -19,17 +19,53 @@ import {
   BookDescription,
   Breadcrumb,
 } from "../../Component/index";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getBookById } from "../../feature/book/bookAction";
 import { toast } from "react-toastify";
-import { addToCart } from "../../feature/cart/cartAction";
+import {
+  addToCart,
+  updateCartItemQuantity,
+} from "../../feature/cart/cartAction";
+import { updateQuantityOptimistic } from "../../feature/cart/cartSlice";
+import {
+  addToWishList,
+  deleteWishlistItem,
+  getWishlistItem,
+} from "../../feature/wishlist/wishlistAction";
+import {
+  addWishlistOptimistic,
+  removeWishlistOptimistic,
+} from "../../feature/wishlist/wishlistSlice";
 
 const BookDetailPage = () => {
   const [activeTab, setActiveTab] = useState("description");
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(0);
   const [book, setBook] = useState(null);
   const { slug } = useParams();
   const dispatch = useDispatch();
+
+  // add to wishlist
+  const { wishlist } = useSelector((state) => state.wishlist);
+
+  // Check if book is in wishlist
+  const isInWishlist = (bookId) =>
+    wishlist?.some((item) => String(item._id) === String(bookId));
+
+  // Toggle wishlist item
+  const handleWishlistItem = async (book) => {
+    try {
+      if (isInWishlist(book._id)) {
+        dispatch(removeWishlistOptimistic(book._id));
+        await dispatch(deleteWishlistItem({ bookId: book._id })).unwrap();
+      } else {
+        dispatch(addWishlistOptimistic(book));
+        await dispatch(addToWishList({ bookId: book._id })).unwrap();
+      }
+      dispatch(getWishlistItem());
+    } catch (error) {
+      toast.error("Something went wrong while adding to wishlist");
+    }
+  };
 
   // fetch book by id
   useEffect(() => {
@@ -80,7 +116,7 @@ const BookDetailPage = () => {
     },
   ]);
 
-  const handleSubmitReview = (e) => {
+  /*  const handleSubmitReview = (e) => {
     e.preventDefault();
     const newReview = {
       id: reviews.length + 1,
@@ -92,14 +128,7 @@ const BookDetailPage = () => {
     setReviews([...reviews, newReview]);
     setReview({ rating: 5, comment: "", name: "" });
   };
-
-  const handleQuantityChange = (type) => {
-    if (type === "increment") {
-      setQuantity(quantity + 1);
-    } else if (type === "decrement" && quantity > 1) {
-      setQuantity(quantity - 1);
-    }
-  };
+ */
 
   return (
     <div className="bg-background min-h-screen">
@@ -116,28 +145,25 @@ const BookDetailPage = () => {
 
       {/* Main Book Display */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row justify-center gap-8">
           {/* Left Column - Book Cover */}
-          <div className="lg:w-2/5">
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-              <div className="group relative overflow-hidden rounded-lg aspect-[2/3] bg-gray-50">
-                <img
-                  src={book?.image}
-                  alt={book?.title}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-              </div>
-            </div>
+          <div className="grow-[6]">
+            <img
+              src={book?.image}
+              alt={book?.title}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 rounded-xl"
+            />
           </div>
 
           {/* Right Column - Book Info */}
-          <div className="lg:w-3/5">
+          <div className="grow-[10]">
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
               <h1 className="text-3xl font-bold text-primary mb-2">
                 {book?.title}
               </h1>
               <p className="text-lg text-muted mb-4">by {book?.author}</p>
 
+              {/* book average rating */}
               <div className="flex items-center mb-6">
                 <div className="flex mr-3">
                   {[1, 2, 3, 4, 5].map((star) => (
@@ -154,25 +180,13 @@ const BookDetailPage = () => {
                 <span className="text-primary font-medium">
                   {book?.averageRating.toFixed(1)}
                 </span>
-                {/* TODO: <span className="mx-2 text-muted">•</span>
-                <Link
-                  to="#reviews"
-                  className="text-accent hover:text-primary transition-colors"
-                >
-                  {reviews.length} reviews
-                </Link> */}
+                <span className="mx-2 text-muted">•</span>
               </div>
 
               <div className="flex items-center mb-6">
                 <span className="text-lg font-bold text-primary mr-3">
-                  ${book?.discountPrice?.toFixed(2) || book?.price.toFixed(2)}
+                  ${book?.price.toFixed(2)}
                 </span>
-                {/* TODO: book discount */}
-                {/* {book.discountPrice && (
-                  <span className="text-muted line-through">
-                    ${book?.price.toFixed(2)}
-                  </span>
-                )} */}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -193,28 +207,10 @@ const BookDetailPage = () => {
                   </p>
                 </div>
               </div>
-              {/* Delete this comment */}
-              {/* <p className="text-primary mb-8 ">{book?.description}</p> */}
 
+              {/* udate book qunatity */}
               <div className="flex flex-wrap items-center gap-4 mb-8">
-                <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
-                  <button
-                    className="p-2 text-primary hover:bg-gray-50"
-                    onClick={() => handleQuantityChange("decrement")}
-                  >
-                    <Minus className="h-4 w-4" />
-                  </button>
-                  <span className="px-3 py-1 text-primary font-medium">
-                    {quantity}
-                  </span>
-                  <button
-                    className="p-2 text-primary hover:bg-gray-50"
-                    onClick={() => handleQuantityChange("increment")}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </button>
-                </div>
-
+                {/* add to cart  */}
                 <button
                   className={`flex-1 py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center ${
                     book?.stock > 0
@@ -222,22 +218,26 @@ const BookDetailPage = () => {
                       : "bg-gray-200 text-muted cursor-not-allowed"
                   }`}
                   disabled={book?.stock <= 0}
-                  onClick={handleAddToCart(book?._id)}
+                  onClick={() => handleAddToCart(book._id)}
                 >
                   <ShoppingCart className="h-5 w-5 mr-2" />
                   Add to Cart
                 </button>
 
-                <button className="p-3 border border-gray-300 rounded-lg hover:bg-gray-50">
-                  <Heart className="h-5 w-5 text-muted" />
+                {/* Add/Delete Wishlist */}
+                <button
+                  className="p-2 border border-gray-300 rounded hover:bg-gray-50"
+                  onClick={() => handleWishlistItem(book)}
+                >
+                  <Heart
+                    className={`h-4 w-4 transition-colors ${
+                      isInWishlist(book?._id)
+                        ? "fill-red-600 text-red-600"
+                        : "text-gray-500"
+                    }`}
+                  />
                 </button>
               </div>
-
-              {/* TODO:  <div className="border-t border-gray-200 pt-4">
-                <p className="text-sm text-muted">
-                  ISBN: 978-3-16-148410-0 | Pages: 218 | Publisher: Scribner
-                </p>
-              </div> */}
             </div>
           </div>
         </div>
@@ -268,7 +268,7 @@ const BookDetailPage = () => {
               >
                 About the Author
               </button> */}
-              <button
+              {/* <button
                 className={`py-4 px-6 font-medium text-sm transition-colors ${
                   activeTab === "reviews"
                     ? "text-accent border-b-2 border-accent"
@@ -278,7 +278,7 @@ const BookDetailPage = () => {
                 id="reviews"
               >
                 Reviews ({reviews.length})
-              </button>
+              </button> */}
             </nav>
           </div>
 

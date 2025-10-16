@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Breadcrumb, Pagination } from "../../Component/index";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getBooksByCategory } from "../../feature/book/bookAction";
 import { toast } from "react-toastify";
 import BookGrid from "../../Component/book/booklisting/BookGrid";
@@ -15,7 +15,7 @@ const BooksByCategory = () => {
 
   //   get category from url
   const { category } = useParams();
-
+  // const {} = useSelector((state)=>state.book)
   // fetch books by category
   useEffect(() => {
     const fetchBooksByCategory = async () => {

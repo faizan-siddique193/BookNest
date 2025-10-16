@@ -138,6 +138,6 @@ export const {
   clearCartState,
   removeItemOptimistic,
   updateQuantityOptimistic,
-  clearCart,w
+  clearCart,
 } = cartSlice.actions;
 export default cartSlice.reducer;

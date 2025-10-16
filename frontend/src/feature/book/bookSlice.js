@@ -16,6 +16,9 @@ const initialState = {
   adminBooks: [],
   featuredBooks: [],
   latestBooks: [],
+  searchItem: "",
+  category: "all",
+  priceRange: [0, 100],
   totalPages: 1,
   currentPage: 1,
   loading: false,
@@ -30,6 +33,39 @@ const bookSlice = createSlice({
     clearBookState: (state) => {
       state.loading = false;
       state.success = false;
+    },
+
+    // ✅ Update search/filter-related states
+    setSearchItem: (state, action) => {
+      state.searchItem = action.payload;
+    },
+    setCategory: (state, action) => {
+      state.category = action.payload;
+    },
+    setPriceRange: (state, action) => {
+      state.priceRange = action.payload;
+    },
+    clearFilters: (state) => {
+      state.searchItem = "";
+      state.category = "all";
+      state.priceRange = [0, 100];
+    },
+
+    // (other reducers you already have, like fetching books)
+    // Example:
+    setBooksLoading: (state) => {
+      state.loading = true;
+    },
+    setBooksSuccess: (state, action) => {
+      state.loading = false;
+      state.success = true;
+      state.error = null;
+      state.userBooks = action.payload;
+    },
+    setBooksError: (state, action) => {
+      state.loading = false;
+      state.success = false;
+      state.error = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -63,7 +99,7 @@ const bookSlice = createSlice({
     builder.addCase(updateBook.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload;
-      state.success = true;
+      state.success = false;
     });
 
     // delete book
@@ -93,7 +129,7 @@ const bookSlice = createSlice({
     builder.addCase(getBookById.fulfilled, (state, action) => {
       state.loading = false;
       state.success = true;
-      state.books = action.payload.data.book;
+      state.book = action.payload.data.book;
       state.error = null;
     });
     builder.addCase(getBookById.rejected, (state, action) => {
@@ -131,7 +167,9 @@ const bookSlice = createSlice({
     builder.addCase(getBooksByCategory.fulfilled, (state, action) => {
       state.loading = false;
       state.success = true;
-      state.userBooks = action.payload;
+      state.userBooks = action.payload.data.books;
+      state.currentPage = action.payload.data.currentPage;
+      state.totalPages = action.payload.data.totalPages;
       state.error = null;
     });
 
@@ -193,5 +231,14 @@ const bookSlice = createSlice({
   },
 });
 
-export const { clearBookState } = bookSlice.actions;
+export const {
+  clearBookState,
+  setSearchItem,
+  setCategory,
+  setPriceRange,
+  clearFilters,
+  setBooksLoading,
+  setBooksSuccess,
+  setBooksError,
+} = bookSlice.actions;
 export default bookSlice.reducer;

@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+// order item schema 
 const orderItemSchema = new Schema(
   {
     bookId: {
@@ -12,6 +13,7 @@ const orderItemSchema = new Schema(
   { _id: false }
 );
 
+// shipping address schema
 const shippingAddressSchema = new Schema({
   fullName: {
     type: String,
@@ -59,7 +61,7 @@ const orderSchema = new Schema(
     totalAmount: { type: Number, required: true },
     status: {
       type: String,
-      enum: ["PENDING", "COMPLETED", "CANCELLED "],
+      enum: ["PENDING", "COMPLETED", "CANCELLED"],
       default: "PENDING",
     },
     paymentMethod: {
@@ -68,7 +70,6 @@ const orderSchema = new Schema(
       required: true,
       index: true,
     },
-
     payment: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Payment",

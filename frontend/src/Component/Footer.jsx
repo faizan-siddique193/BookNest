@@ -55,28 +55,9 @@ const Footer = () => {
             </h3>
             <ul className="space-y-3">
               {footerExploreLinks.map((item, index) => (
-              <li key={index}>
-                <Link
-                  to={item?.path}
-                  className="text-gray-300 hover:text-accent transition-colors"
-                >
-                  {item?.title}
-                </Link>
-              </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Customer Service */}
-          <div>
-            <h3 className="font-bold text-lg mb-5 border-b border-gray-700 pb-2">
-              Support
-            </h3>
-            <ul className="space-y-3">
-              {footerSupportLinks.map((item, index) => (
                 <li key={index}>
                   <Link
-                    to={item?.path || ""}
+                    to={item?.path}
                     className="text-gray-300 hover:text-accent transition-colors"
                   >
                     {item?.title}
@@ -85,7 +66,6 @@ const Footer = () => {
               ))}
             </ul>
           </div>
-
           {/* Contact Info */}
           <div>
             <h3 className="font-bold text-lg mb-5 border-b border-gray-700 pb-2">
@@ -107,30 +87,30 @@ const Footer = () => {
                 <span className="text-gray-300">support@booknest.com</span>
               </li>
             </ul>
+          </div>
 
-            {/* Social Media */}
-            <div className="mt-6">
-              <h4 className="font-medium mb-3">Follow Us</h4>
-              <div className="flex space-x-4">
-                {[
-                  { icon: <Facebook className="h-5 w-5" />, label: "Facebook" },
-                  { icon: <Twitter className="h-5 w-5" />, label: "Twitter" },
-                  {
-                    icon: <Instagram className="h-5 w-5" />,
-                    label: "Instagram",
-                  },
-                  { icon: <Linkedin className="h-5 w-5" />, label: "LinkedIn" },
-                ].map((social, index) => (
-                  <a
-                    key={index}
-                    href="#"
-                    className="bg-primary-light hover:bg-accent p-2 rounded-full transition-colors"
-                    aria-label={social.label}
-                  >
-                    {social.icon}
-                  </a>
-                ))}
-              </div>
+          {/* Social Media */}
+          <div>
+            <h1 className="font-bold text-lg mb-3">Follow Us</h1>
+            <div className="flex space-x-4">
+              {[
+                { icon: <Facebook className="h-5 w-5" />, label: "Facebook" },
+                { icon: <Twitter className="h-5 w-5" />, label: "Twitter" },
+                {
+                  icon: <Instagram className="h-5 w-5" />,
+                  label: "Instagram",
+                },
+                { icon: <Linkedin className="h-5 w-5" />, label: "LinkedIn" },
+              ].map((social, index) => (
+                <a
+                  key={index}
+                  href="#"
+                  className="bg-primary-light hover:bg-accent p-2 rounded-full transition-colors"
+                  aria-label={social.label}
+                >
+                  {social.icon}
+                </a>
+              ))}
             </div>
           </div>
         </div>
@@ -158,42 +138,6 @@ const Footer = () => {
           </div>
         </div>
       </div>
-
-      {/* Payment Methods */}
-      <div className="bg-primary-dark py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <span className="text-gray-400 mr-4">We accept:</span>
-              <div className="inline-flex space-x-3">
-                {["visa", "mastercard", "amex", "paypal", "applepay"].map(
-                  (method) => (
-                    <div
-                      key={method}
-                      className="bg-white w-12 h-8 rounded-md flex items-center justify-center"
-                    >
-                      <div className="bg-gray-200 border-2 border-dashed rounded-xl w-8 h-5" />
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
-
-            <div className="flex space-x-6">
-              <Link to="#" className="text-gray-400 hover:text-accent text-sm">
-                Privacy Policy
-              </Link>
-              <Link to="#" className="text-gray-400 hover:text-accent text-sm">
-                Terms of Service
-              </Link>
-              <Link to="#" className="text-gray-400 hover:text-accent text-sm">
-                Cookie Policy
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* Copyright */}
       <div className="bg-primary-darker py-4 text-center">
         <p className="text-gray-500 text-sm">

@@ -9,6 +9,10 @@ import {
 } from "../../../feature/wishlist/wishlistAction";
 import { addToCart } from "../../../feature/cart/cartAction";
 import { toast } from "react-toastify";
+import {
+  addWishlistOptimistic,
+  removeWishlistOptimistic,
+} from "../../../feature/wishlist/wishlistSlice";
 
 const BookCard = ({ book }) => {
   const dispatch = useDispatch();
@@ -19,13 +23,19 @@ const BookCard = ({ book }) => {
     wishlist?.some((item) => String(item._id) === String(bookId));
 
   // Toggle wishlist item
-  const handleWishlistItem = async (bookId) => {
-    if (isInWishlist(bookId)) {
-      await dispatch(deleteWishlistItem({ bookId }));
-    } else {
-      await dispatch(addToWishList({ bookId }));
+  const handleWishlistItem = async (book) => {
+    try {
+      if (isInWishlist(book._id)) {
+        dispatch(removeWishlistOptimistic(book._id));
+        await dispatch(deleteWishlistItem({ bookId: book._id })).unwrap();
+      } else {
+        dispatch(addWishlistOptimistic(book));
+        await dispatch(addToWishList({ bookId: book._id })).unwrap();
+      }
+      dispatch(getWishlistItem());
+    } catch (error) {
+      toast.error("Something went wrong while adding to wishlist");
     }
-    dispatch(getWishlistItem());
   };
 
   // Add to cart function
@@ -55,7 +65,8 @@ const BookCard = ({ book }) => {
             className="w-full h-full object-cover transition-transform hover:scale-105"
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = "https://via.placeholder.com/200x300?text=No+Image";
+              e.target.src =
+                "https://via.placeholder.com/200x300?text=No+Image";
             }}
           />
         </div>
@@ -70,7 +81,9 @@ const BookCard = ({ book }) => {
 
         {/* Author */}
         {book.author && (
-          <p className="text-xs text-gray-500 mb-2 line-clamp-1">{book.author}</p>
+          <p className="text-xs text-gray-500 mb-2 line-clamp-1">
+            {book.author}
+          </p>
         )}
 
         {/* Ratings */}
@@ -134,7 +147,7 @@ const BookCard = ({ book }) => {
           {/* Add/Delete Wishlist */}
           <button
             className="p-2 border border-gray-300 rounded hover:bg-gray-50"
-            onClick={() => handleWishlistItem(book._id)}
+            onClick={() => handleWishlistItem(book)}
           >
             <Heart
               className={`h-4 w-4 transition-colors ${

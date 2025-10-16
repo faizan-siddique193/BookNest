@@ -1,89 +1,67 @@
 import mongoose from "mongoose";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/AsyncHandler.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
-import { Review } from "../models/Review.js";
-import { Book } from "../models/Book.js";
-import { Order } from "../models/Order.js";
-// import { User } from "../models/User.js";
+import { Book } from "../models/book.model.js";
+import { ApiResponse } from "../utils/ApiRespone.js";
+import { Review } from "../models/review.model.js";
 
-// recompute book rating
-const recomputeBookRating = async (bookId) => {
-  const stats = await Review.aggregate([
-    { $match: { bookId: new mongoose.Types.ObjectId(bookId) } },
-    {
-      $group: {
-        _id: "$bookId",
-        avg: { $avg: "$rating" },
-        count: { $sum: 1 },
-      },
-    },
-  ]);
+// Validation helper
+const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
-  const averageRating = stats.length ? Number(stats[0].avg.toFixed(2)) : 0;
-  const reviewsCount = stats.length ? stats[0].count : 0;
-
-  await Book.findByIdAndUpdate(
-    bookId,
-    { averageRating, reviewsCount },
-    { new: true }
-  );
-};
-
-export const createReview = asyncHandler(async (req, res) => {
-  const bookId = req.params.bookId;
-  const userUid = req.user.user_id;
+// Create a review
+const createReview = asyncHandler(async (req, res) => {
+  const { bookId } = req.params;
+  const userId = req.user.user_id;
   const { rating, comment } = req.body;
 
-  if (!rating || rating < 1 || rating > 5) {
-    throw new ApiError(400, "Rating must be between 1 and 5.");
+  // Validate inputs
+  if (!isValidObjectId(bookId)) {
+    throw new ApiError(400, "Invalid book ID.");
   }
 
-  // Ensure book exists
+  if (!rating || typeof rating !== "number" || rating < 1 || rating > 5) {
+    throw new ApiError(400, "Rating must be a number between 1 and 5.");
+  }
+
+  // Sanitize comment
+  const sanitizedComment = comment ? String(comment).trim().slice(0, 1000) : "";
+
+  // Check if book exists
   const book = await Book.findById(bookId).select("_id");
   if (!book) throw new ApiError(404, "Book not found.");
 
-  // (Optional) Only allow users who purchased the book to review it
-  const PURCHASED_ONLY = false; // set to true if you want this policy
-  if (PURCHASED_ONLY) {
-    const purchased = await Order.exists({
-      userId: req.user.user_id, // adjust if you store ObjectId
-      "items.bookId": book._id,
-      status: { $in: ["pending", "completed"] }, // acceptable states
-    });
-    if (!purchased) {
-      throw new ApiError(403, "Only buyers can review this book.");
-    }
+  // Prevent duplicate reviews
+  const existing = await Review.findOne({ bookId, userId });
+  if (existing) {
+    throw new ApiError(409, "You have already reviewed this book.");
   }
-
-  // Prevent duplicate review (one per user per book)
-  const existing = await Review.findOne({ bookId, userId: userUid });
-  if (existing) throw new ApiError(409, "You already reviewed this book.");
 
   // Create review
   const review = await Review.create({
+    userId,
     bookId,
-    userId: userUid, // if you store ObjectId, use req.user._id
     rating,
-    comment: comment || "",
+    comment: sanitizedComment,
   });
-
-  // Update book rating stats
-  await recomputeBookRating(bookId);
 
   return res
     .status(201)
     .json(new ApiResponse(201, review, "Review created successfully."));
 });
 
-// get book reviews
-export const getBookReviews = asyncHandler(async (req, res) => {
-  const bookId = req.params.bookId;
+// Get all reviews for a specific book
+const getBookReviews = asyncHandler(async (req, res) => {
+  const { bookId } = req.params;
+
+  if (!isValidObjectId(bookId)) {
+    throw new ApiError(400, "Invalid book ID.");
+  }
+
   const page = Math.max(parseInt(req.query.page) || 1, 1);
   const limit = Math.min(parseInt(req.query.limit) || 10, 50);
   const skip = (page - 1) * limit;
 
-  // Ensure book exists
+  // Check if book exists
   const book = await Book.findById(bookId).select("_id");
   if (!book) throw new ApiError(404, "Book not found.");
 
@@ -92,7 +70,7 @@ export const getBookReviews = asyncHandler(async (req, res) => {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate("userId", "fullName email") // if userId is ref to User
+      .populate("userId", "fullName email")
       .lean(),
     Review.countDocuments({ bookId }),
   ]);
@@ -114,21 +92,21 @@ export const getBookReviews = asyncHandler(async (req, res) => {
   );
 });
 
-// get my reviews
-export const getMyReviews = asyncHandler(async (req, res) => {
-  const userUid = req.user.user_id; // or req.user._id
+// Get current user's reviews
+const getMyReviews = asyncHandler(async (req, res) => {
+  const userId = req.user.user_id;
   const page = Math.max(parseInt(req.query.page) || 1, 1);
   const limit = Math.min(parseInt(req.query.limit) || 10, 50);
   const skip = (page - 1) * limit;
 
   const [items, total] = await Promise.all([
-    Review.find({ userId: userUid })
+    Review.find({ userId })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate("bookId", "title author price")
+      .populate("bookId", "title author price coverImage")
       .lean(),
-    Review.countDocuments({ userId: userUid }),
+    Review.countDocuments({ userId }),
   ]);
 
   return res.status(200).json(
@@ -136,99 +114,217 @@ export const getMyReviews = asyncHandler(async (req, res) => {
       200,
       {
         items,
-        pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+        pagination: {
+          page,
+          limit,
+          total,
+          pages: Math.ceil(total / limit),
+        },
       },
       "Your reviews fetched successfully."
     )
   );
 });
 
-// update review
-export const updateReview = asyncHandler(async (req, res) => {
+// Update a review
+const updateReview = asyncHandler(async (req, res) => {
   const { reviewId } = req.params;
-  const userUid = req.user.user_id; // or req.user._id
+  const userId = req.user.user_id;
   const { rating, comment } = req.body;
 
+  if (!isValidObjectId(reviewId)) {
+    throw new ApiError(400, "Invalid review ID.");
+  }
+
+  // Validate at least one field is being updated
+  if (rating === undefined && comment === undefined) {
+    throw new ApiError(400, "Provide at least rating or comment to update.");
+  }
+
+  // Find review and check ownership
   const review = await Review.findById(reviewId);
   if (!review) throw new ApiError(404, "Review not found.");
 
-  if (String(review.userId) !== String(userUid)) {
-    throw new ApiError(403, "You are not allowed to edit this review.");
+  if (String(review.userId) !== String(userId)) {
+    throw new ApiError(403, "You can only edit your own reviews.");
   }
+
+  // Build update object
+  const updates = {};
 
   if (rating !== undefined) {
-    if (rating < 1 || rating > 5)
-      throw new ApiError(400, "Rating must be between 1 and 5.");
-    review.rating = rating;
+    if (typeof rating !== "number" || rating < 1 || rating > 5) {
+      throw new ApiError(400, "Rating must be a number between 1 and 5.");
+    }
+    updates.rating = rating;
   }
-  if (comment !== undefined) review.comment = comment;
 
-  await review.save();
+  if (comment !== undefined) {
+    updates.comment = String(comment).trim().slice(0, 1000);
+  }
 
-  // Recompute book rating
-  await recomputeBookRating(review.bookId);
+  // Update review
+  const updatedReview = await Review.findByIdAndUpdate(
+    reviewId,
+    { $set: updates },
+    { new: true, runValidators: true }
+  ).populate("bookId", "title author");
 
   return res
     .status(200)
-    .json(new ApiResponse(200, review, "Review updated successfully."));
+    .json(new ApiResponse(200, updatedReview, "Review updated successfully."));
 });
 
-// delete review
-export const deleteReview = asyncHandler(async (req, res) => {
+// Delete a review
+const deleteReview = asyncHandler(async (req, res) => {
   const { reviewId } = req.params;
-  const userUid = req.user.user_id; // or req.user._id
-  const isAdmin = req.user?.role === "admin"; // adapt to your role system
+  const userId = req.user.user_id;
+  const isAdmin = req.user?.role === "admin";
+
+  if (!isValidObjectId(reviewId)) {
+    throw new ApiError(400, "Invalid review ID.");
+  }
 
   const review = await Review.findById(reviewId);
   if (!review) throw new ApiError(404, "Review not found.");
 
-  if (!isAdmin && String(review.userId) !== String(userUid)) {
-    throw new ApiError(403, "You are not allowed to delete this review.");
+  // Check permissions (owner or admin)
+  if (!isAdmin && String(review.userId) !== String(userId)) {
+    throw new ApiError(403, "You can only delete your own reviews.");
   }
 
-  const bookId = review.bookId;
   await review.deleteOne();
-
-  // Recompute book rating
-  await recomputeBookRating(bookId);
 
   return res
     .status(200)
     .json(new ApiResponse(200, null, "Review deleted successfully."));
 });
 
-// admin list reviews
-export const adminListReviews = asyncHandler(async (req, res) => {
-  if (req.user?.role !== "admin") throw new ApiError(403, "Forbidden.");
+// Get review statistics for a book (optional helper)
+const getBookReviewStats = asyncHandler(async (req, res) => {
+  const { bookId } = req.params;
 
-  const { bookId, userId } = req.query;
-  const page = Math.max(parseInt(req.query.page) || 1, 1);
-  const limit = Math.min(parseInt(req.query.limit) || 20, 100);
-  const skip = (page - 1) * limit;
+  if (!isValidObjectId(bookId)) {
+    throw new ApiError(400, "Invalid book ID.");
+  }
 
-  const filter = {};
-  if (bookId) filter.bookId = bookId;
-  if (userId) filter.userId = userId;
+  const book = await Book.findById(bookId).select("_id");
+  if (!book) throw new ApiError(404, "Book not found.");
 
-  const [items, total] = await Promise.all([
-    Review.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .populate("bookId", "title")
-      .populate("userId", "fullName email")
-      .lean(),
-    Review.countDocuments(filter),
+  const stats = await Review.aggregate([
+    { $match: { bookId: new mongoose.Types.ObjectId(bookId) } },
+    {
+      $group: {
+        _id: null,
+        averageRating: { $avg: "$rating" },
+        totalReviews: { $sum: 1 },
+        ratings: {
+          $push: "$rating",
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        averageRating: { $round: ["$averageRating", 1] },
+        totalReviews: 1,
+        ratingDistribution: {
+          fiveStar: {
+            $size: {
+              $filter: {
+                input: "$ratings",
+                cond: { $eq: ["$$this", 5] },
+              },
+            },
+          },
+          fourStar: {
+            $size: {
+              $filter: {
+                input: "$ratings",
+                cond: { $eq: ["$$this", 4] },
+              },
+            },
+          },
+          threeStar: {
+            $size: {
+              $filter: {
+                input: "$ratings",
+                cond: { $eq: ["$$this", 3] },
+              },
+            },
+          },
+          twoStar: {
+            $size: {
+              $filter: {
+                input: "$ratings",
+                cond: { $eq: ["$$this", 2] },
+              },
+            },
+          },
+          oneStar: {
+            $size: {
+              $filter: {
+                input: "$ratings",
+                cond: { $eq: ["$$this", 1] },
+              },
+            },
+          },
+        },
+      },
+    },
   ]);
+
+  const result =
+    stats.length > 0
+      ? stats[0]
+      : {
+          averageRating: 0,
+          totalReviews: 0,
+          ratingDistribution: {
+            fiveStar: 0,
+            fourStar: 0,
+            threeStar: 0,
+            twoStar: 0,
+            oneStar: 0,
+          },
+        };
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, result, "Review statistics fetched successfully.")
+    );
+});
+
+// Check if user has reviewed a book (helper for UI)
+const checkUserReview = asyncHandler(async (req, res) => {
+  const { bookId } = req.params;
+  const userId = req.user.user_id;
+
+  if (!isValidObjectId(bookId)) {
+    throw new ApiError(400, "Invalid book ID.");
+  }
+
+  const review = await Review.findOne({ bookId, userId }).lean();
 
   return res.status(200).json(
     new ApiResponse(
       200,
       {
-        items,
-        pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+        hasReviewed: !!review,
+        review: review || null,
       },
-      "All reviews fetched."
+      "Review status checked."
     )
   );
 });
+
+export {
+  createReview,
+  getBookReviews,
+  getMyReviews,
+  updateReview,
+  deleteReview,
+  getBookReviewStats,
+  checkUserReview,
+};

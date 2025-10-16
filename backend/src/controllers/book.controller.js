@@ -186,42 +186,6 @@ const getAllBooks = asyncHandler(async (req, res) => {
   );
 });
 
-// filtering and searching a book
-const autocompleteSearch = asyncHandler(async (req, res) => {
-  const { query } = req.query;
-  const results = await Book.aggregate([
-    {
-      $search: {
-        index: "autoComplete",
-        autocomplete: {
-          query: query,
-          path: "title",
-        },
-        highlight: {
-          path: ["title"],
-        },
-      },
-    },
-    {
-      $limit: 5,
-    },
-    {
-      $project: {
-        name: 1,
-        highlights: {
-          $meta: "searchHighlights",
-        },
-      },
-    },
-  ]);
-
-  if (!results || results.length === 0) {
-    return res.status(404).json("No books found");
-  }
-
-  return res.json(new ApiResponse(200, results, "Book filtered successfully"));
-});
-
 // get books by category
 const getBooksByCategory = asyncHandler(async (req, res) => {
   const { category } = req.params;
@@ -336,7 +300,6 @@ export {
   deleteBook,
   getBookBySlug,
   getAllBooks,
-  autocompleteSearch,
   getBooksByCategory,
   getFeaturedBooks,
   getLatestBooks,
