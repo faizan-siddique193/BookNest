@@ -9,15 +9,15 @@ import wishlistReducer from "../feature/wishlist/wishlistSlice";
 import paymentReducer from "../feature/payment/paymentSlice";
 import orderRedcuer from "../feature/order/orderSlice";
 
-const persistConfig = {
+/* const persistConfig = {
   key: "root",
   storage,
   whitelist: ["user", "book", "cart", "wishlist"],
-};
+}; */
 
 // combine reducer
 
-const rootReducer = combineReducers({
+/* const rootReducer = combineReducers({
   user: userReducer,
   auth: authReducer,
   book: bookReducer,
@@ -25,16 +25,19 @@ const rootReducer = combineReducers({
   wishlist: wishlistReducer,
   order: orderRedcuer,
   payment: paymentReducer,
-});
+}); */
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+// const persistedReducer = persistReducer(persistConfig, rootReducer);
 const store = configureStore({
-  reducer: persistedReducer,
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: false,
-    }),
+  reducer: {
+    user: userReducer,
+    auth: authReducer,
+    book: bookReducer,
+    cart: cartReducer,
+    wishlist: wishlistReducer,
+    order: orderRedcuer,
+    payment: paymentReducer,
+  },
 });
 
-export const persistor = persistStore(store);
 export default store;

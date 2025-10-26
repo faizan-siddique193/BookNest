@@ -10,8 +10,4 @@ paymentRouter
   .route("/create-checkout-session")
   .post(verifyFirebaseToken, createStripePayment);
 
-  
-paymentRouter
-  .route("/stripe/webhook")
-  .post(express.raw({ type: "application/json" }), webhookEndpoints);
 export default paymentRouter;

@@ -38,8 +38,11 @@ const CheckoutPage = () => {
 
       const orderId = orderResponse.data._id;
 
+      // TODO: DELETE THIS COMMENT
+      console.log("Selected method Payment method:: ", paymentMethod);
+
       // Step 2: Handle cash order
-      if (paymentMethod === "cash") {
+      if (paymentMethod === "cash-on-delivery") {
         navigate(`/home/order-confirmation/${orderId}`);
         dispatch(clearCart());
         localStorage.removeItem("persist:cart");
@@ -67,7 +70,6 @@ const CheckoutPage = () => {
 
         //  Redirect to Stripe checkout
         window.location.href = response.data.url;
-        // navigate(response.data.url);
       }
     } catch (error) {
       toast.error(error || "something went wrong while placing an order");

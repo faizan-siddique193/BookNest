@@ -3,13 +3,10 @@ import { ApiResponse } from "../utils/ApiRespone.js";
 import { asyncHandler } from "../utils/AsyncHandler.js";
 import { User } from "../models/user.model.js";
 
+// register user
 const registerUser = asyncHandler(async (req, res) => {
   const { fullName } = req.body;
-
-  /*  if (!fullName) {
-    throw new ApiError(404, "Full name is required");
-  } */
-
+  
   // Destructure user information from Firebase
   const { uid, email, name: firbaseName } = req.user;
   const user = await User.findOne({ firebaseUserId: uid });
@@ -45,6 +42,7 @@ const loginUser = asyncHandler(async (req, res) => {
   );
 });
 
+// get user profile
 const getUserProfile = asyncHandler(async (req, res) => {
   // extract uid from middleware
   const { uid } = req.user;
@@ -58,5 +56,6 @@ const getUserProfile = asyncHandler(async (req, res) => {
   }
   return res.json(new ApiResponse(200, user, "User found successfully"));
 });
+
 
 export { registerUser, loginUser, getUserProfile };

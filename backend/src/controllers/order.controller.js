@@ -149,10 +149,10 @@ const getOrderById = asyncHandler(async (req, res) => {
 
 const updateOrderStatus = asyncHandler(async (req, res) => {
   const { orderId } = req.params;
-  const { status } = req.body;
+  const { orderStatus } = req.body;
   const userId = req.user.user_id;
 
-  if (!["pending", "completed", "cancelled"].includes(status)) {
+  if (!["pending", "completed", "cancelled"].includes(orderStatus)) {
     throw new ApiError(400, "Invalid status");
   }
 
@@ -165,7 +165,7 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
   const order = await Order.findById(orderId);
   if (!order) throw new ApiError(404, "Order not found");
 
-  order.status = status;
+  order.orderStatus = orderStatus.toUpperCase();
   await order.save();
 
   return res

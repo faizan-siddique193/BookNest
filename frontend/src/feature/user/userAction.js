@@ -40,3 +40,19 @@ export const getLoginUser = createAsyncThunk(
     }
   }
 );
+
+// get user profile
+
+export const getUserProfile = createAsyncThunk(
+  "user/userProfile",
+  async ({ _, rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get("/user/profile");
+      return response?.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || "An error occurred while fetching the profile."
+      );
+    }
+  }
+);

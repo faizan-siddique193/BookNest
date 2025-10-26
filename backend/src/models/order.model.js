@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-// order item schema 
+// order item schema
 const orderItemSchema = new Schema(
   {
     bookId: {
@@ -59,9 +59,14 @@ const orderSchema = new Schema(
     items: [orderItemSchema],
     shippingAddress: shippingAddressSchema,
     totalAmount: { type: Number, required: true },
-    status: {
+    orderStatus: {
       type: String,
-      enum: ["PENDING", "COMPLETED", "CANCELLED"],
+      enum: ["PENDING", "CONFIRMED", "CANCELLED"],
+      default: "PENDING",
+    },
+    paymentStatus: {
+      type: String,
+      enum: ["PENDING", "PAID", "FAILED"],
       default: "PENDING",
     },
     paymentMethod: {

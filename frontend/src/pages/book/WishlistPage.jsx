@@ -10,16 +10,7 @@ const WishlistPage = () => {
 
   return (
     <div className="bg-background min-h-screen">
-      {/* Page Header */}
-      <div className="text-primary pl-10 pt-4">
-        <Breadcrumb
-          items={[
-            { label: "Home", path: "/home" },
-            { label: "Books", path: "/home/books" },
-            { label: "Wishlist", path: "/home/wishlist" },
-          ]}
-        />
-      </div>
+  
 
       {/* Wishlist Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

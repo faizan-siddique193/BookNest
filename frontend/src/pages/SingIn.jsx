@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import { toast } from "react-toastify";
 import {
   getLoginUser,
+  getUserProfile,
   storeRegisterUserInDb,
 } from "../feature/user/userAction.js";
 import {
@@ -17,6 +18,7 @@ import {
   clearSignInWithGoogleAuthState,
 } from "../feature/auth/authSlice.js";
 import { clearUserDbState } from "../feature/user/userSlice.js";
+import { use } from "react";
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -71,6 +73,7 @@ const SignIn = () => {
     }
   };
 
+
   // handle google login
   const handleGoogleLogin = async () => {
     try {
@@ -98,6 +101,9 @@ const SignIn = () => {
       });
     }
   };
+
+ 
+
   return (
     <div className="w-full min-h-screen bg-background flex items-center justify-center">
       <div className="max-w-3xl w-full border rounded-2xl p-6 flex flex-col gap-y-5 sm:flex-row sm:gap-x-5 bg-white">

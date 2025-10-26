@@ -91,6 +91,7 @@ const updateCart = asyncHandler(async (req, res) => {
   }
 });
 
+// get cart item
 const getCartItem = asyncHandler(async (req, res) => {
   const userId = req.user.user_id;
 

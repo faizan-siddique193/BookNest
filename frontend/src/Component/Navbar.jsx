@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SearchBar } from "./index";
 import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, Heart, User, Menu, ArrowRight } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { userLogout } from "../feature/auth/authAction";
-
+import { toast } from "react-toastify";
+import { getUserProfile } from "../feature/user/userAction";
 const Navbar = () => {
   const { user } = useSelector((state) => state.user);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -15,8 +16,12 @@ const Navbar = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
-  // handle user logout
+  // get user profile
 
+  // get user profile after login
+
+
+  // handle user logout
   const handleLogout = () => {
     dispatch(userLogout());
 
@@ -41,6 +46,7 @@ const Navbar = () => {
       link: "/home/books/featured",
     },
   ];
+
   return (
     <nav className="w-full bg-primary shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -58,24 +64,15 @@ const Navbar = () => {
           {/* Navigation Links - Hidden on mobile */}
           <div className="hidden md:flex ml-10">
             <div className="flex items-center space-x-8">
-              {navLinks.map((navlink) =>
-                navlink.title === "Categories" ? (
-                  <a
-                    href={`#category` || navlink.link}
-                    className="text-secondary hover:text-accent px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                  >
-                    {navlink.title}
-                  </a>
-                ) : (
-                  <Link
-                    key={navlink.id}
-                    to={navlink.link}
-                    className="text-secondary hover:text-accent px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                  >
-                    {navlink.title}
-                  </Link>
-                )
-              )}
+              {navLinks.map((navlink) => (
+                <Link
+                  key={navlink.id}
+                  to={navlink.link}
+                  className="text-secondary hover:text-accent px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  {navlink.title}
+                </Link>
+              ))}
             </div>
           </div>
 

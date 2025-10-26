@@ -1,5 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { storeRegisterUserInDb, getLoginUser } from "./userAction";
+import {
+  storeRegisterUserInDb,
+  getLoginUser,
+  getUserProfile,
+} from "./userAction";
 
 const initialState = {
   user: null,
@@ -34,20 +38,19 @@ const userSlice = createSlice({
         state.error = action.payload;
         state.success = false;
       });
-
-    // fetch data when user successfull login
-    builder.addCase(getLoginUser.pending, (state) => {
+      
+    // get user profile
+    builder.addCase(getUserProfile.pending, (state) => {
       state.loading = true;
       state.error = null;
       state.success = false;
     });
-    builder.addCase(getLoginUser.fulfilled, (state, action) => {
+    builder.addCase(getUserProfile.fulfilled, (state, action) => {
       state.loading = false;
       state.success = true;
       state.user = action.payload;
-      console.log(action.payloadwww);
     });
-    builder.addCase(getLoginUser.rejected, (state, action) => {
+    builder.addCase(getUserProfile.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload;
       state.success = false;

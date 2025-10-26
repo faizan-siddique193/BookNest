@@ -19,6 +19,11 @@ const paymentSchema = new Schema(
       required: true,
       min: 0,
     },
+    method: {
+      type: String,
+      required: true,
+      default: "stripe",
+    },
     currency: {
       type: String,
       default: "usd", // or "pkr" if you prefer
@@ -37,11 +42,6 @@ const paymentSchema = new Schema(
       sparse: true, // allow null duplicates
       index: true,
     },
-    // // Useful to store gateway responses or verification payloads
-    // providerMeta: {
-    //   type: Schema.Types.Mixed,
-    //   default: {},
-    // },
   },
   { timestamps: true }
 );

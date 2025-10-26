@@ -8,6 +8,8 @@ import {
   Cloud,
   BookOpenCheck,
 } from "lucide-react";
+import Breadcrumb from "./book/booklisting/Breadcrumb";
+
 
 // book Categories
 const bookCategories = [
@@ -57,8 +59,20 @@ const bookCategories = [
 
 const Categories = () => {
   return (
-    <section id="category" className="py-16 px-4 sm:px-6 lg:px-8 bg-background">
-      <div className="max-w-7xl mx-auto">
+    <section
+      id="categories"
+      className="  bg-background"
+    >
+      <div className="text-primary pl-10 pt-4 mb-10">
+        <Breadcrumb
+          items={[
+            { label: "Home", path: "/home" },
+            { label: "Books", path: "/home/books" },
+            { label: "categories", path: "#" },
+          ]}
+        />
+      </div>
+      <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-primary mb-3">

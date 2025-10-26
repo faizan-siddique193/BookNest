@@ -21,7 +21,7 @@ const CartItemsList = ({ items, onQuantityChange, onRemoveItem }) => {
       </div>
 
       {/* Cart Items */}
-      <div className="divide-y divide-gray-200">
+      <div className="divide-y divide-gray-200 ">
         {items.map((item) => (
           <CartItem
             key={item?.bookId._id}

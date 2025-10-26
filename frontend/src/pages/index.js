@@ -9,11 +9,13 @@ import FeaturedBooks from "./book/FeaturedBooks";
 import LatestBooks from "./book/LatestBooks";
 import WishlistPage from "./book/WishlistPage";
 import CheckoutPage from "./order/CheckoutPage";
+import OrderCancellation from "./order/OrderCancellation";
 import OrderConfirmation from "./order/OrderConfirmation";
 import SignUp from "./SignUp";
 import SignIn from "./SingIn";
 
 export {
+  OrderCancellation,
   LatestBooks,
   FeaturedBooks,
   OrderConfirmation,
