@@ -7,6 +7,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiRespone.js";
 import { asyncHandler } from "../utils/AsyncHandler.js";
 
+// create order
 const placeOrder = asyncHandler(async (req, res) => {
   const {
     fullName,
@@ -117,8 +118,11 @@ const placeOrder = asyncHandler(async (req, res) => {
   }
 });
 
+// get orders for logged in user
 const getMyOrders = asyncHandler(async (req, res) => {
   const userId = req.user.user_id;
+  // get userid
+
   const orders = await Order.find({ userId })
     .sort({ createdAt: -1 })
     .populate("items.bookId", "title author price");
@@ -128,6 +132,7 @@ const getMyOrders = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, orders, "Orders fetched successfully"));
 });
 
+// get order by id
 const getOrderById = asyncHandler(async (req, res) => {
   const userId = req.user.user_id;
   const { orderId } = req.params;

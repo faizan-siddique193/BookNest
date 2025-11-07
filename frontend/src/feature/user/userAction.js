@@ -45,13 +45,43 @@ export const getLoginUser = createAsyncThunk(
 
 export const getUserProfile = createAsyncThunk(
   "user/userProfile",
-  async ({ _, rejectWithValue }) => {
+  async ({ token }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/user/profile");
-      return response?.data;
+      console.log("Fetching user profile...");
+      const response = await axiosInstance.get("/user/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log("User Profile Response:", response.data);
+      return response.data;
     } catch (error) {
+      console.error("Error fetching profile:", error);
       return rejectWithValue(
         error.response?.data || "An error occurred while fetching the profile."
+      );
+    }
+  }
+);
+
+// update user avatar
+
+export const updateUserAvatar = createAsyncThunk(
+  "user/updateAvatar",
+  async ({ avatar }, { rejectWithValue }) => {
+    try {
+      axiosInstance.put(
+        "/user/profile/avatar",
+        { avatar },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || "An error occurred while updating the avatar."
       );
     }
   }

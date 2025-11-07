@@ -1,17 +1,23 @@
 // src/pages/WishlistPage.jsx
-import React from "react";
+import React, { useEffect } from "react";
 import Breadcrumb from "../../Component/book/booklisting/Breadcrumb";
 import BookGrid from "../../Component/book/booklisting/BookGrid";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { getWishlistItem } from "../../feature/wishlist/wishlistAction";
 
 const WishlistPage = () => {
   const { wishlist } = useSelector((state) => state.wishlist);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getWishlistItem());
+  }, [dispatch]);
+
+  // TODO : DELETE THIS COMMENT
+  console.log("Wishlist data from Redux store:", wishlist);
 
   return (
     <div className="bg-background min-h-screen">
-  
-
       {/* Wishlist Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {wishlist?.length > 0 ? (

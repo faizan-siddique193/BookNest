@@ -131,7 +131,7 @@ const updateBook = asyncHandler(async (req, res) => {
   }
 
   const updatedBook = await Book.findOneAndUpdate({ slug }, updates, {
-    returnDocument: "after", // ✅ replaces new: true
+    returnDocument: "after", 
     runValidators: true,
   });
 
@@ -232,7 +232,7 @@ const getFeaturedBooks = asyncHandler(async (req, res) => {
 
 // get latest books
 const getLatestBooks = asyncHandler(async (req, res) => {
-  const days = parseInt(req.query.days) || 30; // default to last 30 days
+  const days = parseInt(req.query.days) || 30; 
   const now = new Date();
   const cutoffDate = new Date(now);
   cutoffDate.setDate(cutoffDate.getDate() - days);

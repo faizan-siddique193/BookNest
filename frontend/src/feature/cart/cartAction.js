@@ -27,7 +27,7 @@ export const getCartItem = createAsyncThunk(
 
       //   TODO: verify add to cart
       console.log("get cart item:: ", response.data.data);
-      return response.data.data;
+      return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
@@ -37,7 +37,6 @@ export const getCartItem = createAsyncThunk(
 export const deleteCartItem = createAsyncThunk(
   "cart/delete",
   async ({ bookId }, { rejectWithValue }) => {
-
     try {
       const response = await axiosInstance.delete(
         `/cart/delete-item/${bookId}`

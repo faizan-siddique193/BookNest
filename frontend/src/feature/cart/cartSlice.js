@@ -104,7 +104,7 @@ const cartSlice = createSlice({
     builder.addCase(getCartItem.fulfilled, (state, action) => {
       state.loading = false;
       state.success = true;
-      state.cart = action.payload;
+      state.cart = action.payload?.data;
       state.error = null;
     });
     builder.addCase(getCartItem.rejected, (state, action) => {

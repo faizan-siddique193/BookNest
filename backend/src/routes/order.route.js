@@ -2,8 +2,8 @@ import { Router } from "express";
 import { verifyFirebaseToken } from "../middlewares/verifyFirrebaseToken.middleware.js";
 import {
   getMyOrders,
-  getOrderById,
   placeOrder,
+  getOrderById,
   updateOrderStatus,
 } from "../controllers/order.controller.js";
 

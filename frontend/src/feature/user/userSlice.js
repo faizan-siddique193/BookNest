@@ -3,6 +3,7 @@ import {
   storeRegisterUserInDb,
   getLoginUser,
   getUserProfile,
+  updateUserAvatar,
 } from "./userAction";
 
 const initialState = {
@@ -38,7 +39,7 @@ const userSlice = createSlice({
         state.error = action.payload;
         state.success = false;
       });
-      
+
     // get user profile
     builder.addCase(getUserProfile.pending, (state) => {
       state.loading = true;
@@ -48,13 +49,31 @@ const userSlice = createSlice({
     builder.addCase(getUserProfile.fulfilled, (state, action) => {
       state.loading = false;
       state.success = true;
-      state.user = action.payload;
+      state.user = action.payload?.data;
     });
     builder.addCase(getUserProfile.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload;
       state.success = false;
     });
+
+    // update user avatar
+    builder
+      .addCase(updateUserAvatar.pending, (state) => {
+        state.loading = true;
+        state.success = false;
+        state.error = null;
+      })
+      .addCase(updateUserAvatar.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.user = action.payload?.data;
+      })
+      .addCase(updateUserAvatar.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.success = false;
+      });
   },
 });
 

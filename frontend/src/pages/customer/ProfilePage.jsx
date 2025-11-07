@@ -5,18 +5,14 @@ import ProfileOverview from "../../Component/customer/ProfileOverview";
 import ProfileForm from "../../Component/customer/ProfileForm";
 import ProfileNav from "../../Component/customer/ProfileNav";
 import { User, Bookmark, Package, LogOut } from "lucide-react";
+import { useSelector } from "react-redux";
+import { Wishlist } from "../../Component/index";
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState("profile");
   const [editMode, setEditMode] = useState(false);
-
-  // Sample user data - in a real app this would come from auth context or API
-  const [userData, setUserData] = useState({
-    name: "John Doe",
-    email: "john@example.com",
-    phone: "+1 (555) 123-4567",
-    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
-  });
+  const [userData, setUserData] = useState([]);
+  const { loading, user } = useSelector((state) => state.user);
 
   const handleUpdateProfile = (updatedData) => {
     setUserData({ ...userData, ...updatedData });
@@ -27,16 +23,16 @@ const ProfilePage = () => {
   return (
     <div className="bg-background min-h-screen py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-primary mb-8">My Account</h1>
+        <h1 className="text-3xl font-bold text-primary mb-8">Profile</h1>
 
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Navigation Sidebar */}
-          <div className="lg:w-1/4">
+          <div className="lg:w-1/4 border border-red-700">
             <ProfileNav activeTab={activeTab} setActiveTab={setActiveTab} />
           </div>
 
           {/* Main Content */}
-          <div className="lg:w-3/4">
+          <div className="lg:w-3/4 border border-red-700">
             {activeTab === "profile" && (
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 {!editMode ? (
@@ -61,12 +57,6 @@ const ProfilePage = () => {
                   My Orders
                 </h2>
                 <p className="text-muted">You haven't placed any orders yet.</p>
-                <Link
-                  to="/books"
-                  className="inline-block mt-4 px-6 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent/90 transition-colors"
-                >
-                  Browse Books
-                </Link>
               </div>
             )}
 
@@ -76,13 +66,9 @@ const ProfilePage = () => {
                   <Bookmark className="h-5 w-5 mr-2" />
                   My Wishlist
                 </h2>
-                <p className="text-muted">Your wishlist is empty.</p>
-                <Link
-                  to="/books"
-                  className="inline-block mt-4 px-6 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent/90 transition-colors"
-                >
-                  Discover Books
-                </Link>
+
+                {/* wishlist component */}
+                <Wishlist />
               </div>
             )}
           </div>

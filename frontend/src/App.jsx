@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -18,6 +18,7 @@ import {
   FeaturedBooks,
   LatestBooks,
   OrderCancellation,
+  ErrorPage,
 } from "./pages/index.js";
 import Home from "./pages/Home.jsx";
 import BookDetailPage from "./pages/Book/BookDetailPage.jsx";
@@ -29,11 +30,38 @@ import Categories from "./Component/Categories.jsx";
 import ProtectedRoute from "./routes/protectedRoute.jsx";
 import { getUserProfile } from "./feature/user/userAction.js";
 import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { Loading } from "./Component/index.js";
+import { Loader, User2 } from "lucide-react";
+import { onAuthStateChanged, getIdToken } from "firebase/auth";
+import { auth } from "./config/firebase.js";
+import { getCartItem } from "./feature/cart/cartAction.js";
+import { getWishlistItem } from "./feature/wishlist/wishlistAction.js";
+import AdminPrtoctedRoute from "./routes/AdminRoutes.jsx";
+
 const App = () => {
   const dispatch = useDispatch();
+  const [initializing, setInitializing] = useState(true);
+  const [token, setToken] = useState(null);
+  const { user, loading } = useSelector((state) => state.user);
+
+  const userRole = user?.role;
+  // get token and user profile
   useEffect(() => {
-    dispatch(getUserProfile());
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const token = user.getIdToken();
+        setToken(token);
+        dispatch(getUserProfile({ token }));
+      }
+      setInitializing(false);
+    });
+    return unsubscribe;
   }, [dispatch]);
+
+  if (initializing) {
+    return <Loading />;
+  }
 
   return (
     <>
@@ -41,6 +69,7 @@ const App = () => {
         <Routes>
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/unauthorized" element={<ErrorPage />} />
 
           {/* Protected layout with nested routes */}
           <Route path="/home" element={<Layout />}>
@@ -94,23 +123,25 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+            {/* user profile */}
+            <Route
+              path="user/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
           </Route>
-          {/* user profile */}
-          <Route
-            path="profile"
-            element={
-              <ProtectedRoute>
-                <ProfilePage />
-              </ProtectedRoute>
-            }
-          />
 
           {/* admin routes */}
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route path="books" element={<BookLayout />}>
-              <Route index element={<BookManagement />} />
-              <Route path="add" element={<AddBook />} />
-              <Route path="edit/:slug" element={<EditBook />} />
+          <Route element={<AdminPrtoctedRoute role={userRole} user={token} />}>
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route path="books" element={<BookLayout />}>
+                <Route index element={<BookManagement />} />
+                <Route path="add" element={<AddBook />} />
+                <Route path="edit/:slug" element={<EditBook />} />
+              </Route>
             </Route>
           </Route>
         </Routes>

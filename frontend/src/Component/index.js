@@ -32,8 +32,18 @@ import ShippingSummary from "./checkout/ShippingSummary";
 import PaymentMethod from "./checkout/PaymentMethod";
 import BookCardSkeleton from "./BookCardSkeleton";
 import BookTableSkeleton from "./admin/BookTableSkeleton";
+import Loading from "./Loading";
+import ProfileForm from "./customer/ProfileForm";
+import ProfileNav from "./customer/ProfileNav";
+import ProfileOverview from "./customer/ProfileOverview";
+import Wishlist from "./customer/Wishlist";
 
 export {
+  Wishlist,
+  ProfileForm,
+  ProfileOverview,
+  ProfileNav,
+  Loading,
   BookTableSkeleton,
   BookCardSkeleton,
   PaymentMethod,

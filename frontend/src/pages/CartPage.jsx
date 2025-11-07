@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Loader2, ShoppingCart } from "lucide-react";
 import CartItemsList from "../Component/cart/CartItemsList";
@@ -56,6 +56,10 @@ const CartPage = () => {
     },
     [dispatch]
   );
+
+  // get cart items on mount
+
+  
   // Empty cart state
   if (!cart?.items || cart.items.length === 0) {
     return (

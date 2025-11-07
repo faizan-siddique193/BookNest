@@ -6,7 +6,6 @@ import {
   LatestBooks,
   Testimonial,
 } from "../Component/index";
-
 const Home = () => {
   return (
     <div>
@@ -14,7 +13,7 @@ const Home = () => {
       <Categories />
       <FeaturedBooks />
       <LatestBooks />
-      <Testimonial/>
+      <Testimonial />
     </div>
   );
 };

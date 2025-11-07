@@ -5,27 +5,34 @@ import { ShoppingCart, Heart, User, Menu, ArrowRight } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { userLogout } from "../feature/auth/authAction";
 import { toast } from "react-toastify";
-import { getUserProfile } from "../feature/user/userAction";
+import { getCartItem } from "../feature/cart/cartAction";
+import { getWishlistItem } from "../feature/wishlist/wishlistAction";
+import { getFeaturedBooks } from "../feature/book/bookAction";
 const Navbar = () => {
-  const { user } = useSelector((state) => state.user);
+  const { user, loading } = useSelector((state) => state.user);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [token, setToken] = useState(null);
   const { cart } = useSelector((state) => state.cart);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
+  /* 
+  // ger cart and items items on mount
+  useEffect(() => {
+    dispatch(getCartItem());
+    dispatch(getWishlistItem());
+  }, [dispatch]); */
 
-  // get user profile
+  // get featured books and latest books
+  useEffect(() => {
+    dispatch(getFeaturedBooks());
+  }, [dispatch]);
 
-  // get user profile after login
-
-
-  // handle user logout
+  // handle logout
   const handleLogout = () => {
     dispatch(userLogout());
-
-    navigate("/sign-in");
   };
 
   // links
@@ -141,7 +148,7 @@ const Navbar = () => {
                 >
                   <User className="h-5 w-5 text-secondary" />
                   <span className="hidden md:inline text-sm font-medium text-secondary">
-                    {user?.data?.user?.fullName}
+                    {user?.fullName}
                   </span>
                 </button>
               ) : (
@@ -169,7 +176,10 @@ const Navbar = () => {
           }
         `}
                 >
-                  <Link href="/profile" className="block hover:text-accent">
+                  <Link
+                    to="/home/user/profile"
+                    className="block hover:text-accent"
+                  >
                     Profile
                   </Link>
                   <button

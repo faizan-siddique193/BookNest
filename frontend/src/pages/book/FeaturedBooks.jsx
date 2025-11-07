@@ -1,9 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import BookGrid from "../../Component/book/booklisting/BookGrid";
 import { BookCardSkeleton, Breadcrumb } from "../../Component/index";
-import { useSelector } from "react-redux";
+import {useSelector } from "react-redux";
+
+
 const FeaturedBooks = () => {
   const { loading, featuredBooks } = useSelector((state) => state.book);
+
+
 
   if (loading) {
     return (
