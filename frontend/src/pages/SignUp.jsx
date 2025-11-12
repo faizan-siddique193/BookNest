@@ -68,31 +68,6 @@ const SignUp = () => {
     }
   };
 
-  /*   // dispatch create user action
-  useEffect(() => {
-    if (signUp.success && user) {
-      const token = user;
-      console.log("Token:: ", token); // TODO: DELETE THIS COMMENT
-      dispatch(storeRegisterUserInDb({ fullName: localFullName, token }));
-    }
-  }, [signUp.success, user, localFullName, dispatch]);
-
-  // reset input fields
-  useEffect(() => {
-    if (signUp.success) {
-      reset();
-      setLocalFullName("");
-      // redirect to login page
-      if (userSuccess) {
-        navigate("/sign-in");
-      }
-    }
-  }, [signUp.success, reset, userSuccess]);
-
-  // clear signUpState
-  useEffect(() => {
-    dispatch(clearSignUpAuthState());
-  }, [dispatch]); */
 
   // handle google login
   const handleGoogleLogin = async () => {

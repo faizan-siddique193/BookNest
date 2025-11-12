@@ -6,8 +6,7 @@ export const createOrder = createAsyncThunk(
   "order/create",
   async (data, { rejectWithValue }) => {
     try {
-      // TODO: REMOVE THIS COMMENT
-      console.log("Data fields in the create order action:: ", data);
+     
 
       const response = await axiosInstance.post("/order/create", data);
       console.log("Order response at order action:: ", response.data.data);

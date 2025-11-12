@@ -3,10 +3,7 @@ import BookCard from "./BookCard";
 import { BookOpen } from "lucide-react";
 
 const BookGrid = ({ books, viewMode, className }) => {
-  // TODO: VERIFY books array
-
-  console.log("Books in BookGrid: ", books);
-
+ 
   return (
     // Example parent component grid layout
     <div

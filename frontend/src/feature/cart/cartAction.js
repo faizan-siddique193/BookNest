@@ -10,8 +10,6 @@ export const addToCart = createAsyncThunk(
         quantity,
       });
 
-      //   TODO: verify add to cart
-      console.log("add to  cart Response :: ", response?.data.data);
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
@@ -25,8 +23,7 @@ export const getCartItem = createAsyncThunk(
     try {
       const response = await axiosInstance.get("/cart/get-item", {});
 
-      //   TODO: verify add to cart
-      console.log("get cart item:: ", response.data.data);
+   
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
@@ -42,8 +39,6 @@ export const deleteCartItem = createAsyncThunk(
         `/cart/delete-item/${bookId}`
       );
 
-      //   TODO: verify delete cart item
-      console.log("delete cart item :: ", response.data.data);
       return response.data.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);

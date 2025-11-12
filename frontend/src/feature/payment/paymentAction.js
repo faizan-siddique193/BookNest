@@ -15,8 +15,6 @@ export const startStripePayment = createAsyncThunk(
         }
       );
 
-      //  TODO: DELTE THIS COMMENT
-      console.log("Stripe payment response:", response);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);

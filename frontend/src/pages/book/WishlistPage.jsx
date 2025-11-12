@@ -13,8 +13,7 @@ const WishlistPage = () => {
     dispatch(getWishlistItem());
   }, [dispatch]);
 
-  // TODO : DELETE THIS COMMENT
-  console.log("Wishlist data from Redux store:", wishlist);
+
 
   return (
     <div className="bg-background min-h-screen">

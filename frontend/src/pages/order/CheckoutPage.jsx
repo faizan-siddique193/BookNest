@@ -38,9 +38,6 @@ const CheckoutPage = () => {
 
       const orderId = orderResponse.data._id;
 
-      // TODO: DELETE THIS COMMENT
-      console.log("Selected method Payment method:: ", paymentMethod);
-
       // Step 2: Handle cash order
       if (paymentMethod === "cash-on-delivery") {
         navigate(`/home/order-confirmation/${orderId}`);

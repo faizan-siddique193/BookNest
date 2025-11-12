@@ -82,9 +82,6 @@ export const updateBook = createAsyncThunk(
         }
       );
 
-      //   TODO: verify update book
-
-      console.log("Update book :: ", response);
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
@@ -100,9 +97,6 @@ export const deleteBook = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       });
-
-      // TODO: verify delete book response
-      console.log("Delete book response::", response);
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
     }
@@ -115,9 +109,6 @@ export const getBookById = createAsyncThunk(
   async ({ slug }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(`/book/getBook/${slug}`);
-
-      // TODO: verify delete book response
-      console.log("GetBookByid book response::", response);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
@@ -137,9 +128,6 @@ export const getBooks = createAsyncThunk(
       const response = await axiosInstance.get(
         `/book/getbooks?p=${currentPage}`
       );
-
-      // TODO: verify delete book response
-      console.log("GetBookBy book response::", response.data.data);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
@@ -169,8 +157,7 @@ export const getFeaturedBooks = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get("/book/get/featured");
-      // TODO: DELTE THIS COMMENT
-      console.log("Featured Books:: ", response.data.data);
+
 
       return response.data;
     } catch (error) {
@@ -189,8 +176,7 @@ export const getLatestBooks = createAsyncThunk(
 
     try {
       const response = await axiosInstance.get("/book/get/latest");
-      // TODO: REMOVE THIS COMMENT
-      console.log("latest Books:: ", response.data.data);
+
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -214,8 +200,6 @@ export const getBooksForAdmin = createAsyncThunk(
         }
       );
 
-      // TODO: verify delete book response
-      console.log("GetBookBy book response::", response.data.data);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
