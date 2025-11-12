@@ -135,7 +135,7 @@ const App = () => {
           </Route>
 
           {/* admin routes */}
-          <Route element={<AdminPrtoctedRoute role={userRole} user={token} />}>
+          {/* <Route element={<AdminPrtoctedRoute role={userRole} user={token} />}> */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route path="books" element={<BookLayout />}>
                 <Route index element={<BookManagement />} />
@@ -143,7 +143,7 @@ const App = () => {
                 <Route path="edit/:slug" element={<EditBook />} />
               </Route>
             </Route>
-          </Route>
+          {/* </Route> */}
         </Routes>
       </BrowserRouter>
 

@@ -22,12 +22,6 @@ const cartSchema = new mongoose.Schema(
       required: true,
     },
     items: [cartItemSchema],
-
-    // TODO: OPTIONAL
-    /*  coupon: {
-      type: String,
-      default: null,
-    }, */
     total: {
       type: Number,
       required: true,

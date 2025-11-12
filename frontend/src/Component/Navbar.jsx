@@ -33,6 +33,7 @@ const Navbar = () => {
   // handle logout
   const handleLogout = () => {
     dispatch(userLogout());
+    navigate("/sign-in");
   };
 
   // links
