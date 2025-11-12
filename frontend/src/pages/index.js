@@ -3,6 +3,7 @@ import AdminProfile from "./admin/AdminProfile";
 import BookManagement from "./admin/BookManagement";
 import DashboardOverview from "./admin/DashboardOverview";
 import EditBook from "./admin/EditBook";
+import BookDetailPage from "./Book/BookDetailPage";
 import BookListing from "./book/BookListing";
 import BooksByCategory from "./book/BooksByCategory";
 import FeaturedBooks from "./book/FeaturedBooks";
@@ -16,7 +17,9 @@ import SignUp from "./SignUp";
 import SignIn from "./SingIn";
 
 
+
 export {
+  BookDetailPage,
   ErrorPage,
   OrderCancellation,
   LatestBooks,

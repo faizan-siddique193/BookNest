@@ -19,9 +19,9 @@ import {
   LatestBooks,
   OrderCancellation,
   ErrorPage,
+  BookDetailPage,
 } from "./pages/index.js";
 import Home from "./pages/Home.jsx";
-import BookDetailPage from "./pages/Book/BookDetailPage.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import ProfilePage from "./pages/customer/ProfilePage.jsx";
 import AdminLayout from "./layout/AdminLayout.jsx";
@@ -136,13 +136,13 @@ const App = () => {
 
           {/* admin routes */}
           {/* <Route element={<AdminPrtoctedRoute role={userRole} user={token} />}> */}
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route path="books" element={<BookLayout />}>
-                <Route index element={<BookManagement />} />
-                <Route path="add" element={<AddBook />} />
-                <Route path="edit/:slug" element={<EditBook />} />
-              </Route>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="books" element={<BookLayout />}>
+              <Route index element={<BookManagement />} />
+              <Route path="add" element={<AddBook />} />
+              <Route path="edit/:slug" element={<EditBook />} />
             </Route>
+          </Route>
           {/* </Route> */}
         </Routes>
       </BrowserRouter>
