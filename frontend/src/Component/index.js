@@ -1,6 +1,6 @@
 import BookCard from "./book/booklisting/BookCard";
 import Breadcrumb from "./book/booklisting/Breadcrumb";
-import Card from "./card";
+import Card from "./Card";
 import Categories from "./Categories";
 import FeaturedBooks from "./book/booklisting/FeaturedBooks";
 import FiltersSidebar from "./book/booklisting/FiltersSidebar";
