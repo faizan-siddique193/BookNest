@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./layout/Layout.jsx";
 import {
   SignUp,
@@ -39,6 +39,8 @@ import { getCartItem } from "./feature/cart/cartAction.js";
 import { getWishlistItem } from "./feature/wishlist/wishlistAction.js";
 import AdminPrtoctedRoute from "./routes/AdminRoutes.jsx";
 
+import { Navigate } from "react-router-dom";
+
 const App = () => {
   const dispatch = useDispatch();
   const [initializing, setInitializing] = useState(true);
@@ -67,6 +69,8 @@ const App = () => {
     <>
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<Navigate to="/home" replace />} />
+
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/unauthorized" element={<ErrorPage />} />

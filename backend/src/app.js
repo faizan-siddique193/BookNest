@@ -16,13 +16,15 @@ const app = express();
 app.use(
   cors({
     origin: process.env.CROSS_ORIGIN,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   })
 );
 
 // IMPORTANT: Webhook route BEFORE body parsers (needs raw body)
-app.post("/api/v1/payment/stripe/webhook", 
-  express.raw({ type: 'application/json' }), 
+app.post(
+  "/api/v1/payment/stripe/webhook",
+  express.raw({ type: "application/json" }),
   webhookEndpoints
 );
 
@@ -56,6 +58,6 @@ app.use("/api/v1/cart", cartRouter);
 app.use("/api/v1/wishlist", whishListRouter);
 app.use("/api/v1/order", orderRouter);
 app.use("/api/v1/review", reviewRouter);
-app.use("/api/v1/payment", paymentRouter);  // Now AFTER body parsers
+app.use("/api/v1/payment", paymentRouter); // Now AFTER body parsers
 
 export default app;
