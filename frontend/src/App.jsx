@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./layout/Layout.jsx";
 import {
   SignUp,
@@ -10,7 +10,6 @@ import {
   AddBook,
   BookManagement,
   EditBook,
-  DashboardOverview,
   BooksByCategory,
   WishlistPage,
   CheckoutPage,
@@ -29,30 +28,27 @@ import BookLayout from "./layout/BookLayout.jsx";
 import Categories from "./Component/Categories.jsx";
 import ProtectedRoute from "./routes/protectedRoute.jsx";
 import { getUserProfile } from "./feature/user/userAction.js";
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Loading } from "./Component/index.js";
-import { Loader, User2 } from "lucide-react";
-import { onAuthStateChanged, getIdToken } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./config/firebase.js";
-import { getCartItem } from "./feature/cart/cartAction.js";
-import { getWishlistItem } from "./feature/wishlist/wishlistAction.js";
-import AdminPrtoctedRoute from "./routes/AdminRoutes.jsx";
 
 const App = () => {
   const dispatch = useDispatch();
   const [initializing, setInitializing] = useState(true);
   const [token, setToken] = useState(null);
-  const { user, loading } = useSelector((state) => state.user);
+  const { user } = useSelector((state) => state.user);
 
   const userRole = user?.role;
-  // get token and user profile
+
+  // Get token and user profile
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        const token = user.getIdToken();
-        setToken(token);
-        dispatch(getUserProfile({ token }));
+        user.getIdToken().then((token) => {
+          setToken(token);
+          dispatch(getUserProfile({ token }));
+        });
       }
       setInitializing(false);
     });
@@ -67,65 +63,75 @@ const App = () => {
     <>
       <BrowserRouter>
         <Routes>
+          {/* Authentication routes */}
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/unauthorized" element={<ErrorPage />} />
 
-          {/* Protected layout with nested routes */}
+          {/* Main application routes with Layout */}
           <Route path="/" element={<Layout />}>
-            <Route path="/home" index element={<Home />} />
-            <Route path="books" element={<BookListing />} />
-            <Route path="books/:slug" element={<BookDetailPage />} />
-            <Route path="books/featured" element={<FeaturedBooks />} />
-            <Route path="books/latest" element={<LatestBooks />} />
+            {/* Home page - rendered at / */}
+            <Route index element={<Home />} />
+
+            {/* Book routes */}
+            <Route path="/books" element={<BookListing />} />
+            <Route path="/books/:slug" element={<BookDetailPage />} />
+            <Route path="/books/featured" element={<FeaturedBooks />} />
+            <Route path="/books/latest" element={<LatestBooks />} />
+            <Route path="/books/category/:category" element={<BooksByCategory />} />
+
+            {/* Categories */}
+            <Route path="/categories" element={<Categories />} />
+
+            {/* Protected user routes */}
             <Route
-              path="books/category/:category"
-              element={<BooksByCategory />}
-            />
-            <Route
-              path="wishlist"
+              path="/wishlist"
               element={
                 <ProtectedRoute>
                   <WishlistPage />
                 </ProtectedRoute>
               }
             />
+
             <Route
-              path="cart"
+              path="/cart"
               element={
                 <ProtectedRoute>
                   <CartPage />
                 </ProtectedRoute>
               }
             />
+
             <Route
-              path="checkout"
+              path="/checkout"
               element={
                 <ProtectedRoute>
                   <CheckoutPage />
                 </ProtectedRoute>
               }
             />
-            <Route path="categories" element={<Categories />} />
+
             <Route
-              path="order-confirmation/:orderId"
+              path="/order-confirmation/:orderId"
               element={
                 <ProtectedRoute>
                   <OrderConfirmation />
                 </ProtectedRoute>
               }
             />
+
             <Route
-              path="order-cancellation"
+              path="/order-cancellation"
               element={
                 <ProtectedRoute>
                   <OrderCancellation />
                 </ProtectedRoute>
               }
             />
-            {/* user profile */}
+
+            {/* User profile */}
             <Route
-              path="user/profile"
+              path="/user/profile"
               element={
                 <ProtectedRoute>
                   <ProfilePage />
@@ -134,16 +140,17 @@ const App = () => {
             />
           </Route>
 
-          {/* admin routes */}
-          {/* <Route element={<AdminPrtoctedRoute role={userRole} user={token} />}> */}
+          {/* Admin routes */}
           <Route path="/admin" element={<AdminLayout />}>
-            <Route path="books" element={<BookLayout />}>
+            <Route path="/admin/books" element={<BookLayout />}>
               <Route index element={<BookManagement />} />
-              <Route path="add" element={<AddBook />} />
-              <Route path="edit/:slug" element={<EditBook />} />
+              <Route path="/admin/books/add" element={<AddBook />} />
+              <Route path="/admin/books/edit/:slug" element={<EditBook />} />
             </Route>
           </Route>
-          {/* </Route> */}
+
+          {/* Fallback route for 404 - must be last */}
+          <Route path="*" element={<ErrorPage />} />
         </Routes>
       </BrowserRouter>
 

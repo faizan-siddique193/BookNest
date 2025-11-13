@@ -41,17 +41,17 @@ const Navbar = () => {
     {
       id: 1,
       title: "Books",
-      link: "/home/books",
+      link: "/books",
     },
     {
       id: 2,
       title: "Categories",
-      link: "/home/categories",
+      link: "/categories",
     },
     {
       id: 3,
       title: "Best Seller",
-      link: "/home/books/featured",
+      link: "/books/featured",
     },
   ];
 
@@ -62,7 +62,7 @@ const Navbar = () => {
           {/* Logo and Mobile Menu Button */}
           <div className="flex items-center">
             {/* Logo */}
-            <Link to="/home" className="flex-shrink-0">
+            <Link to="/" className="flex-shrink-0">
               <h1 className="text-2xl font-bold text-accent hover:text-secondary transition-colors">
                 BookNest
               </h1>
