@@ -67,14 +67,13 @@ const App = () => {
     <>
       <BrowserRouter>
         <Routes>
-
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/unauthorized" element={<ErrorPage />} />
 
           {/* Protected layout with nested routes */}
           <Route path="/" element={<Layout />}>
-            <Route index element={<Home />} />
+            <Route path="/home" index element={<Home />} />
             <Route path="books" element={<BookListing />} />
             <Route path="books/:slug" element={<BookDetailPage />} />
             <Route path="books/featured" element={<FeaturedBooks />} />
