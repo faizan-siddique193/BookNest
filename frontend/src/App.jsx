@@ -39,8 +39,6 @@ import { getCartItem } from "./feature/cart/cartAction.js";
 import { getWishlistItem } from "./feature/wishlist/wishlistAction.js";
 import AdminPrtoctedRoute from "./routes/AdminRoutes.jsx";
 
-import { Navigate } from "react-router-dom";
-
 const App = () => {
   const dispatch = useDispatch();
   const [initializing, setInitializing] = useState(true);
@@ -69,14 +67,13 @@ const App = () => {
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Navigate to="/home" replace />} />
 
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/unauthorized" element={<ErrorPage />} />
 
           {/* Protected layout with nested routes */}
-          <Route path="/home" element={<Layout />}>
+          <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="books" element={<BookListing />} />
             <Route path="books/:slug" element={<BookDetailPage />} />
