@@ -20,9 +20,9 @@ const LatestBooks = () => {
       <div className="text-primary pl-10 pt-4 mb-10">
         <Breadcrumb
           items={[
-            { label: "Home", path: "/home" },
-            { label: "Books", path: "/home/books" },
-            { label: "Latest", path: "#" },
+            { label: "Home", path: "/" },
+            { label: "Books", path: "/books" },
+            { label: "Latest", path: "" },
           ]}
         />
       </div>

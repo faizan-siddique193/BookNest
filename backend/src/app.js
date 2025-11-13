@@ -13,7 +13,7 @@ import { webhookEndpoints } from "./controllers/payment.controller.js";
 
 const app = express();
 
-app.use(
+/* app.use(
   cors({
     origin: [
       process.env.CROSS_ORIGIN_LOCAL,
@@ -23,7 +23,7 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   })
-);
+); */
 
 // IMPORTANT: Webhook route BEFORE body parsers (needs raw body)
 app.post(

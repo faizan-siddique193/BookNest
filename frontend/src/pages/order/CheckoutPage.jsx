@@ -57,8 +57,6 @@ const CheckoutPage = () => {
         dispatch(clearCart());
         localStorage.removeItem("persist:cart");
 
-        console.log("Stripe checkout response:", response);
-
         //  Access the url from response.data
         if (!response.data?.url) {
           toast.error("Stripe session creation failed");

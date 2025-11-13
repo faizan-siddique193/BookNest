@@ -136,9 +136,9 @@ const BookDetailPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <Breadcrumb
           items={[
-            { label: "Home", path: "/home" },
-            { label: "Books", path: "/home/books" },
-            { label: "Book Detail", path: "#" },
+            { label: "Home", path: "/" },
+            { label: "Books", path: "/books" },
+            { label: "Book Detail", path: "" },
           ]}
         />
       </div>

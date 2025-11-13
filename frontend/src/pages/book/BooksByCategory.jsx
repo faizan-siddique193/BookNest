@@ -37,8 +37,8 @@ const BooksByCategory = () => {
       <div className="text-primary pl-10 pt-4 ">
         <Breadcrumb
           items={[
-            { label: "Home", path: "/home" },
-            { label: "Books", path: "/home/books" },
+            { label: "Home", path: "/" },
+            { label: "Books", path: "/books" },
             { label: "Category", path: "" },
           ]}
         />
