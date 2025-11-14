@@ -1,15 +1,12 @@
 import React, { useEffect } from "react";
 import BookGrid from "../../Component/book/booklisting/BookGrid";
 import { BookCardSkeleton, Breadcrumb } from "../../Component/index";
-import {useSelector } from "react-redux";
-
+import { useSelector } from "react-redux";
 
 const FeaturedBooks = () => {
-  const { loading, featuredBooks } = useSelector((state) => state.book);
+  const { loading, featuredBooks, error } = useSelector((state) => state.book);
 
-
-
-  if (loading) {
+  if (loading || error) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         {[...Array(4)].map((_, idx) => (
