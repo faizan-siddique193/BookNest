@@ -16,11 +16,11 @@ const app = express();
 app.use(
   cors({
     origin: [
-      process.env.CROSS_ORIGIN_LOCAL,
-      process.env.CROSS_ORIGIN_PRODUCTION,
+      process.env.CROSS_ORIGIN_LOCAL || "http://localhost:5000",
+      process.env.CROSS_ORIGIN_PRODUCTION || "book-nest-ochre-eight.vercel.app",
     ],
 
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
   })
 );
