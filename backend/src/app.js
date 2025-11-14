@@ -17,7 +17,7 @@ app.use(
   cors({
     origin: [
       process.env.CROSS_ORIGIN_LOCAL || "http://localhost:5000",
-      process.env.CROSS_ORIGIN_PRODUCTION || "book-nest-ochre-eight.vercel.app",
+      process.env.CROSS_ORIGIN_PRODUCTION || "https://book-nest-ochre-eight.vercel.app",
     ],
 
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
