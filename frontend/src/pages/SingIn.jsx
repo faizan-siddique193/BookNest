@@ -56,7 +56,7 @@ const SignIn = () => {
       reset();
       await dispatch(getLoginUser({ token })).unwrap();
       // clear signin state
-      navigate("/home");
+      navigate("/");
       // send token to the backend
       toast.success("Logined Successfully");
       dispatch(clearSignInAuthState());

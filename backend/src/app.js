@@ -15,11 +15,9 @@ const app = express();
 
 app.use(
   cors({
-    origin: [
-      process.env.CROSS_ORIGIN_LOCAL || "http://localhost:5000",
-      process.env.CROSS_ORIGIN_PRODUCTION || "https://book-nest-ochre-eight.vercel.app",
-    ],
-
+    origin: {
+    
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
   })

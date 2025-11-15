@@ -178,7 +178,7 @@ const Navbar = () => {
         `}
                 >
                   <Link
-                    to="/home/user/profile"
+                    to="/user/profile"
                     className="block hover:text-accent"
                   >
                     Profile
