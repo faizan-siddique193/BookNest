@@ -68,6 +68,8 @@ const updateProfileAvatar = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Avatar is required");
   }
 
+  console.log("Avatar url:: ", avatar);
+
   const avatarUrl = await uploadOnCloudinary(avatar);
 
   if (!avatarUrl) {

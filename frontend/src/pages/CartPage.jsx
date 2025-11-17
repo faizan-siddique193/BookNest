@@ -58,8 +58,10 @@ const CartPage = () => {
   );
 
   // get cart items on mount
+  useEffect(() => {
+    dispatch(getCartItem());
+  }, []);
 
-  
   // Empty cart state
   if (!cart?.items || cart.items.length === 0) {
     return (

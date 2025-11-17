@@ -40,7 +40,7 @@ const CheckoutPage = () => {
 
       // Step 2: Handle cash order
       if (paymentMethod === "cash-on-delivery") {
-        navigate(`/home/order-confirmation/${orderId}`);
+        navigate(`/order-confirmation/${orderId}`);
         dispatch(clearCart());
         localStorage.removeItem("persist:cart");
         setOrderSuccess(true);
@@ -85,7 +85,7 @@ const CheckoutPage = () => {
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link
-              to="/home/books"
+              to="/books"
               className="px-6 py-3 bg-accent text-white rounded-lg font-medium hover:bg-accent/90 transition-colors"
             >
               Continue Shopping
@@ -107,10 +107,10 @@ const CheckoutPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Breadcrumb
           items={[
-            { label: "Home", path: "/home" },
-            { label: "Books", path: "/home/books" },
-            { label: "Cart", path: "/home/cart" },
-            { label: "Checkout", path: "/home/checkout" },
+            { label: "Home", path: "/" },
+            { label: "Books", path: "/books" },
+            { label: "Cart", path: "/cart" },
+            { label: "Checkout", path: "/checkout" },
           ]}
         />
 

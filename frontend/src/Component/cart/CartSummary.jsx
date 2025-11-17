@@ -36,7 +36,7 @@ const CartSummary = ({ subtotal =0,shippingFee = 0, total = 0 }) => {
       </div>
 
       <Link
-        to="/home/checkout"
+        to="/checkout"
         className="block w-full py-3 px-6 bg-accent text-white rounded-lg font-medium hover:bg-accent/90 transition-colors text-center flex items-center justify-center"
       >
         Proceed to Checkout

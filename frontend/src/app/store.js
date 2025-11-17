@@ -8,6 +8,7 @@ import cartReducer from "../feature/cart/cartSlice";
 import wishlistReducer from "../feature/wishlist/wishlistSlice";
 import paymentReducer from "../feature/payment/paymentSlice";
 import orderRedcuer from "../feature/order/orderSlice";
+import reviewReducer from "../feature/review/reviewSlice";
 
 /* const persistConfig = {
   key: "root",
@@ -37,6 +38,7 @@ const store = configureStore({
     wishlist: wishlistReducer,
     order: orderRedcuer,
     payment: paymentReducer,
+    review: reviewReducer,
   },
 });
 

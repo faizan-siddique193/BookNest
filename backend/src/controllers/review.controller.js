@@ -5,44 +5,51 @@ import { Book } from "../models/book.model.js";
 import { ApiResponse } from "../utils/ApiRespone.js";
 import { Review } from "../models/review.model.js";
 
-// Validation helper
+// Validation for object id
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 // Create a review
 const createReview = asyncHandler(async (req, res) => {
-  const { bookId } = req.params;
+  const { slug } = req.params;
   const userId = req.user.user_id;
   const { rating, comment } = req.body;
 
-  // Validate inputs
-  if (!isValidObjectId(bookId)) {
-    throw new ApiError(400, "Invalid book ID.");
-  }
-
-  if (!rating || typeof rating !== "number" || rating < 1 || rating > 5) {
-    throw new ApiError(400, "Rating must be a number between 1 and 5.");
+  if (
+    !rating ||
+    typeof rating !== "number" ||
+    rating < 1 ||
+    rating > 5 ||
+    !comment
+  ) {
+    throw new ApiError(404, "All fields are required");
   }
 
   // Sanitize comment
   const sanitizedComment = comment ? String(comment).trim().slice(0, 1000) : "";
 
   // Check if book exists
-  const book = await Book.findById(bookId).select("_id");
+  const book = await Book.findOne({ slug: slug });
   if (!book) throw new ApiError(404, "Book not found.");
 
   // Prevent duplicate reviews
-  const existing = await Review.findOne({ bookId, userId });
+  const existing = await Review.findOne({ slug, userId });
   if (existing) {
-    throw new ApiError(409, "You have already reviewed this book.");
+    return res.json(
+      new ApiResponse(409, "You have already reviewed this book.")
+    );
   }
 
   // Create review
   const review = await Review.create({
     userId,
-    bookId,
+    bookId: book._id,
     rating,
     comment: sanitizedComment,
-  });
+  }).select("userId");
+
+  if (!review) {
+    throw new ApiError(505, "Something went wrong while creating review");
+  }
 
   return res
     .status(201)
@@ -51,28 +58,24 @@ const createReview = asyncHandler(async (req, res) => {
 
 // Get all reviews for a specific book
 const getBookReviews = asyncHandler(async (req, res) => {
-  const { bookId } = req.params;
-
-  if (!isValidObjectId(bookId)) {
-    throw new ApiError(400, "Invalid book ID.");
-  }
+  const { slug } = req.params;
 
   const page = Math.max(parseInt(req.query.page) || 1, 1);
   const limit = Math.min(parseInt(req.query.limit) || 10, 50);
   const skip = (page - 1) * limit;
 
   // Check if book exists
-  const book = await Book.findById(bookId).select("_id");
+  const book = await Book.findOne({ slug: slug });
   if (!book) throw new ApiError(404, "Book not found.");
 
   const [items, total] = await Promise.all([
-    Review.find({ bookId })
+    Review.find({ bookId: book._id })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate("userId", "fullName email")
+      .populate("userInfo", "fullName")
       .lean(),
-    Review.countDocuments({ bookId }),
+    Review.countDocuments({ bookId: book._id }),
   ]);
 
   return res.status(200).json(
@@ -136,39 +139,38 @@ const updateReview = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid review ID.");
   }
 
-  // Validate at least one field is being updated
+  // At least one field required
   if (rating === undefined && comment === undefined) {
-    throw new ApiError(400, "Provide at least rating or comment to update.");
+    throw new ApiError(
+      400,
+      "Provide at least one field to update (rating or comment)."
+    );
   }
 
-  // Find review and check ownership
-  const review = await Review.findById(reviewId);
-  if (!review) throw new ApiError(404, "Review not found.");
-
-  if (String(review.userId) !== String(userId)) {
-    throw new ApiError(403, "You can only edit your own reviews.");
-  }
-
-  // Build update object
-  const updates = {};
-
+  // Validate rating only if provided
   if (rating !== undefined) {
     if (typeof rating !== "number" || rating < 1 || rating > 5) {
       throw new ApiError(400, "Rating must be a number between 1 and 5.");
     }
-    updates.rating = rating;
   }
 
-  if (comment !== undefined) {
-    updates.comment = String(comment).trim().slice(0, 1000);
-  }
+  const updatedReview = await Review.findOneAndUpdate(
+    { _id: reviewId, userId },
+    {
+      ...(rating !== undefined && { rating }),
+      ...(comment !== undefined && {
+        comment: String(comment).trim().slice(0, 1000),
+      }),
+    },
+    { new: true }
+  );
 
-  // Update review
-  const updatedReview = await Review.findByIdAndUpdate(
-    reviewId,
-    { $set: updates },
-    { new: true, runValidators: true }
-  ).populate("bookId", "title author");
+  if (!updatedReview) {
+    throw new ApiError(
+      404,
+      "Review not found or you are not allowed to update it."
+    );
+  }
 
   return res
     .status(200)
@@ -179,7 +181,7 @@ const updateReview = asyncHandler(async (req, res) => {
 const deleteReview = asyncHandler(async (req, res) => {
   const { reviewId } = req.params;
   const userId = req.user.user_id;
-  const isAdmin = req.user?.role === "admin";
+  // const isAdmin = req.user?.role === "admin";
 
   if (!isValidObjectId(reviewId)) {
     throw new ApiError(400, "Invalid review ID.");
@@ -189,7 +191,7 @@ const deleteReview = asyncHandler(async (req, res) => {
   if (!review) throw new ApiError(404, "Review not found.");
 
   // Check permissions (owner or admin)
-  if (!isAdmin && String(review.userId) !== String(userId)) {
+  if (String(review.userId) !== String(userId)) {
     throw new ApiError(403, "You can only delete your own reviews.");
   }
 

@@ -18,23 +18,23 @@ export const categoriesOption = [
 export const footerExploreLinks = [
   {
     title: "Home",
-    path: "/home",
+    path: "/",
   },
   {
     title: "Books",
-    path: "/home/books",
+    path: "/books",
   },
   {
     title: "Bestseller",
-    path: "/home/books/featured",
+    path: "/books/featured",
   },
   {
     title: "New Releases",
-    path: "/home/books/latest",
+    path: "/books/latest",
   },
   {
     title: "Categories",
-    path: "/",
+    path: "/categories",
   },
 ];
 

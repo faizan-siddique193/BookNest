@@ -66,8 +66,8 @@ const Categories = () => {
       <div className="text-primary pl-10 pt-4 mb-10">
         <Breadcrumb
           items={[
-            { label: "Home", path: "/home" },
-            { label: "Books", path: "/home/books" },
+            { label: "Home", path: "/" },
+            { label: "Books", path: "/books" },
             { label: "categories", path: "#" },
           ]}
         />
@@ -89,7 +89,7 @@ const Categories = () => {
           {bookCategories.map((category) => (
             <Link
               key={category?.id}
-              to={`/home/books/category/${category?.slug}`}
+              to={`/books/category/${category?.slug}`}
               className="group bg-white p-5 rounded-xl shadow-sm hover:shadow-md transition-all border border-gray-100 text-center"
             >
               <div className="flex justify-center mb-3">

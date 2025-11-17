@@ -121,14 +121,14 @@ const Navbar = () => {
           {/* Icons and Auth */}
           <div className="flex items-center space-x-4">
             <Link
-              to="/home/wishlist"
+              to="/wishlist"
               className="p-2 rounded-full hover:bg-[#34495E] transition-colors"
               aria-label="Wishlist"
             >
               <Heart className="h-5 w-5 text-secondary hover:text-accent" />
             </Link>
             <Link
-              to="/home/cart"
+              to="/cart"
               className="p-2 rounded-full hover:bg-[#34495E] transition-colors relative"
               aria-label="Shopping Cart"
             >

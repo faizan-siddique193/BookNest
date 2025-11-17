@@ -12,12 +12,12 @@ import { verifyFirebaseToken } from "../middlewares/verifyFirrebaseToken.middlew
 
 const reviewRouter = Router();
 
-// Public routes (no auth required)
-reviewRouter.route("/book/:bookId").get(getBookReviews); // Get all reviews for a book
+// Get all reviews for a book
+reviewRouter.route("/book/:slug").get(getBookReviews);
 reviewRouter.route("/book/:bookId/stats").get(getBookReviewStats); // Get rating statistics
 
 // Protected routes (auth required)
-reviewRouter.route("/book/:bookId").post(verifyFirebaseToken, createReview); // Create review
+reviewRouter.route("/book/:slug").post(verifyFirebaseToken, createReview); // Create review
 reviewRouter
   .route("/book/:bookId/check")
   .get(verifyFirebaseToken, checkUserReview); // Check if user reviewed

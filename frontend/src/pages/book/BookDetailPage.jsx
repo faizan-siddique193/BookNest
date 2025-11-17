@@ -13,11 +13,12 @@ import {
   Minus,
 } from "lucide-react";
 import {
-  ReviewsList,
   AddComment,
   AboutAuthor,
   BookDescription,
   Breadcrumb,
+  ReviewForm,
+  ReviewCard,
 } from "../../Component/index";
 import { useDispatch, useSelector } from "react-redux";
 import { getBookById } from "../../feature/book/bookAction";
@@ -36,12 +37,18 @@ import {
   addWishlistOptimistic,
   removeWishlistOptimistic,
 } from "../../feature/wishlist/wishlistSlice";
+import { getReviewsByBookId } from "../../feature/review/reviewAction";
 
 const BookDetailPage = () => {
   const [activeTab, setActiveTab] = useState("description");
   const [quantity, setQuantity] = useState(0);
   const [book, setBook] = useState(null);
   const { slug } = useParams();
+  const { loading, bookReviews } = useSelector((state) => state.review);
+
+  // TODO: DELETE THIS COMMENT
+
+  console.log("Bookreviews:: ", bookReviews);
   const dispatch = useDispatch();
 
   // add to wishlist
@@ -73,8 +80,8 @@ const BookDetailPage = () => {
       try {
         const response = await dispatch(getBookById({ slug })).unwrap();
         console.log("Book detail response:", response);
-
         setBook(response.data);
+        await dispatch(getReviewsByBookId({ slug })).unwrap();
       } catch (error) {
         console.error("Internal server error:", error);
       }
@@ -92,44 +99,6 @@ const BookDetailPage = () => {
     }
   };
 
-  const [review, setReview] = useState({
-    rating: 5,
-    comment: "",
-    name: "",
-  });
-  const [reviews, setReviews] = useState([
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      rating: 5,
-      comment:
-        "This book completely transformed my perspective on classic literature. The character development is exceptional!",
-      date: "2023-08-15",
-    },
-    {
-      id: 2,
-      name: "Michael Torres",
-      rating: 4,
-      comment:
-        "Beautiful prose and compelling narrative. The ending felt a bit rushed though.",
-      date: "2023-07-22",
-    },
-  ]);
-
-  /*  const handleSubmitReview = (e) => {
-    e.preventDefault();
-    const newReview = {
-      id: reviews.length + 1,
-      name: review.name || "Anonymous",
-      rating: review.rating,
-      comment: review.comment,
-      date: new Date().toISOString().split("T")[0],
-    };
-    setReviews([...reviews, newReview]);
-    setReview({ rating: 5, comment: "", name: "" });
-  };
- */
-
   return (
     <div className="bg-background min-h-screen">
       {/* Breadcrumb */}
@@ -145,25 +114,26 @@ const BookDetailPage = () => {
 
       {/* Main Book Display */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row justify-center gap-8">
+        <div className="flex flex-col lg:flex-row justify-start items-start gap-8">
           {/* Left Column - Book Cover */}
-          <div className="grow-[6]">
+          <div className="w-full lg:w-[300px] flex-shrink-0 flex justify-center items-start">
             <img
               src={book?.image}
               alt={book?.title}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105 rounded-xl"
+              className="w-full h-auto max-h-[500px] object-contain rounded-xl transition-transform duration-300 group-hover:scale-105"
             />
           </div>
 
           {/* Right Column - Book Info */}
-          <div className="grow-[10]">
+          <div className="flex-1 max-w-4xl">
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+              {/* Book Title */}
               <h1 className="text-3xl font-bold text-primary mb-2">
                 {book?.title}
               </h1>
               <p className="text-lg text-muted mb-4">by {book?.author}</p>
 
-              {/* book average rating */}
+              {/* Average Rating */}
               <div className="flex items-center mb-6">
                 <div className="flex mr-3">
                   {[1, 2, 3, 4, 5].map((star) => (
@@ -181,14 +151,17 @@ const BookDetailPage = () => {
                   {book?.averageRating.toFixed(1)}
                 </span>
                 <span className="mx-2 text-muted">•</span>
+                <button className="text-accent">Write Review</button>
               </div>
 
+              {/* Price */}
               <div className="flex items-center mb-6">
                 <span className="text-lg font-bold text-primary mr-3">
                   ${book?.price.toFixed(2)}
                 </span>
               </div>
 
+              {/* Category & Availability */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                   <p className="text-sm text-muted">Category</p>
@@ -202,15 +175,14 @@ const BookDetailPage = () => {
                     }`}
                   >
                     {book?.stock > 0
-                      ? `In Stock (${book?.stock} available)`
+                      ? `In Stock (${book?.stock})`
                       : "Out of Stock"}
                   </p>
                 </div>
               </div>
 
-              {/* udate book qunatity */}
+              {/* Add to Cart & Wishlist */}
               <div className="flex flex-wrap items-center gap-4 mb-8">
-                {/* add to cart  */}
                 <button
                   className={`flex-1 py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center ${
                     book?.stock > 0
@@ -224,7 +196,6 @@ const BookDetailPage = () => {
                   Add to Cart
                 </button>
 
-                {/* Add/Delete Wishlist */}
                 <button
                   className="p-2 border border-gray-300 rounded hover:bg-gray-50"
                   onClick={() => handleWishlistItem(book)}
@@ -268,7 +239,7 @@ const BookDetailPage = () => {
               >
                 About the Author
               </button> */}
-              {/* <button
+              <button
                 className={`py-4 px-6 font-medium text-sm transition-colors ${
                   activeTab === "reviews"
                     ? "text-accent border-b-2 border-accent"
@@ -277,8 +248,8 @@ const BookDetailPage = () => {
                 onClick={() => setActiveTab("reviews")}
                 id="reviews"
               >
-                Reviews ({reviews.length})
-              </button> */}
+                Reviews ({bookReviews?.items?.length})
+              </button>
             </nav>
           </div>
 
@@ -295,65 +266,17 @@ const BookDetailPage = () => {
               <div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   {/* Reviews Summary */}
-                  <div className="md:col-span-1 bg-primary/5 rounded-lg p-6">
-                    <h3 className="text-xl font-bold text-primary mb-4">
-                      Customer Reviews
-                    </h3>
-                    <div className="flex items-center mb-4">
-                      <div className="text-4xl font-bold text-primary mr-4">
-                        {book?.averageRating.toFixed(1)}
-                      </div>
-                      <div>
-                        {/* display rating */}
-                        <div className="flex mb-1">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              className={`h-5 w-5 ${
-                                star <= Math.floor(book?.averageRating)
-                                  ? "text-yellow-400 fill-yellow-400"
-                                  : "text-gray-300"
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        <p className="text-muted text-sm">
-                          Based on {reviews.length} reviews
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* display average rating */}
-                    <div className="space-y-3">
-                      {[5, 4, 3, 2, 1].reverse().map((rating) => (
-                        <div key={rating} className="flex items-center">
-                          <span className="text-sm text-primary w-8">
-                            {rating} star
-                          </span>
-                          <div className="flex-1 h-2 bg-gray-200 rounded-full mx-2 overflow-hidden">
-                            <div
-                              className="h-full bg-accent rounded-full"
-                              style={{ width: `${(rating / 5) * 100}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-sm text-muted">
-                            {((rating / 5) * 100).toFixed(0)}%
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+                  <div>
+                    {bookReviews?.items?.map((review) => (
+                      <ReviewCard key={review._id} review={review} />
+                    ))}
                   </div>
 
-                  {/* display customer Reviews List  */}
                   <div className="md:col-span-2">
-                    <ReviewsList />
-                    {/* Add Review Form */}
-                    <div className="mt-8 pt-6 border-t border-gray-200">
-                      <h3 className="text-xl font-bold text-primary mb-4">
-                        Leave a Review
-                      </h3>
-                      <AddComment />
-                    </div>
+                    <h3 className="text-xl font-bold text-primary mb-4">
+                      Leave a Review
+                    </h3>
+                    <ReviewForm />
                   </div>
                 </div>
               </div>
@@ -398,43 +321,6 @@ const BookDetailPage = () => {
           </div>
         </div> */}
       </div>
-
-      {/* TODO: Mobile Sticky Add to Cart */}
-      {/* <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-lg z-10">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <button 
-              className="p-2 border border-gray-300 rounded-lg"
-              onClick={() => handleQuantityChange('decrement')}
-            >
-              <Minus className="h-4 w-4" />
-            </button>
-            <span className="px-3 py-1 text-primary font-medium">{quantity}</span>
-            <button 
-              className="p-2 border border-gray-300 rounded-lg"
-              onClick={() => handleQuantityChange('increment')}
-            >
-              <Plus className="h-4 w-4" />
-            </button>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <button className="p-3 border border-gray-300 rounded-lg">
-              <Heart className="h-5 w-5 text-muted" />
-            </button>
-            <button 
-              className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                book.stock > 0 
-                  ? 'bg-accent text-white' 
-                  : 'bg-gray-200 text-muted'
-              }`}
-              disabled={book.stock <= 0}
-            >
-              Add to Cart
-            </button>
-          </div>
-        </div>
-      </div> */}
     </div>
   );
 };

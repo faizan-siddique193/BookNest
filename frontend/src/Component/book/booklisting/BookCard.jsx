@@ -57,7 +57,7 @@ const BookCard = ({ book }) => {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all flex flex-col w-full max-w-[250px] mx-auto">
       {/* Book Cover */}
-      <Link to={`/home/books/${book.slug}`} className="w-full block">
+      <Link to={`/books/${book.slug}`} className="w-full block">
         <div className="aspect-[2/3] relative bg-gray-100 overflow-hidden">
           <img
             src={coverImage}

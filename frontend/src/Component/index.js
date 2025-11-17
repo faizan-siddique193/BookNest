@@ -17,7 +17,7 @@ import Testimonial from "./Testimonial";
 import AboutAuthor from "./book/bookdetail/AboutAuthor";
 import AddComment from "./book/bookdetail/AddComment";
 import BookInfo from "./book/bookdetail/BookInfo";
-import ReviewsList from "./book/bookdetail/ReviewsList";
+import ReviewsList from "./book/bookdetail/ReviewCard";
 import BookDescription from "./book/bookdetail/BookDescription";
 import RelatedBooks from "./book/bookdetail/RelatedBooks";
 import Textarea from "./Textarea";
@@ -37,8 +37,13 @@ import ProfileForm from "./customer/ProfileForm";
 import ProfileNav from "./customer/ProfileNav";
 import ProfileOverview from "./customer/ProfileOverview";
 import Wishlist from "./customer/Wishlist";
+import ReviewForm from "./book/bookdetail/ReviewForm";
+import ReviewCard from "./book/bookdetail/ReviewCard";
+
 
 export {
+  ReviewCard,
+  ReviewForm,
   Wishlist,
   ProfileForm,
   ProfileOverview,

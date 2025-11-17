@@ -25,7 +25,14 @@ const reviewSchema = new Schema(
       trim: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+reviewSchema.virtual("userInfo", {
+  ref: "User",
+  localField: "userId", // in Review
+  foreignField: "firebaseUserId", // in User
+  justOne: true,
+});
 
 export const Review = mongoose.model("Review", reviewSchema);
