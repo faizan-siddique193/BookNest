@@ -73,7 +73,6 @@ const SignIn = () => {
     }
   };
 
-
   // handle google login
   const handleGoogleLogin = async () => {
     try {
@@ -87,7 +86,7 @@ const SignIn = () => {
 
       await dispatch(getLoginUser({ token })).unwrap();
       // navigate
-      navigate("/home");
+      navigate("/");
       dispatch(clearSignInWithGoogleAuthState());
       dispatch(clearUserDbState());
     } catch (error) {
@@ -101,8 +100,6 @@ const SignIn = () => {
       });
     }
   };
-
- 
 
   return (
     <div className="w-full min-h-screen bg-background flex items-center justify-center">

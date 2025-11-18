@@ -84,7 +84,7 @@ const SignUp = () => {
       // get loggedin user
       dispatch(getLoginUser({ token }));
 
-      navigate("/home");
+      navigate("/");
       dispatch(clearUserDbState());
       dispatch(clearSignInWithGoogleAuthState());
     } catch (error) {
