@@ -131,7 +131,7 @@ const updateBook = asyncHandler(async (req, res) => {
   }
 
   const updatedBook = await Book.findOneAndUpdate({ slug }, updates, {
-    returnDocument: "after", 
+    returnDocument: "after",
     runValidators: true,
   });
 
@@ -152,7 +152,7 @@ const getBookBySlug = asyncHandler(async (req, res) => {
   const book = await Book.findOne({ slug });
 
   if (!book) {
-    return res.status(500).json("Something went wrong while getting a book");
+    return res.status(404).json("Something went wrong while getting a book");
   }
 
   return res.json(new ApiResponse(200, book, "Book found successfully"));
@@ -232,7 +232,7 @@ const getFeaturedBooks = asyncHandler(async (req, res) => {
 
 // get latest books
 const getLatestBooks = asyncHandler(async (req, res) => {
-  const days = parseInt(req.query.days) || 30; 
+  const days = parseInt(req.query.days) || 30;
   const now = new Date();
   const cutoffDate = new Date(now);
   cutoffDate.setDate(cutoffDate.getDate() - days);
@@ -242,7 +242,7 @@ const getLatestBooks = asyncHandler(async (req, res) => {
   }).sort({ createdAt: -1 });
 
   if (!latestBooks || latestBooks.length === 0) {
-    return res.json(new ApiResponse(404, "Books not found"));
+    return res.json(new ApiResponse(404, "", "Books not found"));
   }
 
   return res

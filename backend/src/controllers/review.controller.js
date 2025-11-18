@@ -32,12 +32,12 @@ const createReview = asyncHandler(async (req, res) => {
   if (!book) throw new ApiError(404, "Book not found.");
 
   // Prevent duplicate reviews
-  const existing = await Review.findOne({ slug, userId });
+  /*  const existing = await Review.findOne({ bookId: book._id, userId });
   if (existing) {
     return res.json(
-      new ApiResponse(409, "You have already reviewed this book.")
+      new ApiResponse(409, "", "You have already reviewed this book.")
     );
-  }
+  } */
 
   // Create review
   const review = await Review.create({
@@ -45,7 +45,7 @@ const createReview = asyncHandler(async (req, res) => {
     bookId: book._id,
     rating,
     comment: sanitizedComment,
-  }).select("userId");
+  });
 
   if (!review) {
     throw new ApiError(505, "Something went wrong while creating review");
@@ -298,6 +298,35 @@ const getBookReviewStats = asyncHandler(async (req, res) => {
     );
 });
 
+const getAllReviews = asyncHandler(async (req, res) => {
+  const { p } = req.query;
+  const page = parseInt(p) || 1;
+  const limit = 4;
+  const skip = (page - 1) * limit;
+
+  const reviews = await Review.find({ rating: { $gt: 4 } })
+    .skip(skip)
+    .limit(limit)
+    .populate("userInfo", "fullName");
+
+  const totalReviews = await Review.countDocuments({ rating: { $gt: 4 } });
+  if (!reviews || reviews.length === 0) {
+    return res.status(404).json("No reviews found");
+  }
+
+  return res.json(
+    new ApiResponse(
+      200,
+      {
+        reviews,
+        totalPages: Math.ceil(totalReviews / limit),
+        currentPage: page,
+      },
+      "Reviews found successfully"
+    )
+  );
+});
+
 // Check if user has reviewed a book (helper for UI)
 const checkUserReview = asyncHandler(async (req, res) => {
   const { bookId } = req.params;
@@ -329,4 +358,5 @@ export {
   deleteReview,
   getBookReviewStats,
   checkUserReview,
+  getAllReviews,
 };

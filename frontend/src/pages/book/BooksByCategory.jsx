@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Breadcrumb, Pagination } from "../../Component/index";
+import { Breadcrumb, EmptyState, Pagination } from "../../Component/index";
 import { useDispatch, useSelector } from "react-redux";
 import { getBooksByCategory } from "../../feature/book/bookAction";
 import { toast } from "react-toastify";
@@ -13,10 +13,10 @@ const BooksByCategory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const dispatch = useDispatch();
 
+  console.log("Books in category:: ", books);
+
   //   get category from url
   const { category } = useParams();
-  // const {} = useSelector((state)=>state.book)
-  // fetch books by category
   useEffect(() => {
     const fetchBooksByCategory = async () => {
       try {
@@ -24,9 +24,7 @@ const BooksByCategory = () => {
           getBooksByCategory({ category, currentPage })
         ).unwrap();
         setBooks(response.data.books);
-      } catch (error) {
-        toast.error(error?.message || "Failed to load books by category");
-      }
+      } catch (error) {}
     };
 
     fetchBooksByCategory();
@@ -45,17 +43,20 @@ const BooksByCategory = () => {
       </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Main Content */}
-          <div className="flex-1">
-            <BookGrid books={books} viewMode={viewMode} />
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-            />
+        {books.length > 0 ? (
+          <div className="flex flex-col md:flex-row gap-8">
+            <div className="flex-1">
+              <BookGrid books={books} viewMode={viewMode} />
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            </div>
           </div>
-        </div>
+        ) : (
+          <EmptyState />
+        )}
       </main>
     </div>
   );

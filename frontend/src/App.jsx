@@ -32,6 +32,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Loading } from "./Component/index.js";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./config/firebase.js";
+import { getCartItem } from "./feature/cart/cartAction.js";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -53,6 +54,11 @@ const App = () => {
       setInitializing(false);
     });
     return unsubscribe;
+  }, [dispatch]);
+
+  // getcart item
+  useEffect(() => {
+    dispatch(getCartItem());
   }, [dispatch]);
 
   if (initializing) {
@@ -78,7 +84,10 @@ const App = () => {
             <Route path="/books/:slug" element={<BookDetailPage />} />
             <Route path="/books/featured" element={<FeaturedBooks />} />
             <Route path="/books/latest" element={<LatestBooks />} />
-            <Route path="/books/category/:category" element={<BooksByCategory />} />
+            <Route
+              path="/books/category/:category"
+              element={<BooksByCategory />}
+            />
 
             {/* Categories */}
             <Route path="/categories" element={<Categories />} />

@@ -11,10 +11,18 @@ export const createReview = createAsyncThunk(
         comment,
       });
 
-      console.log("create review schema:: ", response);
+      console.log("create review schema:: ", response.data.data);
+
+      // check response status
+      if (!response.data?.success) {
+        return rejectWithValue(
+          response.data?.message || "Failed to delete review"
+        );
+      }
 
       return response.data;
     } catch (error) {
+      console.error("Delete review error:", error);
       return rejectWithValue(
         error.response?.data?.message || "Failed to create review"
       );
@@ -86,6 +94,29 @@ export const deleteReview = createAsyncThunk(
       return rejectWithValue(
         error.response?.data?.message || "Failed to delete review"
       );
+    }
+  }
+);
+
+// get all reviews for testimonial
+
+export const getTestimonialReviews = createAsyncThunk(
+  "reviews/getTestimonial",
+  async ({ currentPage }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.get(
+        `/review/allReview?p=${currentPage}`
+      );
+
+      console.log("Testimonial Review:: ", response);
+
+      if (!response?.data?.success) {
+        return rejectWithValue(response?.data?.message);
+      }
+
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );

@@ -38,6 +38,7 @@ import {
   removeWishlistOptimistic,
 } from "../../feature/wishlist/wishlistSlice";
 import { getReviewsByBookId } from "../../feature/review/reviewAction";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const BookDetailPage = () => {
   const [activeTab, setActiveTab] = useState("description");
@@ -45,6 +46,12 @@ const BookDetailPage = () => {
   const [book, setBook] = useState(null);
   const { slug } = useParams();
   const { loading, bookReviews } = useSelector((state) => state.review);
+
+  // pagination
+  const [page, setPage] = useState(1);
+  const [reviews, setReviews] = useState([]);
+  const [hasMore, setHasMore] = useState(true);
+  const limit = 10;
 
   // TODO: DELETE THIS COMMENT
 
@@ -248,7 +255,11 @@ const BookDetailPage = () => {
                 onClick={() => setActiveTab("reviews")}
                 id="reviews"
               >
-                Reviews ({bookReviews?.items?.length})
+                Reviews (
+                {bookReviews?.items?.length < 10
+                  ? bookReviews?.items?.length
+                  : 10}
+                )
               </button>
             </nav>
           </div>
@@ -266,7 +277,7 @@ const BookDetailPage = () => {
               <div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   {/* Reviews Summary */}
-                  <div>
+                  <div className="">
                     {bookReviews?.items?.map((review) => (
                       <ReviewCard key={review._id} review={review} />
                     ))}

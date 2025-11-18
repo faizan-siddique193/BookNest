@@ -18,7 +18,7 @@ const Wishlist = () => {
         wishlist.map((book) => (
           <div
             key={book.bookId}
-            className=" h-54 rounded-lg border border-red-600"
+            className=" h-54 rounded-lg"
           >
             <img
               className="w-full h-full object-cover rounded"

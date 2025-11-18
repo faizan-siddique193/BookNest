@@ -5,6 +5,7 @@ import {
   getMyReviews,
   deleteReview,
   updateReview,
+  getTestimonialReviews,
 } from "./reviewAction";
 
 // initial state
@@ -14,6 +15,7 @@ const initialState = {
   error: null,
   bookReviews: [],
   userReviews: [],
+  testimoniReviews: [],
   totalReviews: null,
   totalPages: 1,
   currentPage: 1,
@@ -34,7 +36,7 @@ const reivewSlice = createSlice({
       .addCase(createReview.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.bookReviews.unshift(action.payload.data || action.payload);
+        state.bookReviews.items.unshift(action.payload.data || action.payload);
       })
       .addCase(createReview.rejected, (state, action) => {
         state.loading = false;
@@ -142,6 +144,27 @@ const reivewSlice = createSlice({
         state.loading = false;
         state.success = false;
         state.error = action.payload || "Failed to delete review";
+      });
+
+    //  get testimonial reviews
+
+    builder
+      .addCase(getTestimonialReviews.pending, (state) => {
+        state.loading = true;
+        state.success = false;
+        state.error = false;
+      })
+      .addCase(getTestimonialReviews.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.testimoniReviews = action.payload.data.reviews;
+        state.currentPage = action.payload.data.currentPage;
+        state.totalPages = action.payload.data.totalPages;
+      })
+      .addCase(getTestimonialReviews.rejected, (state, action) => {
+        state.loading = false;
+        state.success = false;
+        state.error = action.payload.data.message;
       });
   },
 });

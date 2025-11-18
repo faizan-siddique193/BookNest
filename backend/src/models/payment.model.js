@@ -26,7 +26,7 @@ const paymentSchema = new Schema(
     },
     currency: {
       type: String,
-      default: "usd", // or "pkr" if you prefer
+      default: "usd", 
       uppercase: true,
       trim: true,
     },

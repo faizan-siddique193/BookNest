@@ -14,6 +14,7 @@ const initialState = {
   loading: false,
   error: null,
   success: false,
+  totalPage: 1,
 };
 
 const orderSlice = createSlice({
@@ -54,7 +55,8 @@ const orderSlice = createSlice({
       })
       .addCase(getMyOrders.fulfilled, (state, action) => {
         state.loading = false;
-        state.orderInfo.orders = action.payload.data || [];
+        state.orderInfo.orders = action.payload.data.orders || [];
+        state.totalPage = action.payload.data.totalPage;
         state.error = null;
       })
       .addCase(getMyOrders.rejected, (state, action) => {

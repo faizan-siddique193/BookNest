@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { BookCardSkeleton, Breadcrumb } from "../../Component/index";
+import { BookCardSkeleton, Breadcrumb, EmptyState } from "../../Component/index";
 import BookGrid from "../../Component/book/booklisting/BookGrid";
 const LatestBooks = () => {
   const { latestBooks, loading, error } = useSelector((state) => state.book);
@@ -27,7 +27,11 @@ const LatestBooks = () => {
         />
       </div>
       {/* books */}
-      <BookGrid books={latestBooks} />
+
+      {
+      latestBooks?.length > 0?  <BookGrid books={latestBooks} /> : <EmptyState/>
+      }
+     
     </div>
   );
 };

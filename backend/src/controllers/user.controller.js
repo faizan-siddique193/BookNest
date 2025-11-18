@@ -51,7 +51,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
   if (!uid) {
     throw new ApiError(403, "UnAuthorized user");
   }
-  const user = await User.findOne({ firebaseUserId: uid });
+  const user = await User.findOne({ firebaseUserId: uid })
   if (!user) {
     throw new ApiError(500, "Something went wrong while finding a user");
   }
@@ -59,21 +59,19 @@ const getUserProfile = asyncHandler(async (req, res) => {
 });
 
 // upload avatar or chnage avatar
-
-const updateProfileAvatar = asyncHandler(async (req, res) => {
+/* const updateProfileAvatar = asyncHandler(async (req, res) => {
   const userId = req.user.user_id;
-  const avatar = req.files || req.files?.avatar?.[0];
 
-  if (!avatar) {
+  if (!req.files || !req.files.avatar) {
     throw new ApiError(400, "Avatar is required");
   }
 
-  console.log("Avatar url:: ", avatar);
+  const avatarFile = req.files.avatar[0];
 
-  const avatarUrl = await uploadOnCloudinary(avatar);
+  const avatarUrl = await uploadOnCloudinary(avatarFile.path);
 
   if (!avatarUrl) {
-    throw new ApiError(500, "Something went wrong while uploading avatar");
+    throw new ApiError(500, "Upload failed");
   }
 
   const user = await User.findOneAndUpdate(
@@ -82,11 +80,10 @@ const updateProfileAvatar = asyncHandler(async (req, res) => {
     { new: true }
   );
 
-  if (!user) {
-    throw new ApiError(500, "Something went wrong while updating avatar");
-  }
-
-  return res.json(new ApiResponse(200, "Avatar updated successfully"));
+  return res.json(
+    new ApiResponse(200, user, "Avatar updated successfully")
+  );
 });
+ */
 
-export { registerUser, loginUser, getUserProfile, updateProfileAvatar };
+export { registerUser, loginUser, getUserProfile };

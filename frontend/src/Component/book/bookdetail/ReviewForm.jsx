@@ -6,7 +6,10 @@ import Textarea from "../../Textarea";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { createReview } from "../../../feature/review/reviewAction";
+import {
+  createReview,
+  getReviewsByBookId,
+} from "../../../feature/review/reviewAction";
 
 const ReviewForm = () => {
   const [rating, setRating] = useState(0);
@@ -44,8 +47,15 @@ const ReviewForm = () => {
       reset();
       setHover(0);
       setRating(0);
+      // get review
+
+      dispatch(getReviewsByBookId({ slug }));
     } catch (error) {
-      toast.error("Failed to submit review. Please try again");
+      console.log("Review error:: ", error);
+      toast.error(error);
+      setHover(0);
+      setRating(0);
+      reset();
     }
   };
 
@@ -77,7 +87,13 @@ const ReviewForm = () => {
           </div>
           <Input
             type="hidden"
-            {...register("rating", { required: "Rating is required" })}
+            {...register("rating", {
+              required: "Rating is required",
+              min: {
+                value: 1,
+                message: "Please select a rating between 1 and 5.",
+              },
+            })}
           />
           {errors.rating && (
             <span className="text-danger text-xs ml-2">

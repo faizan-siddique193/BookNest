@@ -121,15 +121,33 @@ const placeOrder = asyncHandler(async (req, res) => {
 // get orders for logged in user
 const getMyOrders = asyncHandler(async (req, res) => {
   const userId = req.user.user_id;
-  // get userid
+
+  const { p } = req.query;
+  const page = parseInt(p) || 1;
+  const limit = 2;
+  const skip = (page - 1) * limit;
+
+  const totalOrders = await Order.countDocuments({ userId });
 
   const orders = await Order.find({ userId })
     .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
     .populate("items.bookId", "title author price");
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, orders, "Orders fetched successfully"));
+  // Return empty array if no orders
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        orders: orders || [],
+        currentPage: page,
+        totalPages: Math.ceil(totalOrders / limit),
+        totalOrders,
+      },
+      "Orders fetched successfully"
+    )
+  );
 });
 
 // get order by id

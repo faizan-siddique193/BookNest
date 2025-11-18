@@ -7,6 +7,7 @@ import {
   deleteReview,
   getBookReviewStats,
   checkUserReview,
+  getAllReviews,
 } from "../controllers/review.controller.js";
 import { verifyFirebaseToken } from "../middlewares/verifyFirrebaseToken.middleware.js";
 
@@ -24,5 +25,6 @@ reviewRouter
 reviewRouter.route("/my-reviews").get(verifyFirebaseToken, getMyReviews); // Get user's reviews
 reviewRouter.route("/:reviewId").patch(verifyFirebaseToken, updateReview); // Update review
 reviewRouter.route("/:reviewId").delete(verifyFirebaseToken, deleteReview); // Delete review
+reviewRouter.route("/allReview").get(getAllReviews);
 
 export default reviewRouter;

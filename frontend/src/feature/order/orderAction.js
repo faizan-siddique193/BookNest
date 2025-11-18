@@ -6,8 +6,6 @@ export const createOrder = createAsyncThunk(
   "order/create",
   async (data, { rejectWithValue }) => {
     try {
-     
-
       const response = await axiosInstance.post("/order/create", data);
       console.log("Order response at order action:: ", response.data.data);
       return response.data;
@@ -22,9 +20,16 @@ export const createOrder = createAsyncThunk(
 // Get My Orders
 export const getMyOrders = createAsyncThunk(
   "order/getMyOrders",
-  async (_, { rejectWithValue }) => {
+  async ({ currentPage }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.get("/order/get/orders");
+      const response = await axiosInstance.get(
+        `/order/get/orders?p=${currentPage}`
+      );
+
+      // delete this controller
+
+      console.log("Response:: ", response);
+
       return response.data;
     } catch (error) {
       return rejectWithValue(

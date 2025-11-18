@@ -47,7 +47,7 @@ const FeaturedBooks = () => {
             </p>
           </div>
           <Link
-            to="/home/books/featured"
+            to="/books/featured"
             className="flex items-center text-primary font-medium mt-4 md:mt-0 hover:text-accent transition-colors group"
           >
             View all featured

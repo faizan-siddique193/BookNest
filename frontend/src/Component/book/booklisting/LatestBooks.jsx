@@ -44,20 +44,31 @@ const LatestBooks = () => {
             </div>
             <h2 className="text-3xl font-bold text-primary">Latest Releases</h2>
           </div>
-          <Link
-            to="/home/books/latest"
-            className="flex items-center text-primary font-medium mt-4 md:mt-0 hover:text-accent transition-colors group"
-          >
-            Browse all new arrivals
-            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Link>
+
+          <div>
+            {latestBooks && (
+              <Link
+                to="/books/latest"
+                className="flex items-center text-primary font-medium mt-4 md:mt-0 hover:text-accent transition-colors group"
+              >
+                Browse all new arrivals
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* Books Grid */}
         <div>
-          <BookGrid
-            books={Array.isArray(latestBooks) ? latestBooks.slice(0, 5) : []}
-          />
+          {latestBooks ? (
+            <BookGrid
+              books={Array.isArray(latestBooks) ? latestBooks.slice(0, 5) : []}
+            />
+          ) : (
+            <p className="text-center text-muted mt-6">
+              No new releases yet. Stay tuned for upcoming books!
+            </p>
+          )}
         </div>
 
         {/* Mobile View All Button */}

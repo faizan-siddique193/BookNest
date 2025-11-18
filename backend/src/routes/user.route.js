@@ -3,7 +3,7 @@ import {
   registerUser,
   loginUser,
   getUserProfile,
-  updateProfileAvatar,
+  /* updateProfileAvatar */
 } from "../controllers/user.controller.js";
 import { verifyFirebaseToken } from "../middlewares/verifyFirrebaseToken.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -13,8 +13,8 @@ const userRouter = Router();
 userRouter.route("/register").post(verifyFirebaseToken, registerUser);
 userRouter.route("/login").get(verifyFirebaseToken, loginUser);
 userRouter.route("/profile").get(verifyFirebaseToken, getUserProfile);
-userRouter
+/* userRouter
   .route("/profile/avatar")
-  .put(verifyFirebaseToken, upload.single("avatar"), updateProfileAvatar);
+  .put(verifyFirebaseToken, upload.single("avatar"), updateProfileAvatar); */
 
 export default userRouter;

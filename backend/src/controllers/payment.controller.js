@@ -73,8 +73,8 @@ const createStripePayment = asyncHandler(async (req, res) => {
     mode: "payment",
     line_items: lineItems,
     customer_email: order.shippingAddress?.email,
-    success_url: `${process.env.CROSS_ORIGIN}/home/order-confirmation/${order._id}?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${process.env.CROSS_ORIGIN}/home/checkout?canceled=true`,
+    success_url: `${process.env.CROSS_ORIGIN}/order-confirmation/${order._id}?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${process.env.CROSS_ORIGIN}/checkout?canceled=true`,
     metadata: {
       orderId: String(orderId),
       userId: String(userId),
