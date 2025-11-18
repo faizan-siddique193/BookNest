@@ -179,13 +179,13 @@ const OrderConfirmation = () => {
         {/* Actions */}
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Link
-            to="/home/books"
+            to="/books"
             className="px-6 py-3 bg-accent text-white rounded-lg font-medium hover:bg-accent/90 transition-colors"
           >
             Continue Shopping
           </Link>
           <Link
-            to="/orders"
+            to="/user/profile"
             className="px-6 py-3 border border-primary text-primary rounded-lg font-medium hover:bg-primary/10 transition-colors"
           >
             View Order Details

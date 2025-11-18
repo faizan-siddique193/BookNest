@@ -20,7 +20,7 @@ const ErrorPage = () => {
 
         <div className="flex flex-col sm:flex-row justify-center gap-3">
           <Link
-            to="/home"
+            to="/"
             className="px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition"
           >
             Back to Home
