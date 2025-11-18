@@ -52,7 +52,8 @@ const ProfilePage = () => {
     // In a real app, you would call an API here to update the user's data
   };
 
-  useEffect(() => {
+  
+/*   useEffect(() => {
     const fetchOrders = async () => {
       try {
         await dispatch(getMyOrders({ currentPage })).unwrap();
@@ -62,7 +63,7 @@ const ProfilePage = () => {
     };
 
     fetchOrders();
-  }, [dispatch, currentPage]);
+  }, [dispatch, currentPage]); */
 
   return (
     <div className="bg-background min-h-screen py-8">

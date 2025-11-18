@@ -15,7 +15,7 @@ const LatestBooks = () => {
       try {
         await dispatch(getLatestBooks()).unwrap();
       } catch (error) {
-        toast.error("Something went wrong while fetching latest books");
+        throw new Error(error);
       }
     };
 

@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 const FeaturedBooks = () => {
   const { loading, featuredBooks, error } = useSelector((state) => state.book);
 
-  if (loading || error) {
+  if (!featuredBooks) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         {[...Array(4)].map((_, idx) => (

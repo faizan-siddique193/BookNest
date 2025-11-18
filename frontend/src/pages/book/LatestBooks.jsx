@@ -5,7 +5,7 @@ import BookGrid from "../../Component/book/booklisting/BookGrid";
 const LatestBooks = () => {
   const { latestBooks, loading, error } = useSelector((state) => state.book);
 
-  if (loading || error) {
+  if (!latestBooks) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         {[...Array(4)].map((_, idx) => (

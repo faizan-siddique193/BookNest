@@ -54,6 +54,9 @@ const SignIn = () => {
     try {
       const token = await dispatch(userSignIn({ email, password })).unwrap();
       reset();
+
+      console.log("token:: ", token);
+
       await dispatch(getLoginUser({ token })).unwrap();
       // clear signin state
       navigate("/");

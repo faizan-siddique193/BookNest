@@ -61,8 +61,6 @@ export const googleSignIn = createAsyncThunk("auth/googleSignIn", async () => {
 
     const user = result.user;
     const token = await user.getIdToken();
-    console.log("Get token from google:: ", token);
-
     return token;
   } catch (error) {
     const errorCode = error.code;
@@ -76,7 +74,6 @@ export const userLogout = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await auth.signOut();
-      console.log("Signout response:: ", response);
     } catch (error) {
       return rejectWithValue(error);
     }

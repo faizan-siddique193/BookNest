@@ -56,10 +56,10 @@ const App = () => {
     return unsubscribe;
   }, [dispatch]);
 
-  // getcart item
+/*   // getcart item
   useEffect(() => {
     dispatch(getCartItem());
-  }, [dispatch]);
+  }, [dispatch]); */
 
   if (initializing) {
     return <Loading />;

@@ -17,7 +17,7 @@ const FeaturedBooks = () => {
       try {
         await dispatch(getFeaturedBooks()).unwrap();
       } catch (error) {
-        toast.error("Something went wrong while fetching Fetured books");
+        throw new Error(error);
       }
     };
 
