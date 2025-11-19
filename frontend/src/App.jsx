@@ -23,16 +23,19 @@ import {
 import Home from "./pages/Home.jsx";
 import CartPage from "./pages/CartPage.jsx";
 import ProfilePage from "./pages/customer/ProfilePage.jsx";
+import AdminProfile from "./pages/admin/AdminProfile.jsx";
 import AdminLayout from "./layout/AdminLayout.jsx";
 import BookLayout from "./layout/BookLayout.jsx";
 import Categories from "./Component/Categories.jsx";
 import ProtectedRoute from "./routes/protectedRoute.jsx";
+import RoleBasedRoute from "./routes/RoleBasedRoute.jsx";
 import { getUserProfile } from "./feature/user/userAction.js";
+import { getCartItem } from "./feature/cart/cartAction.js";
+import { getWishlistItem } from "./feature/wishlist/wishlistAction.js";
 import { useDispatch, useSelector } from "react-redux";
 import { Loading } from "./Component/index.js";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./config/firebase.js";
-import { getCartItem } from "./feature/cart/cartAction.js";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -56,10 +59,13 @@ const App = () => {
     return unsubscribe;
   }, [dispatch]);
 
-/*   // getcart item
+  // Fetch cart items when user is authenticated
   useEffect(() => {
-    dispatch(getCartItem());
-  }, [dispatch]); */
+    if (user) {
+      dispatch(getCartItem());
+      dispatch(getWishlistItem());
+    }
+  }, [dispatch, user]);
 
   if (initializing) {
     return <Loading />;
@@ -74,8 +80,15 @@ const App = () => {
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/unauthorized" element={<ErrorPage />} />
 
-          {/* Main application routes with Layout */}
-          <Route path="/" element={<Layout />}>
+          {/* Main application routes with Layout - Customers only */}
+          <Route
+            path="/"
+            element={
+              <RoleBasedRoute allowedRoles={["customer"]}>
+                <Layout />
+              </RoleBasedRoute>
+            }
+          >
             {/* Home page - rendered at / */}
             <Route index element={<Home />} />
 
@@ -149,8 +162,27 @@ const App = () => {
             />
           </Route>
 
-          {/* Admin routes */}
-          <Route path="/admin" element={<AdminLayout />}>
+          {/* Admin routes - Admins only */}
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <RoleBasedRoute allowedRoles={["admin"]}>
+                  <AdminLayout />
+                </RoleBasedRoute>
+              </ProtectedRoute>
+            }
+          >
+            {/* Admin Profile */}
+            <Route
+              path="/admin/profile"
+              element={
+                <ProtectedRoute>
+                  <AdminProfile />
+                </ProtectedRoute>
+              }
+            />
+
             <Route path="/admin/books" element={<BookLayout />}>
               <Route index element={<BookManagement />} />
               <Route path="/admin/books/add" element={<AddBook />} />

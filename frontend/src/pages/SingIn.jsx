@@ -25,7 +25,6 @@ const SignIn = () => {
   const { loading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  //    handleTogglePasswordVisibility
   const handleTogglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -54,8 +53,6 @@ const SignIn = () => {
     try {
       const token = await dispatch(userSignIn({ email, password })).unwrap();
       reset();
-
-      console.log("token:: ", token);
 
       await dispatch(getLoginUser({ token })).unwrap();
       // clear signin state

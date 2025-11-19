@@ -13,8 +13,6 @@ const WishlistPage = () => {
     dispatch(getWishlistItem());
   }, [dispatch]);
 
-
-
   return (
     <div className="bg-background min-h-screen">
       {/* Wishlist Content */}
@@ -51,7 +49,7 @@ const WishlistPage = () => {
             </p>
 
             <Link
-              to="/home/books"
+              to="/books"
               className="mt-6 inline-block px-6 py-3 bg-primary text-white rounded-xl shadow hover:bg-primary/90 transition"
             >
               Browse Books

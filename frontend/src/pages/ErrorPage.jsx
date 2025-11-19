@@ -35,7 +35,7 @@ const ErrorPage = () => {
       </div>
 
       <footer className="mt-8 text-sm text-gray-400">
-        &copy; {new Date().getFullYear()} BookStore Inc. All rights reserved.
+        &copy; {new Date().getFullYear()} BookNest Inc. All rights reserved.
       </footer>
     </div>
   );

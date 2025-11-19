@@ -57,7 +57,7 @@ const OrderCancellation = () => {
 
             <div className="flex gap-3 justify-center">
               <button
-                onClick={() => navigate("/home/orders")}
+                onClick={() => navigate("/")}
                 className="px-4 py-2 bg-[#2C3E50] text-white rounded-md"
               >
                 View My Orders
@@ -89,7 +89,7 @@ const OrderCancellation = () => {
 
             <div className="flex gap-3 justify-center">
               <Link
-                to="/home/orders"
+                to="/"
                 className="px-4 py-2 bg-[#2C3E50] text-white rounded-md"
               >
                 View My Orders

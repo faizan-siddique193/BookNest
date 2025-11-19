@@ -3,7 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 
-const CartSummary = ({ subtotal =0,shippingFee = 0, total = 0 }) => {
+const CartSummary = ({ subtotal = 0, shippingFee = 0, total = 0 }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-8">
       <h2 className="text-xl font-bold text-primary mb-6">Order Summary</h2>
@@ -45,7 +45,7 @@ const CartSummary = ({ subtotal =0,shippingFee = 0, total = 0 }) => {
 
       <div className="mt-4 text-center">
         <Link
-          to="/home/books"
+          to="/books"
           className="text-sm text-accent hover:text-primary transition-colors inline-flex items-center"
         >
           Continue Shopping

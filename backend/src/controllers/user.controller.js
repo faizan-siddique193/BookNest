@@ -132,9 +132,8 @@ const updateProfileAvatar = asyncHandler(async (req, res) => {
     const fs = await import("fs").then((m) => m.promises);
     try {
       await fs.unlink(filePath);
-      console.log("Temp file deleted:", filePath);
     } catch (err) {
-      console.log("Could not delete temp file:", err);
+      // File cleanup error - non-critical
     }
 
     return res.json(new ApiResponse(200, user, "Avatar updated successfully"));

@@ -37,17 +37,19 @@ const HeroSection = () => {
           {/* Left content */}
           <div className="relative z-10">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary leading-tight mb-6">
-              Discover Your Next <span className="text-accent">Favorite Book</span>
+              Discover Your Next{" "}
+              <span className="text-accent">Favorite Book</span>
             </h1>
 
             <p className="text-lg text-muted mb-8 max-w-lg">
-              Explore our vast collection of books across all genres. From timeless classics to modern
-              bestsellers, find the perfect read for every mood.
+              Explore our vast collection of books across all genres. From
+              timeless classics to modern bestsellers, find the perfect read for
+              every mood.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
               <Link
-                to="/home/books"
+                to="/books"
                 className="bg-accent hover:bg-accent/90 text-secondary font-medium py-3 px-6 rounded-full flex items-center justify-center transition-colors shadow-md"
               >
                 Browse Collection <ArrowRight className="ml-2 h-4 w-4" />
@@ -79,19 +81,27 @@ const HeroSection = () => {
             <div className="relative w-full h-96 md:h-[500px] bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl overflow-hidden shadow-xl">
               {randomBooks.length > 0 ? (
                 randomBooks.map((book, idx) => {
-                  const cls = cardClasses[idx] || cardClasses[cardClasses.length - 1];
+                  const cls =
+                    cardClasses[idx] || cardClasses[cardClasses.length - 1];
                   const bookId = book._id || book.id || book.slug || idx;
                   const img =
-                    book.image || book.cover || book.thumbnail || "https://via.placeholder.com/400x600?text=No+Image";
+                    book.image ||
+                    book.cover ||
+                    book.thumbnail ||
+                    "https://via.placeholder.com/400x600?text=No+Image";
                   const to = book._id
                     ? `/home/book/${book._id}`
                     : book.slug
                     ? `/home/book/${book.slug}`
-                    : "/home/books";
+                    : "/books";
 
                   return (
-                    <Link key={bookId}  className={cls + " block"}>
-                      <img src={img} alt={book.title || "Book"} className="w-full h-full object-cover" />
+                    <Link key={bookId} className={cls + " block"}>
+                      <img
+                        src={img}
+                        alt={book.title || "Book"}
+                        className="w-full h-full object-cover"
+                      />
                     </Link>
                   );
                 })

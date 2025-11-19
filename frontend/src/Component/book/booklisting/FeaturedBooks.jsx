@@ -65,7 +65,7 @@ const FeaturedBooks = () => {
         {/* View All Button - Mobile Only */}
         <div className="mt-8 text-center md:hidden">
           <Link
-            to="/home/books/featured"
+            to="/books/featured"
             className="inline-flex items-center px-6 py-3 border border-primary text-primary rounded-full font-medium hover:bg-primary hover:text-white transition-colors"
           >
             View All Featured

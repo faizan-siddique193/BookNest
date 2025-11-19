@@ -47,13 +47,12 @@ export const getUserProfile = createAsyncThunk(
   "user/userProfile",
   async ({ token }, { rejectWithValue }) => {
     try {
-      console.log("Fetching user profile...");
       const response = await axiosInstance.get("/user/profile", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("User Profile Response:", response.data);
+
       return response.data;
     } catch (error) {
       console.error("Error fetching profile:", error);

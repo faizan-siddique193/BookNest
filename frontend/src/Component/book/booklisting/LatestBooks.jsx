@@ -74,7 +74,7 @@ const LatestBooks = () => {
         {/* Mobile View All Button */}
         <div className="mt-12 text-center md:hidden">
           <Link
-            to="/home/books/latest"
+            to="/books/latest"
             className="inline-flex items-center px-5 py-2.5 border border-primary text-primary rounded-lg font-medium hover:bg-primary hover:text-white transition-colors"
           >
             View All New Releases

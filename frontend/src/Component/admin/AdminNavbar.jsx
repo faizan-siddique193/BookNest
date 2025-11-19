@@ -1,8 +1,16 @@
 import React, { useState } from "react";
-import { PanelLeft, Search, Bell, ChevronDown } from "lucide-react";
+import { PanelLeft, Search, Bell, LogOut } from "lucide-react";
+import { useSelector, useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { userLogout } from "../../feature/auth/authAction";
+import { toast } from "react-toastify";
 
 const AdminNavbar = ({ onToggleSidebar }) => {
   const [toggleSidebar, setToggleSidebar] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { user } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const handleToggleSidebar = () => {
     const newValue = !toggleSidebar;
@@ -10,27 +18,50 @@ const AdminNavbar = ({ onToggleSidebar }) => {
     onToggleSidebar(newValue);
   };
 
+  const handleLogout = () => {
+    dispatch(userLogout());
+    navigate("/sign-in");
+  };
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
   return (
-    <nav className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 sm:px-6 sm:py-4 bg-white  border-gray-200 gap-3 sm:gap-0">
+    <nav className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 sm:px-6 sm:py-4 bg-white border-gray-200 gap-3 sm:gap-0">
       {/* Left section - menu button and title */}
       <div className="flex items-center justify-between w-full sm:w-auto">
         <div className="flex items-center gap-4">
-          <button 
+          <button
             onClick={handleToggleSidebar}
             className="p-2 rounded-md hover:bg-gray-100 transition-colors"
           >
             <PanelLeft className="w-5 h-5 text-gray-600" />
           </button>
         </div>
-        
+
         {/* Mobile profile - visible only on small screens */}
-        <div className="sm:hidden flex items-center gap-2">
-          <img 
-            className="w-8 h-8 rounded-full object-cover" 
-            src="https://randomuser.me/api/portraits/women/44.jpg" 
-            alt="Admin profile" 
-          />
-          <ChevronDown className="w-4 h-4 text-gray-500" />
+        <div className="sm:hidden flex items-center gap-2 relative">
+          <button
+            onClick={toggleDropdown}
+            className="flex items-center gap-2 hover:bg-gray-100 p-2 rounded-lg transition-colors"
+          >
+            {user?.avatar ? (
+              <img
+                className="w-8 h-8 rounded-lg object-cover"
+                src={user.avatar}
+                alt="Admin profile"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-lg bg-gray-200 flex items-center justify-center text-xs font-bold text-primary">
+                {user?.fullName
+                  ?.split(" ")
+                  .slice(0, 2)
+                  .map((word) => word.charAt(0).toUpperCase())
+                  .join("") || "A"}
+              </div>
+            )}
+          </button>
         </div>
       </div>
 
@@ -49,27 +80,90 @@ const AdminNavbar = ({ onToggleSidebar }) => {
       </div>
 
       {/* Right section - admin profile and notifications */}
-      <div className="hidden sm:flex items-center gap-4">
+      <div className="hidden sm:flex items-center gap-4 relative">
         <button className="p-2 rounded-full hover:bg-gray-100 relative">
           <Bell className="w-5 h-5 text-gray-600" />
           <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
         </button>
-        
-        <div className="flex items-center gap-3">
+
+        <button
+          onClick={toggleDropdown}
+          className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+        >
           <div className="relative">
             <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
-            <img 
-              className="w-10 h-10 rounded-full object-cover" 
-              src="https://randomuser.me/api/portraits/women/44.jpg" 
-              alt="Admin profile" 
-            />
+            {user?.avatar ? (
+              <img
+                className="w-10 h-10 rounded-lg object-cover"
+                src={user.avatar}
+                alt="Admin profile"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center text-sm font-bold text-primary">
+                {user?.fullName
+                  ?.split(" ")
+                  .slice(0, 2)
+                  .map((word) => word.charAt(0).toUpperCase())
+                  .join("") || "A"}
+              </div>
+            )}
           </div>
           <div className="hidden md:block">
-            <p className="text-sm font-medium text-gray-800">Admin</p>
-            <p className="text-xs text-gray-500">Administrator</p>
+            <p className="text-sm font-medium text-gray-800">
+              {user?.fullName
+                ?.split(" ")
+                .map(
+                  (word) =>
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                )
+                .join(" ") || "Admin"}
+            </p>
+            <p className="text-xs text-gray-500 capitalize">
+              {user?.role || "Administrator"}
+            </p>
           </div>
-          <ChevronDown className="w-4 h-4 text-gray-500 hidden md:block" />
-        </div>
+        </button>
+
+        {/* Dropdown Menu */}
+        {isDropdownOpen && (
+          <div
+            onClick={toggleDropdown}
+            className="absolute top-20 right-0 w-56 bg-white shadow-xl rounded-xl px-0 py-2 space-y-1 z-50 border border-gray-200"
+          >
+            {/* User Info Header */}
+            <div className="px-4 py-3 border-b border-gray-100">
+              <p className="text-xs font-semibold text-muted mb-1">
+                ADMIN ACCOUNT
+              </p>
+              <p className="text-sm font-semibold text-primary">
+                {user?.fullName
+                  ?.split(" ")
+                  .map(
+                    (word) =>
+                      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                  )
+                  .join(" ") || "Admin"}
+              </p>
+              <p className="text-xs text-muted mt-1 truncate">{user?.email}</p>
+            </div>
+
+            {/* Menu Items */}
+            <Link
+              to="/admin/profile"
+              className="block px-4 py-3 hover:bg-background text-primary font-medium transition-colors duration-150 rounded-lg mx-2"
+            >
+              Profile
+            </Link>
+
+            <button
+              onClick={handleLogout}
+              className="w-full text-left px-4 py-3 hover:bg-danger/10 text-danger font-medium transition-colors duration-150 rounded-lg mx-2 flex items-center gap-2"
+            >
+              <LogOut className="w-4 h-4" />
+              Logout
+            </button>
+          </div>
+        )}
       </div>
     </nav>
   );

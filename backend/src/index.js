@@ -8,16 +8,16 @@ dotenv.config({
 connectDB()
   .then(() => {
     app.on("err", () => {
-      console.log("App listen Error :: Error ::", err);
+      // Server startup failed
       throw err;
     });
 
     app.listen(process.env.PORT || 8000, () => {
-      console.log(`Server is running at ${process.env.PORT}`);
+      // Server running successfully
     });
   })
   .catch((err) => {
-    console.log("Mongodb connection is failed !!", err);
+    // MongoDB connection failed
   });
 
 //   start cron job

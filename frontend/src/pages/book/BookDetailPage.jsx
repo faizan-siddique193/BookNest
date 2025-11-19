@@ -266,7 +266,7 @@ const BookDetailPage = () => {
               >
                 Description
               </button>
-              {/* TODO: DELETE THIS COMMENT */}
+
               {/* <button
                 className={`py-4 px-6 font-medium text-sm transition-colors ${
                   activeTab === "author"
@@ -301,7 +301,6 @@ const BookDetailPage = () => {
               <BookDescription description={book?.description} />
             )}
 
-            {/* TODO: about author */}
             {/* {activeTab === "author" && <AboutAuthor />} */}
 
             {activeTab === "reviews" && (
@@ -352,7 +351,6 @@ const BookDetailPage = () => {
           </div>
         </div>
 
-        {/*TODO: Related Books */}
         {/* <div className="mt-12">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-primary">Related Books</h2>
