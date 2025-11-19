@@ -68,7 +68,6 @@ const SignUp = () => {
     }
   };
 
-
   // handle google login
   const handleGoogleLogin = async () => {
     try {
@@ -220,24 +219,24 @@ const SignUp = () => {
           {/* continue with google */}
           <button
             onClick={handleGoogleLogin}
-            className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-2xl  py-3 hover:bg-gray-100"
+            disabled={signInWithGoogle?.loading}
+            className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-2xl  py-3 hover:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            <img
-              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-              alt="Google logo"
-              className="w-5 h-5"
-            />
-            {/* {
-           authLoading ? (
-              <span className="flex items-center justify-center gap-2">
-                <Loader className="animate-spin" size={16} />
-                Signing Up with Google...
-              </span>
+            {signInWithGoogle?.loading ? (
+              <>
+                <LoaderCircle className="animate-spin" size={16} />
+                <span>Signing Up...</span>
+              </>
             ) : (
-              "Sign Up with Google"
-            )
-           } */}
-            <span>Continue with google</span>
+              <>
+                <img
+                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                  alt="Google logo"
+                  className="w-5 h-5"
+                />
+                <span>Continue with google</span>
+              </>
+            )}
           </button>
           {/* dont't have an account */}
           <div className="mt-4 text-center text-sm text-muted">

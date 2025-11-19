@@ -22,7 +22,7 @@ import { use } from "react";
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const { loading } = useSelector((state) => state.auth);
+  const { signIn, signInWithGoogle } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleTogglePasswordVisibility = () => {
@@ -186,9 +186,10 @@ const SignIn = () => {
             {/* button */}
             <button
               type="submit"
-              className="w-full py-3 bg-primary text-white rounded-2xl hover:bg-[#34495E] transition-colors duration-300"
+              disabled={signIn?.loading || signInWithGoogle?.loading}
+              className="w-full py-3 bg-primary text-white rounded-2xl hover:bg-[#34495E] transition-colors duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading ? (
+              {signIn?.loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <Loader className="animate-spin" size={16} />
                   Signing In...
@@ -208,14 +209,24 @@ const SignIn = () => {
           {/* continue with google */}
           <button
             onClick={handleGoogleLogin}
-            className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-2xl  py-3 hover:bg-gray-100"
+            disabled={signIn?.loading || signInWithGoogle?.loading}
+            className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-2xl  py-3 hover:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            <img
-              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-              alt="Google logo"
-              className="w-5 h-5"
-            />
-            <span>Login with Google</span>
+            {signInWithGoogle?.loading ? (
+              <>
+                <Loader className="animate-spin" size={16} />
+                <span>Signing In...</span>
+              </>
+            ) : (
+              <>
+                <img
+                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                  alt="Google logo"
+                  className="w-5 h-5"
+                />
+                <span>Login with Google</span>
+              </>
+            )}
           </button>
           {/* dont't have an account */}
           <div className="mt-4 text-center text-sm text-muted">
