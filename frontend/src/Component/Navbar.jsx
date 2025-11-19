@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { SearchBar } from "./index";
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, Heart, User, Menu, ArrowRight } from "lucide-react";
+import { ShoppingCart, Heart, User, Menu } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { userLogout } from "../feature/auth/authAction";
 import { toast } from "react-toastify";
@@ -145,11 +145,33 @@ const Navbar = () => {
               {user ? (
                 <button
                   onClick={toggleDropdown}
-                  className="flex items-center space-x-1 p-2 rounded-full hover:bg-[#34495E] transition-colors duration-200"
+                  className="flex items-center space-x-2 p-1 rounded-full hover:bg-[#34495E] transition-colors duration-200"
                 >
-                  <User className="h-5 w-5 text-secondary" />
+                  {/* Avatar */}
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.fullName}
+                      className="h-8 w-8 rounded-lg object-cover border border-secondary"
+                    />
+                  ) : (
+                    <div className="h-8 w-8 rounded-lg bg-gray-200 flex items-center justify-center text-xs font-bold text-primary">
+                      {user?.fullName
+                        ?.split(" ")
+                        .slice(0, 2)
+                        .map((word) => word.charAt(0).toUpperCase())
+                        .join("") || "U"}
+                    </div>
+                  )}
                   <span className="hidden md:inline text-sm font-medium text-secondary">
-                    {user?.fullName}
+                    {user?.fullName
+                      ?.split(" ")
+                      .map(
+                        (word) =>
+                          word.charAt(0).toUpperCase() +
+                          word.slice(1).toLowerCase()
+                      )
+                      .join(" ")}
                   </span>
                 </button>
               ) : (
@@ -168,8 +190,8 @@ const Navbar = () => {
                 <div
                   onClick={toggleDropdown}
                   className={`
-          absolute top-20 right-0 w-28 bg-white shadow-lg rounded-lg px-4 py-3 space-y-3
-          transition-all duration-300 ease-in-out
+          absolute top-20 right-0 w-56 bg-white shadow-xl rounded-xl px-0 py-2 space-y-1
+          transition-all duration-300 ease-in-out z-50
           ${
             isDropdownOpen
               ? "opacity-100 translate-y-0"
@@ -177,17 +199,39 @@ const Navbar = () => {
           }
         `}
                 >
+                  {/* User Info Header */}
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <p className="text-xs font-semibold text-muted mb-1">
+                      ACCOUNT
+                    </p>
+                    <p className="text-sm font-semibold text-primary">
+                      {user?.fullName
+                        ?.split(" ")
+                        .map(
+                          (word) =>
+                            word.charAt(0).toUpperCase() +
+                            word.slice(1).toLowerCase()
+                        )
+                        .join(" ")}
+                    </p>
+                    <p className="text-xs text-muted mt-1 truncate">
+                      {user?.email}
+                    </p>
+                  </div>
+
+                  {/* Menu Items */}
                   <Link
                     to="/user/profile"
-                    className="block hover:text-accent"
+                    className="block px-4 py-3 hover:bg-background text-primary font-medium transition-colors duration-150 rounded-lg mx-2"
                   >
                     Profile
                   </Link>
+
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-2 text-accent"
+                    className="w-full text-left px-4 py-3 hover:bg-danger/10 text-danger font-medium transition-colors duration-150 rounded-lg mx-2"
                   >
-                    Logout <ArrowRight className="w-4 h-4" />
+                    Logout
                   </button>
                 </div>
               )}

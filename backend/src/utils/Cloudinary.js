@@ -14,6 +14,9 @@ const uploadOnCloudinary = async (fileUri) => {
 
     const response = await cloudinary.uploader.upload(fileUri, {
       resource_type: "auto",
+      folder: "bookstore/avatars",
+      quality: "auto",
+      fetch_format: "auto",
     });
 
     //   file has been upload on cloudinary
@@ -22,7 +25,7 @@ const uploadOnCloudinary = async (fileUri) => {
     return response;
   } catch (error) {
     console.log("Cloudinary Error:: ", error);
-    return null;
+    throw new Error(`Cloudinary upload failed: ${error.message}`);
   }
 };
 

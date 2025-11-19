@@ -40,8 +40,10 @@ import Wishlist from "./customer/Wishlist";
 import ReviewForm from "./book/bookdetail/ReviewForm";
 import ReviewCard from "./book/bookdetail/ReviewCard";
 import EmptyState from "./book/booklisting/EmptyState";
+import Orders from "./customer/orders";
 
 export {
+  Orders,
   EmptyState,
   ReviewCard,
   ReviewForm,

@@ -64,21 +64,48 @@ export const getUserProfile = createAsyncThunk(
   }
 );
 
-// update user avatar
-
-export const updateUserAvatar = createAsyncThunk(
-  "user/updateAvatar",
-  async ({ avatar }, { rejectWithValue }) => {
+// update user profile
+export const updateUserProfile = createAsyncThunk(
+  "user/updateProfile",
+  async ({ fullName, token }, { rejectWithValue }) => {
     try {
-      axiosInstance.put(
-        "/user/profile/avatar",
-        { avatar },
+      const response = await axiosInstance.put(
+        "/user/profile",
+        { fullName },
         {
           headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || "An error occurred while updating the profile."
+      );
+    }
+  }
+);
+
+// update user avatar
+export const updateUserAvatar = createAsyncThunk(
+  "user/updateAvatar",
+  async ({ avatarFile, token }, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append("avatar", avatarFile);
+
+      const response = await axiosInstance.put(
+        "/user/profile/avatar",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
           },
         }
       );
+      return response.data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data || "An error occurred while updating the avatar."

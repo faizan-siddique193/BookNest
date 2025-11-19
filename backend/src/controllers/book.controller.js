@@ -52,22 +52,13 @@ const createBook = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Unauthorized user");
   }
 
-  const bookImgUrl = await uploadOnCloudinary(image);
-
-  if (!bookImgUrl) {
-    throw new ApiError(
-      500,
-      "Something went wrong while uploading a book image"
-    );
-  }
   const book = await Book.create({
     title,
     author,
     description,
     price,
     category,
-    // subCategory,
-    image: bookImgUrl.secure_url,
+    image,
     pageCount,
     averageRating,
     stock,

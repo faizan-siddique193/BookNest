@@ -51,39 +51,103 @@ const getUserProfile = asyncHandler(async (req, res) => {
   if (!uid) {
     throw new ApiError(403, "UnAuthorized user");
   }
-  const user = await User.findOne({ firebaseUserId: uid })
+  const user = await User.findOne({ firebaseUserId: uid });
   if (!user) {
     throw new ApiError(500, "Something went wrong while finding a user");
   }
   return res.json(new ApiResponse(200, user, "User found successfully"));
 });
 
-// upload avatar or chnage avatar
-/* const updateProfileAvatar = asyncHandler(async (req, res) => {
-  const userId = req.user.user_id;
+// update user profile
+const updateUserProfile = asyncHandler(async (req, res) => {
+  const { uid } = req.user;
+  const { fullName } = req.body;
 
-  if (!req.files || !req.files.avatar) {
-    throw new ApiError(400, "Avatar is required");
+  if (!uid) {
+    throw new ApiError(403, "UnAuthorized user");
   }
 
-  const avatarFile = req.files.avatar[0];
-
-  const avatarUrl = await uploadOnCloudinary(avatarFile.path);
-
-  if (!avatarUrl) {
-    throw new ApiError(500, "Upload failed");
+  // Check if user exists
+  const user = await User.findOne({ firebaseUserId: uid });
+  if (!user) {
+    throw new ApiError(404, "User not found");
   }
 
-  const user = await User.findOneAndUpdate(
-    { firebaseUserId: userId },
-    { avatar: avatarUrl.url },
-    { new: true }
+  // Only allow fullName to be updated
+  const updateData = {};
+  if (fullName) {
+    updateData.fullName = fullName;
+  }
+
+  const updatedUser = await User.findOneAndUpdate(
+    { firebaseUserId: uid },
+    updateData,
+    { new: true, runValidators: true }
   );
+
+  if (!updatedUser) {
+    throw new ApiError(500, "Failed to update user profile");
+  }
 
   return res.json(
-    new ApiResponse(200, user, "Avatar updated successfully")
+    new ApiResponse(200, updatedUser, "Profile updated successfully")
   );
 });
- */
 
-export { registerUser, loginUser, getUserProfile };
+// upload avatar or change avatar
+const updateProfileAvatar = asyncHandler(async (req, res) => {
+  const { uid } = req.user;
+
+  if (!uid) {
+    throw new ApiError(403, "UnAuthorized user");
+  }
+
+  if (!req.file) {
+    throw new ApiError(400, "Avatar file is required");
+  }
+
+  try {
+    const filePath = req.file.path;
+    console.log("Avatar file path:", filePath);
+
+    // Upload to Cloudinary
+    const avatarUrl = await uploadOnCloudinary(filePath);
+
+    if (!avatarUrl || !avatarUrl.url) {
+      throw new ApiError(500, "Failed to upload avatar to Cloudinary");
+    }
+
+    // Update user profile with avatar URL
+    const user = await User.findOneAndUpdate(
+      { firebaseUserId: uid },
+      { avatar: avatarUrl.url },
+      { new: true }
+    );
+
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    // Clean up temporary file
+    const fs = await import("fs").then((m) => m.promises);
+    try {
+      await fs.unlink(filePath);
+      console.log("Temp file deleted:", filePath);
+    } catch (err) {
+      console.log("Could not delete temp file:", err);
+    }
+
+    return res.json(new ApiResponse(200, user, "Avatar updated successfully"));
+  } catch (error) {
+    console.error("Avatar upload error:", error);
+    throw new ApiError(500, error.message || "Failed to update avatar");
+  }
+});
+
+export {
+  registerUser,
+  loginUser,
+  getUserProfile,
+  updateUserProfile,
+  updateProfileAvatar,
+};

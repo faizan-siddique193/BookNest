@@ -4,6 +4,7 @@ import {
   getLoginUser,
   getUserProfile,
   updateUserAvatar,
+  updateUserProfile,
 } from "./userAction";
 
 const initialState = {
@@ -52,6 +53,23 @@ const userSlice = createSlice({
       state.user = action.payload?.data;
     });
     builder.addCase(getUserProfile.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+      state.success = false;
+    });
+
+    // update user profile
+    builder.addCase(updateUserProfile.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+      state.success = false;
+    });
+    builder.addCase(updateUserProfile.fulfilled, (state, action) => {
+      state.loading = false;
+      state.success = true;
+      state.user = action.payload?.data;
+    });
+    builder.addCase(updateUserProfile.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload;
       state.success = false;

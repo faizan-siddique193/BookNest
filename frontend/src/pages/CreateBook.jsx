@@ -5,6 +5,7 @@ import Navigater from "../Component/Navigater";
 import SpinerLoader from "../Component/SpinerLoader";
 import { useSnackbar } from "notistack";
 import { FiBook, FiUser, FiCalendar } from "react-icons/fi";
+import { toast } from "react-toastify";
 
 const CreateBook = () => {
   const [title, setTitle] = useState("");
@@ -17,17 +18,18 @@ const CreateBook = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const data = { title, auther, publishYear };
-    
+
     setIsLoading(true);
     axios
-      .post(`http://localhost:8080/api/v1/books/book/add`, data)
+      .post(`http://localhost:5000/api/v1/books/book/add`, data)
       .then(() => {
-        enqueueSnackbar('Book created successfully', { variant: 'success' });
+        enqueueSnackbar("Book created successfully", { variant: "success" });
         navigate("/");
       })
       .catch((error) => {
-        enqueueSnackbar('Something went wrong', { variant: 'error' });
-        console.error(error);
+        toast.error(
+          error.response?.data?.message || error || "Failed to create book"
+        );
       })
       .finally(() => {
         setIsLoading(false);

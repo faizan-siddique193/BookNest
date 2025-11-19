@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import ProfileOverview from "../../Component/customer/ProfileOverview";
 import ProfileForm from "../../Component/customer/ProfileForm";
@@ -8,8 +8,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { Wishlist } from "../../Component/index";
 import Orders from "../../Component/customer/orders";
 import { getMyOrders } from "../../feature/order/orderAction";
+import { getUserProfile } from "../../feature/user/userAction";
+import { getAuth, getIdToken } from "firebase/auth";
 import { toast } from "react-toastify";
-
 
 const userOrders = [
   {
@@ -36,24 +37,40 @@ const userOrders = [
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState("profile");
   const [editMode, setEditMode] = useState(false);
-  const [userData, setUserData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [token, setToken] = useState(null);
   const { loading, user } = useSelector((state) => state.user);
   const { orders } = useSelector((state) => state.order);
   const dispatch = useDispatch();
 
-  // TODO: Delete this log
+  // Get Firebase token and fetch profile
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      const auth = getAuth();
+      if (auth.currentUser) {
+        try {
+          const idToken = await getIdToken(auth.currentUser, {
+            forceRefresh: true,
+          });
+          setToken(idToken);
+          // Fetch user profile
+          await dispatch(getUserProfile({ token: idToken })).unwrap();
+        } catch (error) {
+          console.error("Error fetching profile:", error);
+          toast.error("Failed to load profile");
+        }
+      }
+    };
+    fetchProfileData();
+  }, [dispatch]);
 
   console.log("Order in profile page:: ", orders);
 
   const handleUpdateProfile = (updatedData) => {
-    setUserData({ ...userData, ...updatedData });
     setEditMode(false);
-    // In a real app, you would call an API here to update the user's data
   };
 
-  
-/*   useEffect(() => {
+  /*   useEffect(() => {
     const fetchOrders = async () => {
       try {
         await dispatch(getMyOrders({ currentPage })).unwrap();
@@ -82,12 +99,12 @@ const ProfilePage = () => {
               <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 {!editMode ? (
                   <ProfileOverview
-                    userData={userData}
+                    userData={user}
                     onEditClick={() => setEditMode(true)}
                   />
                 ) : (
                   <ProfileForm
-                    userData={userData}
+                    userData={user}
                     onCancel={() => setEditMode(false)}
                     onSubmit={handleUpdateProfile}
                   />

@@ -51,7 +51,8 @@ const BookDetailPage = () => {
   const [page, setPage] = useState(1);
   const [reviews, setReviews] = useState([]);
   const [hasMore, setHasMore] = useState(true);
-  const limit = 10;
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 3;
 
   // TODO: DELETE THIS COMMENT
 
@@ -88,13 +89,43 @@ const BookDetailPage = () => {
         const response = await dispatch(getBookById({ slug })).unwrap();
         console.log("Book detail response:", response);
         setBook(response.data);
-        await dispatch(getReviewsByBookId({ slug })).unwrap();
+        await dispatch(getReviewsByBookId({ slug, page: 1, limit })).unwrap();
       } catch (error) {
         console.error("Internal server error:", error);
       }
     };
     fetchBookSlug();
-  }, [slug, dispatch]);
+  }, [slug, dispatch, limit]);
+
+  // Initialize reviews from bookReviews when data is fetched
+  useEffect(() => {
+    if (bookReviews?.items && bookReviews.items.length > 0) {
+      setReviews(bookReviews.items);
+      setTotalPages(bookReviews.totalPages || 1);
+      setHasMore(bookReviews.page < bookReviews.totalPages);
+      setPage(bookReviews.page + 1);
+    }
+  }, [bookReviews]);
+
+  // Fetch more reviews for infinite scroll
+  const fetchMoreReviews = async () => {
+    try {
+      const response = await dispatch(
+        getReviewsByBookId({ slug, page: page + 1, limit })
+      ).unwrap();
+
+      if (response.data?.items && response.data.items.length > 0) {
+        setReviews((prev) => [...prev, ...response.data.items]);
+        setPage(response.data.page);
+        setHasMore(response.data.page < response.data.totalPages);
+      } else {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error("Error fetching more reviews:", error);
+      setHasMore(false);
+    }
+  };
 
   // Add to cart function
   const handleAddToCart = async (bookId) => {
@@ -276,11 +307,37 @@ const BookDetailPage = () => {
             {activeTab === "reviews" && (
               <div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                  {/* Reviews Summary */}
-                  <div className="">
-                    {bookReviews?.items?.map((review) => (
-                      <ReviewCard key={review._id} review={review} />
-                    ))}
+                  {/* Reviews List with Infinite Scroll - Fixed Height Container */}
+                  <div
+                    id="reviews-scroll-container"
+                    className="h-[600px] overflow-y-auto border border-gray-200 rounded-lg bg-gray-50 p-4"
+                  >
+                    <InfiniteScroll
+                      dataLength={reviews.length}
+                      next={fetchMoreReviews}
+                      hasMore={hasMore}
+                      loader={
+                        <div className="flex justify-center py-4">
+                          <div className="text-sm text-muted">
+                            Loading more reviews...
+                          </div>
+                        </div>
+                      }
+                      endMessage={
+                        reviews.length > 0 && (
+                          <div className="flex justify-center py-4">
+                            <div className="text-sm text-muted">
+                              No more reviews
+                            </div>
+                          </div>
+                        )
+                      }
+                      scrollableTarget="reviews-scroll-container"
+                    >
+                      {reviews?.map((review) => (
+                        <ReviewCard key={review._id} review={review} />
+                      ))}
+                    </InfiniteScroll>
                   </div>
 
                   <div className="md:col-span-2">
