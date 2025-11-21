@@ -149,35 +149,3 @@ axiosInstance.interceptors.response.use(
 );
 
 export { axiosInstance };
-
-/* // ============================================
-// ALTERNATIVE: Custom hook for authenticated requests
-// ============================================
-// Use this in your components for better control
-
-export const useAuthenticatedAxios = () => {
-  const makeRequest = async (config) => {
-    try {
-      const user = auth.currentUser;
-      
-      if (!user) {
-        throw new Error("User not authenticated");
-      }
-
-      const token = await getIdToken(user, false);
-      
-      return axiosInstance({
-        ...config,
-        headers: {
-          ...config.headers,
-          Authorization: `Bearer ${token}`,
-        },
-      });
-    } catch (error) {
-      console.error("Request failed:", error);
-      throw error;
-    }
-  };
-
-  return { makeRequest };
-}; */

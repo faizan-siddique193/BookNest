@@ -10,8 +10,8 @@ const AdminDataTable = ({ books, handleBookDelete }) => {
   };
 
   return (
-    <div className="overflow-x-auto rounded-lg border shadow-sm">
-      <div className="min-w-full inline-block align-middle">
+    <div className="rounded-lg border shadow-sm">
+      <div className="min-w-full overflow-x-auto inline-block align-middle">
         <div className="overflow-hidden">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">

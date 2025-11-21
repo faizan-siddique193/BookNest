@@ -45,18 +45,11 @@ const BookDetailPage = () => {
   const [quantity, setQuantity] = useState(0);
   const [book, setBook] = useState(null);
   const { slug } = useParams();
-  const { loading, bookReviews } = useSelector((state) => state.review);
+  const { bookReviews, currentPage, totalPages, totalReviews, hasMore } =
+    useSelector((state) => state.review);
 
-  // pagination
-  const [page, setPage] = useState(1);
-  const [reviews, setReviews] = useState([]);
-  const [hasMore, setHasMore] = useState(true);
-  const [totalPages, setTotalPages] = useState(1);
   const limit = 3;
 
-  // TODO: DELETE THIS COMMENT
-
-  console.log("Bookreviews:: ", bookReviews);
   const dispatch = useDispatch();
 
   // add to wishlist
@@ -82,48 +75,33 @@ const BookDetailPage = () => {
     }
   };
 
-  // fetch book by id
+  // Fetch book and initial reviews on mount
   useEffect(() => {
-    const fetchBookSlug = async () => {
+    const fetchBookAndReviews = async () => {
       try {
         const response = await dispatch(getBookById({ slug })).unwrap();
         console.log("Book detail response:", response);
         setBook(response.data);
-        await dispatch(getReviewsByBookId({ slug, page: 1, limit })).unwrap();
+        
+        // Fetch initial reviews with limit
+        await dispatch(getReviewsByBookId({ slug, page: 1 })).unwrap();
       } catch (error) {
         console.error("Internal server error:", error);
       }
     };
-    fetchBookSlug();
-  }, [slug, dispatch, limit]);
-
-  // Initialize reviews from bookReviews when data is fetched
-  useEffect(() => {
-    if (bookReviews?.items && bookReviews.items.length > 0) {
-      setReviews(bookReviews.items);
-      setTotalPages(bookReviews.totalPages || 1);
-      setHasMore(bookReviews.page < bookReviews.totalPages);
-      setPage(bookReviews.page + 1);
-    }
-  }, [bookReviews]);
+    fetchBookAndReviews();
+  }, [slug, dispatch]);
 
   // Fetch more reviews for infinite scroll
   const fetchMoreReviews = async () => {
+    if (!hasMore) return; 
     try {
-      const response = await dispatch(
-        getReviewsByBookId({ slug, page: page + 1, limit })
+      console.log("Fetching more reviews for page:", currentPage + 1);
+      await dispatch(
+        getReviewsByBookId({ slug, page: currentPage + 1 })
       ).unwrap();
-
-      if (response.data?.items && response.data.items.length > 0) {
-        setReviews((prev) => [...prev, ...response.data.items]);
-        setPage(response.data.page);
-        setHasMore(response.data.page < response.data.totalPages);
-      } else {
-        setHasMore(false);
-      }
     } catch (error) {
       console.error("Error fetching more reviews:", error);
-      setHasMore(false);
     }
   };
 
@@ -266,17 +244,6 @@ const BookDetailPage = () => {
               >
                 Description
               </button>
-
-              {/* <button
-                className={`py-4 px-6 font-medium text-sm transition-colors ${
-                  activeTab === "author"
-                    ? "text-accent border-b-2 border-accent"
-                    : "text-muted hover:text-primary"
-                }`}
-                onClick={() => setActiveTab("author")}
-              >
-                About the Author
-              </button> */}
               <button
                 className={`py-4 px-6 font-medium text-sm transition-colors ${
                   activeTab === "reviews"
@@ -286,11 +253,7 @@ const BookDetailPage = () => {
                 onClick={() => setActiveTab("reviews")}
                 id="reviews"
               >
-                Reviews (
-                {bookReviews?.items?.length < 10
-                  ? bookReviews?.items?.length
-                  : 10}
-                )
+                Reviews ({totalReviews || 0})
               </button>
             </nav>
           </div>
@@ -301,18 +264,16 @@ const BookDetailPage = () => {
               <BookDescription description={book?.description} />
             )}
 
-            {/* {activeTab === "author" && <AboutAuthor />} */}
-
             {activeTab === "reviews" && (
               <div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   {/* Reviews List with Infinite Scroll - Fixed Height Container */}
                   <div
                     id="reviews-scroll-container"
-                    className="h-[600px] overflow-y-auto border border-gray-200 rounded-lg bg-gray-50 p-4"
+                    className="h-96 overflow-y-auto border border-gray-200 rounded-lg bg-gray-50 p-2"
                   >
                     <InfiniteScroll
-                      dataLength={reviews.length}
+                      dataLength={bookReviews?.length || 0}
                       next={fetchMoreReviews}
                       hasMore={hasMore}
                       loader={
@@ -323,7 +284,7 @@ const BookDetailPage = () => {
                         </div>
                       }
                       endMessage={
-                        reviews.length > 0 && (
+                        bookReviews.length > 0 && (
                           <div className="flex justify-center py-4">
                             <div className="text-sm text-muted">
                               No more reviews
@@ -332,8 +293,10 @@ const BookDetailPage = () => {
                         )
                       }
                       scrollableTarget="reviews-scroll-container"
+                      scrollThreshold={0.9}
+                      style={{ overflow: "visible" }}
                     >
-                      {reviews?.map((review) => (
+                      {bookReviews?.map((review) => (
                         <ReviewCard key={review._id} review={review} />
                       ))}
                     </InfiniteScroll>
@@ -350,42 +313,6 @@ const BookDetailPage = () => {
             )}
           </div>
         </div>
-
-        {/* <div className="mt-12">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-primary">Related Books</h2>
-            <Link
-              to="/books"
-              className="flex items-center text-accent font-medium hover:text-primary transition-colors"
-            >
-              View all <ChevronRight className="ml-1 h-5 w-5" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            {book.relatedBooks.map((related) => (
-              <div key={related.id} className="group">
-                <Link to={`/books/${related.id}`} className="block mb-3">
-                  <div className="bg-gray-100 aspect-[2/3] rounded-lg overflow-hidden">
-                    <div className="bg-gray-200 border-2 border-dashed rounded-xl w-full h-full" />
-                  </div>
-                </Link>
-                <div className="px-1">
-                  <Link
-                    to={`/books/${related.id}`}
-                    className="font-medium text-primary group-hover:text-accent transition-colors line-clamp-2"
-                  >
-                    {related.title}
-                  </Link>
-                  <p className="text-sm text-muted">{related.author}</p>
-                  <p className="font-medium text-primary">
-                    ${related.price.toFixed(2)}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div> */}
       </div>
     </div>
   );

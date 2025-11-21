@@ -4,12 +4,12 @@ import { ApiError } from "../utils/ApiError.js";
 export const verifyFirebaseToken = async (req, res, next) => {
   const token = req.headers.authorization?.replace("Bearer", "").trim();
 
-  console.log("Token received for verification:", token);
-
   if (!token) {
     throw new ApiError(401, "Unauthorized: No token provided");
   }
 
+  // TODO: delete this comment
+  console.log("verify token:: ", token);
   // decoding token
   try {
     const decodedToken = await auth.verifyIdToken(token);

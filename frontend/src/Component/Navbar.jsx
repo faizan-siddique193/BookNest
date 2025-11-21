@@ -1,16 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { SearchBar } from "./index";
 import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, Heart, User, Menu } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { userLogout } from "../feature/auth/authAction";
-import { toast } from "react-toastify";
-import { getCartItem } from "../feature/cart/cartAction";
-import { getWishlistItem } from "../feature/wishlist/wishlistAction";
 import { getFeaturedBooks } from "../feature/book/bookAction";
 const Navbar = () => {
   const { user, loading } = useSelector((state) => state.user);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const [token, setToken] = useState(null);
   const { cart } = useSelector((state) => state.cart);
   const navigate = useNavigate();
@@ -18,17 +16,26 @@ const Navbar = () => {
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
-  /* 
-  // ger cart and items items on mount
-  useEffect(() => {
-    dispatch(getCartItem());
-    dispatch(getWishlistItem());
-  }, [dispatch]); */
 
   // get featured books and latest books
   useEffect(() => {
     dispatch(getFeaturedBooks());
   }, [dispatch]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false); 
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   // handle logout
   const handleLogout = () => {
@@ -84,35 +91,6 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* <div className="hidden md:flex ml-10">
-            <div className="flex items-center space-x-8">
-              <Link
-                to="/books"
-                className="text-secondary hover:text-accent px-3 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                Books
-              </Link>
-              <Link
-                to="/categories"
-                className="text-secondary hover:text-accent px-3 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                Categories
-              </Link>
-              <Link
-                to="/deals"
-                className="text-secondary hover:text-accent px-3 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                Best Sellers
-              </Link>
-              <Link
-                to="/about"
-                className="text-secondary hover:text-accent px-3 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                About Us
-              </Link>
-            </div>
-          </div> */}
-
           {/* Search Bar - Hidden on mobile */}
           <div className="hidden md:block w-1/3 mx-4">
             <SearchBar />
@@ -141,7 +119,7 @@ const Navbar = () => {
             </Link>
 
             {/* User dropdown */}
-            <div className="ml-4 relative">
+            <div className="ml-4 relative" ref={dropdownRef}>
               {user ? (
                 <button
                   onClick={toggleDropdown}

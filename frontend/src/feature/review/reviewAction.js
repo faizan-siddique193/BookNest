@@ -33,10 +33,10 @@ export const createReview = createAsyncThunk(
 // get reviews for specific book
 export const getReviewsByBookId = createAsyncThunk(
   "review/getByBookId",
-  async ({ slug, page = 1, limit = 10 }, { rejectWithValue }) => {
+  async ({ slug, page }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(
-        `/review/book/${slug}?page=${page}&limit=${limit}`
+        `/review/book/${slug}?p=${page}`
       );
 
       console.log("Get reviews by book id:: ", response.data);
@@ -70,7 +70,16 @@ export const updateReview = createAsyncThunk(
   "review/update",
   async ({ reviewId, rating, comment }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.put(`/review/${reviewId}`, {
+      // TODO: DELETE THIS LOG
+      console.log(
+        "Updating review with ID:",
+        reviewId,
+        "Rating:",
+        rating,
+        "Comment:",
+        comment
+      );
+      const response = await axiosInstance.patch(`/review/update/${reviewId}`, {
         rating,
         comment,
       });
@@ -88,7 +97,8 @@ export const deleteReview = createAsyncThunk(
   "review/delete",
   async ({ reviewId }, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.delete(`/review/${reviewId}`);
+      const response = await axiosInstance.delete(`/review/delete/${reviewId}`);
+      console.log("Delete action review response::", response.data);
       return response.data;
     } catch (error) {
       return rejectWithValue(

@@ -16,9 +16,10 @@ const initialState = {
   bookReviews: [],
   userReviews: [],
   testimoniReviews: [],
-  totalReviews: null,
+  totalReviews: 0,
   totalPages: 1,
   currentPage: 1,
+  hasMore: true,
 };
 
 const reivewSlice = createSlice({
@@ -36,7 +37,7 @@ const reivewSlice = createSlice({
       .addCase(createReview.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        state.bookReviews.items.unshift(action.payload.data || action.payload);
+        state.bookReviews.unshift(action.payload.data || action.payload);
       })
       .addCase(createReview.rejected, (state, action) => {
         state.loading = false;
@@ -53,10 +54,22 @@ const reivewSlice = createSlice({
       })
       .addCase(getReviewsByBookId.fulfilled, (state, action) => {
         state.loading = false;
-        state.bookReviews = action.payload.data;
-        state.totalReviews = action.payload.total;
-        state.currentPage = action.payload.page;
-        state.totalPages = action.payload.currentPage;
+
+        // set if current page is one
+        if (action.payload.data.pagination.page === 1) {
+          state.bookReviews = action.payload.data.reviews;
+        } else {
+          state.bookReviews = [
+            ...state.bookReviews,
+            ...action.payload.data.reviews,
+          ];
+        }
+        state.totalReviews = action.payload.data.pagination.totalReviewsCount;
+        state.currentPage = action.payload.data.pagination.page;
+        state.totalPages = action.payload.data.pagination.pages;
+        state.hasMore =
+          action.payload.data.pagination.page <
+          action.payload.data.pagination.pages;
       })
       .addCase(getReviewsByBookId.rejected, (state, action) => {
         state.loading = false;
@@ -102,15 +115,6 @@ const reivewSlice = createSlice({
         if (reviewIdex !== -1) {
           state.bookReviews[reviewIdex] = updatedReview;
         }
-
-        // find and update in userReviews
-        const userIdex = state.userReviews.findIndex(
-          (prevReview) => prevReview._id === updatedReview._id
-        );
-
-        if (userIdex !== -1) {
-          state.userReviews[userIdex] = updatedReview;
-        }
       })
       .addCase(updateReview.rejected, (state, action) => {
         state.loading = false;
@@ -128,17 +132,16 @@ const reivewSlice = createSlice({
       .addCase(deleteReview.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-        const deletedId = action.payload.data?._id;
-        // remove from bookReviews
-        state.bookReviews = state.bookReviews.filter(
-          (review) => review._id !== deletedId
-        );
-        // remove from userReviews
-        state.userReviews = state.userReviews.filter(
-          (review) => review._id !== deletedId
-        );
+        const deletedId = action.payload.data?.reviewId;
 
+        // Fix: Filter the items array, not the whole object
+        if (state.bookReviews) {
+          state.bookReviews = state.bookReviews.filter(
+            (review) => review._id !== deletedId
+          );
+        }
         state.totalReviews = Math.max(0, state.totalReviews - 1);
+        state.error = null;
       })
       .addCase(deleteReview.rejected, (state, action) => {
         state.loading = false;

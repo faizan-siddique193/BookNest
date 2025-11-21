@@ -51,29 +51,35 @@ const createReview = asyncHandler(async (req, res) => {
     throw new ApiError(505, "Something went wrong while creating review");
   }
 
+  // Populate userInfo before returning
+  const populatedReview = await review.populate("userInfo", "fullName avatar");
+
   return res
     .status(201)
-    .json(new ApiResponse(201, review, "Review created successfully."));
+    .json(
+      new ApiResponse(201, populatedReview, "Review created successfully.")
+    );
 });
 
 // Get all reviews for a specific book
-const getBookReviews = asyncHandler(async (req, res) => {
+const getBookReviewsByBookId = asyncHandler(async (req, res) => {
   const { slug } = req.params;
+  const { p } = req.query;
 
-  const page = Math.max(parseInt(req.query.page) || 1, 1);
-  const limit = Math.min(parseInt(req.query.limit) || 10, 50);
+  const page = Math.max(parseInt(p) || 1, 1);
+  const limit = 6;
   const skip = (page - 1) * limit;
 
   // Check if book exists
   const book = await Book.findOne({ slug: slug });
   if (!book) throw new ApiError(404, "Book not found.");
 
-  const [items, total] = await Promise.all([
+  const [reviews, totalReviewsCount] = await Promise.all([
     Review.find({ bookId: book._id })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate("userInfo", "fullName")
+      .populate("userInfo", "fullName avatar")
       .lean(),
     Review.countDocuments({ bookId: book._id }),
   ]);
@@ -82,12 +88,11 @@ const getBookReviews = asyncHandler(async (req, res) => {
     new ApiResponse(
       200,
       {
-        items,
+        reviews,
         pagination: {
           page,
-          limit,
-          total,
-          pages: Math.ceil(total / limit),
+          totalReviewsCount,
+          pages: Math.ceil(totalReviewsCount / limit),
         },
       },
       "Reviews fetched successfully."
@@ -163,7 +168,7 @@ const updateReview = asyncHandler(async (req, res) => {
       }),
     },
     { new: true }
-  );
+  ).populate("userInfo", "fullName avatar");
 
   if (!updatedReview) {
     throw new ApiError(
@@ -171,6 +176,7 @@ const updateReview = asyncHandler(async (req, res) => {
       "Review not found or you are not allowed to update it."
     );
   }
+  
 
   return res
     .status(200)
@@ -196,10 +202,15 @@ const deleteReview = asyncHandler(async (req, res) => {
   }
 
   await review.deleteOne();
-
   return res
     .status(200)
-    .json(new ApiResponse(200, null, "Review deleted successfully."));
+    .json(
+      new ApiResponse(
+        200,
+        { reviewId: reviewId },
+        "Review deleted successfully."
+      )
+    );
 });
 
 // Get review statistics for a book (optional helper)
@@ -352,7 +363,7 @@ const checkUserReview = asyncHandler(async (req, res) => {
 
 export {
   createReview,
-  getBookReviews,
+  getBookReviewsByBookId,
   getMyReviews,
   updateReview,
   deleteReview,

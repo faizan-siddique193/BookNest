@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   createReview,
-  getBookReviews,
+  getBookReviewsByBookId,
   getMyReviews,
   updateReview,
   deleteReview,
@@ -14,7 +14,7 @@ import { verifyFirebaseToken } from "../middlewares/verifyFirrebaseToken.middlew
 const reviewRouter = Router();
 
 // Get all reviews for a book
-reviewRouter.route("/book/:slug").get(getBookReviews);
+reviewRouter.route("/book/:slug").get(getBookReviewsByBookId);
 reviewRouter.route("/book/:bookId/stats").get(getBookReviewStats); // Get rating statistics
 
 // Protected routes (auth required)
@@ -23,8 +23,11 @@ reviewRouter
   .route("/book/:bookId/check")
   .get(verifyFirebaseToken, checkUserReview); // Check if user reviewed
 reviewRouter.route("/my-reviews").get(verifyFirebaseToken, getMyReviews); // Get user's reviews
-reviewRouter.route("/:reviewId").patch(verifyFirebaseToken, updateReview); // Update review
-reviewRouter.route("/:reviewId").delete(verifyFirebaseToken, deleteReview); // Delete review
+reviewRouter
+  .route("/update/:reviewId")
+  .patch(verifyFirebaseToken, updateReview); // Update review
+reviewRouter
+  .route("/delete/:reviewId")
+  .delete(verifyFirebaseToken, deleteReview); // Delete review
 reviewRouter.route("/allReview").get(getAllReviews);
-
 export default reviewRouter;
