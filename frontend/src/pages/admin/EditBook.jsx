@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { updateBook } from "../../feature/book/bookAction";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -9,14 +9,14 @@ import { onAuthStateChanged, getIdToken } from "firebase/auth";
 import { Input, Textarea } from "../../Component/index";
 import { LoaderCircle } from "lucide-react";
 import { categoriesOption } from "../../constant/db";
+
 const EditBook = () => {
   const [token, setToken] = useState("");
   const { state } = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const book = state?.book || null; // Get book data from state
+  const book = state?.book || null;
   const { slug } = useParams();
-  console.log("Book data in EditBook:", book);
 
   const {
     control,
@@ -39,23 +39,25 @@ const EditBook = () => {
     },
   });
 
-  //   set the default values
+  // Set the default values
   useEffect(() => {
-    reset({
-      title: book?.title,
-      author: book.author,
-      description: book?.description,
-      price: book?.price,
-      category: book?.category,
-      averageRating: book?.averageRating,
-      pageCount: book?.pageCount,
-      image: book?.image,
-      stock: book?.stock,
-      publishYear: book?.publishYear,
-    });
-  }, [reset]);
+    if (book) {
+      reset({
+        title: book?.title || "",
+        author: book?.author || "",
+        description: book?.description || "",
+        price: book?.price || "",
+        category: book?.category || "",
+        averageRating: book?.averageRating || "",
+        pageCount: book?.pageCount || "",
+        image: book?.image || "",
+        stock: book?.stock || "",
+        publishYear: book?.publishYear || "",
+      });
+    }
+  }, [book, reset]);
 
-  //   get current user
+  // Get current user
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -66,37 +68,45 @@ const EditBook = () => {
     return unsubscribe;
   }, []);
 
-  //   book updatehandler
+  // Book update handler
   const onSubmit = async (updates) => {
     try {
-      await dispatch(updateBook({ token, slug, updates })).unwrap();
+      // Sanitize category to ensure it matches enum
+      const sanitizedUpdates = {
+        ...updates,
+        category: updates.category?.trim().toLowerCase(),
+      };
 
-      //navigate to the book page
+      await dispatch(updateBook({ token, slug, updates: sanitizedUpdates })).unwrap();
+
+      // Navigate to the book page
       navigate("/admin/books");
       toast.success("Book updated successfully");
       reset();
     } catch (error) {
-      toast.error("Internal server error");
+      console.error("Update error:", error);
+      toast.error(error?.message || "Internal server error");
     }
   };
 
-  //   input field ui
+  // Input field UI
   const inputStyle =
     "py-3 px-4 text-[#7F8C8D] focus:outline-none focus:ring-2 focus:ring-[#E67E22] w-full bg-[#F9F9F9] rounded-lg border border-[#7F8C8D]/30 transition-all duration-200 hover:border-[#7F8C8D]/50";
 
   return (
     <div className="w-full min-h-screen bg-background">
-      {/* main content && edit form */}
+      {/* Main content && edit form */}
       <div className="max-w-2xl w-full mx-auto border md:px-10 sm:px-6 px-5 py-5 rounded-lg bg-white shadow-sm">
         <div className="mb-5">
-          <h1 className="text-xl sm:text-2xl md:text-3xl  text-primary font-bold text-center">
-            Edit Book{" "}
+          <h1 className="text-xl sm:text-2xl md:text-3xl text-primary font-bold text-center">
+            Edit Book
           </h1>
           <p className="text-center text-muted">
             Update the book details below and save your changes.
           </p>
         </div>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 ">
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* Title */}
           <div className="w-full">
             <Input
@@ -143,81 +153,145 @@ const EditBook = () => {
 
           {/* Price & Category */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <Input
-              className={inputStyle}
-              type="number"
-              step="0.01"
-              placeholder="Price"
-              {...register("price", { required: "Price is required" })}
-            />
-            {/* category */}
-            <select
-              className={`${inputStyle} w-full`}
-              {...register("category", { required: "Category is required" })}
-            >
-              {categoriesOption.map((category) => (
-                <option
-                  className="border-none outline-none"
-                  key={category?.id}
-                  value={category?.name}
-                >
-                  {category?.name}
-                </option>
-              ))}
-            </select>
+            <div className="w-full">
+              <Input
+                className={inputStyle}
+                type="number"
+                step="0.01"
+                placeholder="Price"
+                {...register("price", { required: "Price is required" })}
+              />
+              {errors.price && (
+                <span className="text-red-600 text-xs">
+                  {errors.price.message}
+                </span>
+              )}
+            </div>
+
+            {/* Category with Controller for proper default value */}
+            <div className="w-full">
+              <Controller
+                name="category"
+                control={control}
+                rules={{ required: "Category is required" }}
+                render={({ field }) => (
+                  <select
+                    {...field}
+                    className={`${inputStyle} w-full`}
+                  >
+                    <option value="">Select a category</option>
+                    {categoriesOption.map((category) => (
+                      <option
+                        key={category.id}
+                        value={category.value}
+                      >
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              />
+              {errors.category && (
+                <span className="text-red-600 text-xs">
+                  {errors.category.message}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Stock & Publish Year */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <Input
-              className={inputStyle}
-              type="number"
-              placeholder="Stock"
-              {...register("stock", { required: "Stock is required" })}
-            />
-            <Input
-              className={inputStyle}
-              type="number"
-              placeholder="Publish Year"
-              {...register("publishYear", {
-                required: "Publish year is required",
-                min: { value: 1500, message: "Too old" },
-              })}
-            />
+            <div className="w-full">
+              <Input
+                className={inputStyle}
+                type="number"
+                placeholder="Stock"
+                {...register("stock", { required: "Stock is required" })}
+              />
+              {errors.stock && (
+                <span className="text-red-600 text-xs">
+                  {errors.stock.message}
+                </span>
+              )}
+            </div>
+
+            <div className="w-full">
+              <Input
+                className={inputStyle}
+                type="number"
+                placeholder="Publish Year"
+                {...register("publishYear", {
+                  required: "Publish year is required",
+                  min: { value: 1500, message: "Year must be after 1500" },
+                  max: { value: new Date().getFullYear(), message: "Invalid year" },
+                })}
+              />
+              {errors.publishYear && (
+                <span className="text-red-600 text-xs">
+                  {errors.publishYear.message}
+                </span>
+              )}
+            </div>
           </div>
 
+          {/* Average Rating & Page Count */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Average Rating */}
-            <Input
-              className={inputStyle}
-              type="number"
-              step="0.1"
-              placeholder="Average rating"
-              {...register("averageRating")}
-            />
-            {/* Page count */}
-            <Input
-              className={inputStyle}
-              type="number"
-              placeholder="PageCount"
-              {...register("pageCount")}
-            />
+            <div className="w-full">
+              <Input
+                className={inputStyle}
+                type="number"
+                step="0.1"
+                min="0"
+                max="5"
+                placeholder="Average rating (0-5)"
+                {...register("averageRating", {
+                  min: { value: 0, message: "Rating must be at least 0" },
+                  max: { value: 5, message: "Rating cannot exceed 5" },
+                })}
+              />
+              {errors.averageRating && (
+                <span className="text-red-600 text-xs">
+                  {errors.averageRating.message}
+                </span>
+              )}
+            </div>
+
+            <div className="w-full">
+              <Input
+                className={inputStyle}
+                type="number"
+                placeholder="Page Count"
+                {...register("pageCount", {
+                  min: { value: 1, message: "Must be at least 1 page" },
+                })}
+              />
+              {errors.pageCount && (
+                <span className="text-red-600 text-xs">
+                  {errors.pageCount.message}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Image URL */}
-          <Input
-            className={inputStyle}
-            placeholder="Image URL"
-            {...register("image", { required: "Image URL is required" })}
-          />
-          {errors.image && (
-            <span className="text-red-600 text-xs">{errors.image.message}</span>
-          )}
+          <div className="w-full">
+            <Input
+              className={inputStyle}
+              placeholder="Image URL"
+              {...register("image", { required: "Image URL is required" })}
+            />
+            {errors.image && (
+              <span className="text-red-600 text-xs">
+                {errors.image.message}
+              </span>
+            )}
+          </div>
 
           {/* Submit */}
           <button
             type="submit"
-            className="w-full py-3 bg-[#2C3E50] text-white rounded-lg hover:bg-[#34495E] transition-colors duration-300 font-medium mt-4 flex items-center justify-center gap-2"
+            disabled={isSubmitting}
+            className="w-full py-3 bg-[#2C3E50] text-white rounded-lg hover:bg-[#34495E] transition-colors duration-300 font-medium mt-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? (
               <>
@@ -225,7 +299,7 @@ const EditBook = () => {
                 Updating...
               </>
             ) : (
-              "Edit Book"
+              "Update Book"
             )}
           </button>
         </form>
