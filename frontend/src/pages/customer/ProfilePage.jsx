@@ -12,27 +12,6 @@ import { getUserProfile } from "../../feature/user/userAction";
 import { getAuth, getIdToken } from "firebase/auth";
 import { toast } from "react-toastify";
 
-const userOrders = [
-  {
-    _id: "12345",
-    date: "2025-11-18T12:00:00Z",
-    status: "Delivered",
-    total: 59.99,
-    paymentMethod: "Credit Card",
-    items: [
-      { id: "a1", name: "Book A", quantity: 2, price: 20 },
-      { id: "b1", name: "Book B", quantity: 1, price: 19.99 },
-    ],
-  },
-  {
-    _id: "12346",
-    date: "2025-11-15T10:30:00Z",
-    status: "Pending",
-    total: 34.5,
-    paymentMethod: "PayPal",
-    items: [{ id: "c1", name: "Book C", quantity: 1, price: 34.5 }],
-  },
-];
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState("profile");
@@ -175,7 +154,7 @@ const ProfilePage = () => {
                       <Package className="h-5 w-5 mr-2" />
                       My Orders
                     </h2>
-                    <Orders orders={userOrders} />
+                    <Orders orders={""} />
                   </div>
                 )}
 
