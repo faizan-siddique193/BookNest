@@ -38,7 +38,7 @@ export const footerExploreLinks = [
   },
 ];
 
-export const footerSupportLinks =  [
+export const footerSupportLinks = [
   {
     title: "Contact us",
     path: "#",

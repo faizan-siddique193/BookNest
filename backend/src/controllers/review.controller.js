@@ -318,7 +318,7 @@ const getAllReviews = asyncHandler(async (req, res) => {
   const reviews = await Review.find({ rating: { $gt: 4 } })
     .skip(skip)
     .limit(limit)
-    .populate("userInfo", "fullName");
+    .populate("userInfo", "fullName avatar");
 
   const totalReviews = await Review.countDocuments({ rating: { $gt: 4 } });
   if (!reviews || reviews.length === 0) {
