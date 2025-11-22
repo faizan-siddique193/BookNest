@@ -1,4 +1,4 @@
-import app from "./app.js";
+import app, { server } from "./app.js";
 import dotenv from "dotenv";
 import connectDB from "./db/index.js";
 import { startCronJobs } from "./utils/cronJobs.js";
@@ -12,7 +12,7 @@ connectDB()
       throw err;
     });
 
-    app.listen(process.env.PORT || 8000, () => {
+    server.listen(process.env.PORT || 8000, () => {
       // Server running successfully
     });
   })
