@@ -32,12 +32,12 @@ const createReview = asyncHandler(async (req, res) => {
   if (!book) throw new ApiError(404, "Book not found.");
 
   // Prevent duplicate reviews
-  /*  const existing = await Review.findOne({ bookId: book._id, userId });
+   const existing = await Review.findOne({ bookId: book._id, userId });
   if (existing) {
     return res.json(
       new ApiResponse(409, "", "You have already reviewed this book.")
     );
-  } */
+  }
 
   // Create review
   const review = await Review.create({
