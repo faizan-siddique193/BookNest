@@ -15,8 +15,6 @@ import { getCartItem } from "../feature/cart/cartAction";
 const Home = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
-  // TODO: DLETE THIS LOG
-  console.log("Current Page:: ", currentPage);
   const { testimoniReviews, totalPages } = useSelector((state) => state.review);
 
   // Function passed to child

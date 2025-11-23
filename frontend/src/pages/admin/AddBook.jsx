@@ -123,8 +123,6 @@ const AddBook = () => {
         publishYear: Number(data.publishYear),
       };
 
-      // TODO: delete this log
-      console.log("Payload to submit:: ", payload);
       await dispatch(createBook({ token, ...payload })).unwrap();
     } catch (error) {
       toast.error("Failed to add book. Please try again.");

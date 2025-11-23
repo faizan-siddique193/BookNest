@@ -21,21 +21,7 @@ export const createBook = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      console.log(
-        token,
-        title,
-        author,
-        description,
-        price,
-        category,
-        averageRating,
-        pageCount,
-        image,
-        stock,
-        publishYear,
-        isFeatured
-      );
-
+    
       const response = await axiosInstance.post(
         "/book/create",
         {
@@ -58,7 +44,6 @@ export const createBook = createAsyncThunk(
         }
       );
 
-      console.log("Create book response:: ", response.data);
       return response.data; // return so it gets stored in Redux
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -121,10 +106,6 @@ export const getBooks = createAsyncThunk(
   "book/get",
   async ({ currentPage }, { rejectWithValue }) => {
     try {
-      console.log("Current Page:: ", currentPage);
-
-      console.log("Thunk is running");
-
       const response = await axiosInstance.get(
         `/book/getbooks?p=${currentPage}`
       );
@@ -143,7 +124,6 @@ export const getBooksByCategory = createAsyncThunk(
       const response = await axiosInstance.get(
         `/book/getbooks/${category}?p=${currentPage}`
       );
-      console.log("GetBooksByCategory response::", response.data);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message);
@@ -172,8 +152,6 @@ export const getFeaturedBooks = createAsyncThunk(
 export const getLatestBooks = createAsyncThunk(
   "book/getLatestBooks",
   async (_, { rejectWithValue }) => {
-    console.log("Thunk fired: getLatestBooks");
-
     try {
       const response = await axiosInstance.get("/book/get/latest");
 

@@ -70,15 +70,6 @@ export const updateReview = createAsyncThunk(
   "review/update",
   async ({ reviewId, rating, comment }, { rejectWithValue }) => {
     try {
-      // TODO: DELETE THIS LOG
-      console.log(
-        "Updating review with ID:",
-        reviewId,
-        "Rating:",
-        rating,
-        "Comment:",
-        comment
-      );
       const response = await axiosInstance.patch(`/review/update/${reviewId}`, {
         rating,
         comment,
@@ -117,9 +108,6 @@ export const getTestimonialReviews = createAsyncThunk(
       const response = await axiosInstance.get(
         `/review/allReview?p=${currentPage}`
       );
-
-      console.log("Testimonial Review:: ", response);
-
       if (!response?.data?.success) {
         return rejectWithValue(response?.data?.message);
       }

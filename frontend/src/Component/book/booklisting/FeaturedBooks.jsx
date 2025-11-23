@@ -10,8 +10,6 @@ const FeaturedBooks = () => {
   const dispatch = useDispatch();
   const { loading, featuredBooks } = useSelector((state) => state.book);
 
-  console.log("Featured Books :: ", featuredBooks);
-
   useEffect(() => {
     const fetchFeaturedBooks = async () => {
       try {

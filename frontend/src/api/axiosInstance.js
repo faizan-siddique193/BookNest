@@ -30,7 +30,6 @@ const getToken = async () => {
           const token = await getIdToken(user, /* forceRefresh */ true);
           resolve(token);
         } catch (error) {
-          console.error("Error getting ID token:", error);
           reject(error);
         }
       } else {
@@ -51,8 +50,7 @@ const getToken = async () => {
 axiosInstance.interceptors.request.use(
   async (config) => {
     try {
-      console.log("Request interceptor triggered for:", config.url);
-
+    
       // Skip token for public endpoints (optional)
       const publicEndpoints = ["/auth/login", "/auth/register", "/books"];
       const isPublicEndpoint = publicEndpoints.some((endpoint) =>
@@ -60,7 +58,6 @@ axiosInstance.interceptors.request.use(
       );
 
       if (isPublicEndpoint) {
-        console.log("Public endpoint, skipping token");
         return config;
       }
 
@@ -69,18 +66,13 @@ axiosInstance.interceptors.request.use(
 
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
-        console.log(
-          "Token attached to request:",
-          token.substring(0, 20) + "..."
-        );
       } else {
         console.warn(" No token available - user might not be logged in");
       }
 
       return config;
     } catch (error) {
-      console.error("Request interceptor error:", error);
-
+     
       // Decide whether to proceed without token or reject
       // For protected routes, you might want to reject here
       if (config.url?.includes("/cart") || config.url?.includes("/order")) {
@@ -95,7 +87,6 @@ axiosInstance.interceptors.request.use(
     }
   },
   (error) => {
-    console.error(" Request error:", error);
     return Promise.reject(error);
   }
 );
@@ -109,14 +100,12 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    console.error("Response error:", error.response?.status, error.message);
-
     // Handle 401 Unauthorized - token expired or invalid
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
-        console.log("🔄 Token might be expired, refreshing...");
+      
 
         // Force refresh the token
         const user = auth.currentUser;
@@ -124,10 +113,8 @@ axiosInstance.interceptors.response.use(
           const newToken = await getIdToken(user, /* forceRefresh */ true);
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
 
-          console.log("Token refreshed, retrying request");
           return axiosInstance(originalRequest);
         } else {
-          console.error(" No user found, redirecting to login");
           // Redirect to login page
           window.location.href = "/login";
         }
