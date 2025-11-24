@@ -48,51 +48,40 @@ const BookDetailPage = () => {
   const { bookReviews, currentPage, totalPages, totalReviews, hasMore } =
     useSelector((state) => state.review);
 
-  // Get authentication state from Redux
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
-
   const limit = 3;
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   // add to wishlist
   const { wishlist } = useSelector((state) => state.wishlist);
+  // get user
+  const {user} = useSelector((state)=>state.user)
+
 
   // Check if book is in wishlist
   const isInWishlist = (bookId) =>
     wishlist?.some((item) => String(item._id) === String(bookId));
 
-  // Toggle wishlist item with authentication check
-  const handleWishlistItem = async (book) => {
-    // Check if user is authenticated
-    if (!isAuthenticated) {
-      toast.info("Please sign in to add items to your wishlist");
-      navigate("/sign-in", { state: { from: `/books/${slug}` } });
-      return;
-    }
-
-    try {
-      if (isInWishlist(book._id)) {
-        dispatch(removeWishlistOptimistic(book._id));
-        await dispatch(deleteWishlistItem({ bookId: book._id })).unwrap();
-        toast.success("Removed from wishlist");
-      } else {
-        dispatch(addWishlistOptimistic(book));
-        await dispatch(addToWishList({ bookId: book._id })).unwrap();
-        toast.success("Added to wishlist");
-      }
-      dispatch(getWishlistItem());
-    } catch (error) {
-      console.error("Wishlist error:", error);
-      // If error is due to authentication, redirect
-      if (error?.status === 401 || error?.message?.includes("auth")) {
-        toast.error("Session expired. Please sign in again");
-        navigate("/sign-in", { state: { from: `/books/${slug}` } });
-      } else {
-        toast.error(error?.message || "Failed to update wishlist");
-      }
-    }
-  };
+  // Toggle wishlist item
+  let handleWishlistItem;
+  if (!user) {
+    handleWishlistItem = () => {
+      toast.info("Please sign in to manage your wishlist.");
+    };
+  } else {
+    handleWishlistItem = async (book) => {
+      try {
+        if (isInWishlist(book._id)) {
+          dispatch(removeWishlistOptimistic(book._id));
+          await dispatch(deleteWishlistItem({ bookId: book._id })).unwrap();
+        } else {
+          dispatch(addWishlistOptimistic(book));
+          await dispatch(addToWishList({ bookId: book._id })).unwrap();
+        }
+        dispatch(getWishlistItem());
+      } catch (error) {}
+    };
+  }
 
   // Fetch book and initial reviews on mount
   useEffect(() => {
@@ -124,29 +113,22 @@ const BookDetailPage = () => {
     }
   };
 
-  // Add to cart function with authentication check
-  const handleAddToCart = async (bookId) => {
-    // Check if user is authenticated
-    if (!isAuthenticated) {
-      toast.info("Please sign in to add items to your cart");
-      navigate("/sign-in", { state: { from: `/books/${slug}` } });
-      return;
-    }
-
-    try {
-      await dispatch(addToCart({ bookId })).unwrap();
-      toast.success("Book added to cart");
-    } catch (error) {
-      console.error("Add to cart error:", error);
-      // If error is due to authentication, redirect
-      if (error?.status === 401 || error?.message?.includes("auth")) {
-        toast.error("Session expired. Please sign in again");
-        navigate("/sign-in", { state: { from: `/books/${slug}` } });
-      } else {
+  // Add to cart function
+  let handleAddToCart;
+  if (!user) {
+    handleAddToCart = () => {
+      toast.info("Please sign in to add items to cart.");
+    };
+  } else {
+    handleAddToCart = async (bookId) => {
+      try {
+        await dispatch(addToCart({ bookId })).unwrap();
+        toast.success("Book added to cart");
+      } catch (error) {
         toast.error(error?.message || "Failed to add book to cart");
       }
-    }
-  };
+    };
+  }
 
   return (
     <div className="bg-background min-h-screen">
@@ -251,7 +233,7 @@ const BookDetailPage = () => {
                 >
                   <Heart
                     className={`h-4 w-4 transition-colors ${
-                      isAuthenticated && isInWishlist(book?._id)
+                      isInWishlist(book?._id)
                         ? "fill-red-600 text-red-600"
                         : "text-gray-500"
                     }`}

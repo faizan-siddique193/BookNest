@@ -1,7 +1,7 @@
 import React from "react";
 import { Star, Heart, ShoppingCart } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   addToWishList,
   deleteWishlistItem,
@@ -13,74 +13,58 @@ import {
   addWishlistOptimistic,
   removeWishlistOptimistic,
 } from "../../../feature/wishlist/wishlistSlice";
+import { use } from "react";
 
 const BookCard = ({ book }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  
   const { wishlist } = useSelector((state) => state.wishlist);
-  // Get authentication state from Redux
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.user);
 
   // Check if book is in wishlist
   const isInWishlist = (bookId) =>
     wishlist?.some((item) => String(item._id) === String(bookId));
 
-  // Toggle wishlist item with authentication check
-  const handleWishlistItem = async (book) => {
-    // Check if user is authenticated
-    if (!isAuthenticated) {
-      toast.info("Please sign in to add items to your wishlist");
-      navigate("/sign-in", { state: { from: window.location.pathname } });
-      return;
-    }
-
-    try {
-      if (isInWishlist(book._id)) {
-        dispatch(removeWishlistOptimistic(book._id));
-        await dispatch(deleteWishlistItem({ bookId: book._id })).unwrap();
-        toast.success("Removed from wishlist");
-      } else {
-        dispatch(addWishlistOptimistic(book));
-        await dispatch(addToWishList({ bookId: book._id })).unwrap();
-        toast.success("Added to wishlist");
+  let handleWishlistItem;
+  if (!user) {
+    // If user is not authenticated, disable wishlist and cart actions
+    handleWishlistItem = (book) => {
+      toast.info("Please sign in to manage your wishlist.");
+    };
+  } else {
+    // Toggle wishlist item
+    handleWishlistItem = async (book) => {
+      try {
+        if (isInWishlist(book._id)) {
+          dispatch(removeWishlistOptimistic(book._id));
+          await dispatch(deleteWishlistItem({ bookId: book._id })).unwrap();
+        } else {
+          dispatch(addWishlistOptimistic(book));
+          await dispatch(addToWishList({ bookId: book._id })).unwrap();
+        }
+        dispatch(getWishlistItem());
+      } catch (error) {
+        toast.error("Something went wrong while adding to wishlist");
       }
-      dispatch(getWishlistItem());
-    } catch (error) {
-      console.error("Wishlist error:", error);
-      // If error is due to authentication, redirect
-      if (error?.status === 401 || error?.message?.includes("auth")) {
-        toast.error("Session expired. Please sign in again");
-        navigate("/sign-in", { state: { from: window.location.pathname } });
-      } else {
-        toast.error(error?.message || "Failed to update wishlist");
-      }
-    }
-  };
+    };
+  }
 
-  // Add to cart function with authentication check
-  const handleAddToCart = async (bookId) => {
-    // Check if user is authenticated
-    if (!isAuthenticated) {
-      toast.info("Please sign in to add items to your cart");
-      navigate("/sign-in", { state: { from: window.location.pathname } });
-      return;
-    }
+  // Add to cart function
 
-    try {
-      await dispatch(addToCart({ bookId })).unwrap();
-      toast.success("Book added to cart");
-    } catch (error) {
-      console.error("Add to cart error:", error);
-      // If error is due to authentication, redirect
-      if (error?.status === 401 || error?.message?.includes("auth")) {
-        toast.error("Session expired. Please sign in again");
-        navigate("/sign-in", { state: { from: window.location.pathname } });
-      } else {
+  let handleAddToCart;
+  if (!user) {
+    handleAddToCart = () => {
+      toast.info("Please sign in to add items to cart.");
+    };
+  } else {
+    handleAddToCart = async (bookId) => {
+      try {
+        await dispatch(addToCart({ bookId })).unwrap();
+        toast.success("Book added to cart");
+      } catch (error) {
         toast.error(error?.message || "Failed to add book to cart");
       }
-    }
-  };
+    };
+  }
 
   // Fallback image if missing
   const coverImage =
@@ -185,7 +169,7 @@ const BookCard = ({ book }) => {
           >
             <Heart
               className={`h-4 w-4 transition-colors ${
-                isAuthenticated && isInWishlist(book._id)
+                isInWishlist(book._id)
                   ? "fill-red-600 text-red-600"
                   : "text-gray-500"
               }`}

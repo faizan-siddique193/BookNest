@@ -7,7 +7,7 @@ import { getBooks } from "../../feature/book/bookAction";
 import { toast } from "react-toastify";
 import { BookCardSkeleton } from "../../Component";
 
-const BookListingPage = () => {
+const BookListingPage = ({ user }) => {
   const [viewMode, setViewMode] = useState("grid");
   const dispatch = useDispatch();
 
@@ -85,7 +85,7 @@ const BookListingPage = () => {
             {/* TODO: SORTBAR */}
 
             {filteredBooks && filteredBooks.length > 0 ? (
-              <BookGrid books={filteredBooks} viewMode={viewMode} />
+              <BookGrid user={user} books={filteredBooks} viewMode={viewMode} />
             ) : (
               <p className="text-center text-gray-500 mt-10">
                 No books found matching your search.

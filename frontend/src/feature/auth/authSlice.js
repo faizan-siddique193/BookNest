@@ -106,6 +106,7 @@ const authSlice = createSlice({
       // state.user = action.payload;
       state.signIn.success = true;
       state.signIn.error = null;
+      state.user = null;
       // state.isAuthenticated = true;
     });
     builder.addCase(userLogout.rejected, (state, action) => {
