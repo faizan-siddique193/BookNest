@@ -129,7 +129,7 @@ const bookSlice = createSlice({
     builder.addCase(getBookById.fulfilled, (state, action) => {
       state.loading = false;
       state.success = true;
-      state.book = action.payload.data.book;
+      state.book = action.payload.data;
       state.error = null;
     });
     builder.addCase(getBookById.rejected, (state, action) => {

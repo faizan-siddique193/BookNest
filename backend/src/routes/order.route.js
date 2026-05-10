@@ -10,8 +10,8 @@ import {
 const orderRouter = Router();
 orderRouter.route("/create").post(verifyFirebaseToken, placeOrder);
 orderRouter
-  .route("update/:orderId")
+  .route("/update/:orderId")
   .patch(verifyFirebaseToken, updateOrderStatus);
-orderRouter.route("/get/:orderId").get(verifyFirebaseToken, getOrderById);
 orderRouter.route("/get/orders").get(verifyFirebaseToken, getMyOrders);
+orderRouter.route("/get/:orderId").get(verifyFirebaseToken, getOrderById);
 export default orderRouter;

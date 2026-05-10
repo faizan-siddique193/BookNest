@@ -13,15 +13,13 @@ const BooksByCategory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const dispatch = useDispatch();
 
-  console.log("Books in category:: ", books);
-
   //   get category from url
   const { category } = useParams();
   useEffect(() => {
     const fetchBooksByCategory = async () => {
       try {
         const response = await dispatch(
-          getBooksByCategory({ category, currentPage })
+          getBooksByCategory({ category, currentPage }),
         ).unwrap();
         setBooks(response.data.books);
       } catch (error) {}

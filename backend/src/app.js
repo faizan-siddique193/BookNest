@@ -9,9 +9,12 @@ import whishListRouter from "./routes/wishlist.route.js";
 import orderRouter from "./routes/order.route.js";
 import reviewRouter from "./routes/review.route.js";
 import paymentRouter from "./routes/payment.route.js";
+import aiRouter from "./routes/ai.route.js";
+import adminRouter from "./routes/admin.route.js";
 import { webhookEndpoints } from "./controllers/payment.controller.js";
 import { Server } from "socket.io";
 import { createServer } from "node:http";
+import { setSocketServer } from "./utils/socket.js";
 
 const app = express();
 
@@ -27,12 +30,24 @@ const io = new Server(server, {
   },
 });
 
+setSocketServer(io);
+
 // Socket event handler
 io.on("connection", (socket) => {
-  console.log("Socket connected:", socket.id);
+  logger.info(`Socket connected: ${socket.id}`);
+
+  socket.on("join", (userId) => {
+    if (userId) {
+      socket.join(`user:${userId}`);
+    }
+  });
+
+  socket.on("join-admin", () => {
+    socket.join("admins");
+  });
 
   socket.on("disconnect", () => {
-    console.log("Socket disconnected:", socket.id);
+    logger.info(`Socket disconnected: ${socket.id}`);
   });
 });
 
@@ -42,14 +57,14 @@ app.use(
     origin: process.env.CROSS_ORIGIN,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     credentials: true,
-  })
+  }),
 );
 
 // Stripe webhook FIRST
 app.post(
   "/api/v1/payment/stripe/webhook",
   express.raw({ type: "application/json" }),
-  webhookEndpoints
+  webhookEndpoints,
 );
 
 // Body parsers for other routes
@@ -71,7 +86,7 @@ app.use(
         logger.info(JSON.stringify(logObject));
       },
     },
-  })
+  }),
 );
 
 // Routes
@@ -82,6 +97,8 @@ app.use("/api/v1/wishlist", whishListRouter);
 app.use("/api/v1/order", orderRouter);
 app.use("/api/v1/review", reviewRouter);
 app.use("/api/v1/payment", paymentRouter);
+app.use("/api/v1/ai", aiRouter);
+app.use("/api/v1/admin", adminRouter);
 
 // Export for use in entry point AND in controllers
 export { server, io };

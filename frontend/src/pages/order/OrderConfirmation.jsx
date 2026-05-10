@@ -12,7 +12,7 @@ const OrderConfirmation = () => {
   const dispatch = useDispatch();
   const loading = useSelector((state) => state.order.loading);
   const selectedOrder = useSelector(
-    (state) => state.order.orderInfo.selectedOrder
+    (state) => state.order.orderInfo.selectedOrder,
   );
 
   const { orderId } = useParams();
@@ -135,7 +135,7 @@ const OrderConfirmation = () => {
             <div className="flex justify-between">
               <span className="text-muted">Status:</span>
               <span className="font-medium text-success capitalize">
-                {selectedOrder.status}
+                {selectedOrder.orderStatus}
               </span>
             </div>
 
@@ -150,6 +150,12 @@ const OrderConfirmation = () => {
               <span className="text-muted">Payment Method:</span>
               <span className="font-medium text-primary capitalize">
                 {selectedOrder.paymentMethod.replace("-", " ")}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted">Payment Status:</span>
+              <span className="font-medium text-primary capitalize">
+                {selectedOrder.paymentStatus}
               </span>
             </div>
           </div>

@@ -26,6 +26,20 @@ const orderSlice = createSlice({
       state.success = false;
       state.error = null;
     },
+    orderStatusUpdated: (state, action) => {
+      const { orderId, orderStatus, paymentStatus } = action.payload;
+
+      if (state.orderInfo.selectedOrder?._id === orderId) {
+        state.orderInfo.selectedOrder.orderStatus = orderStatus;
+        state.orderInfo.selectedOrder.paymentStatus = paymentStatus;
+      }
+
+      state.orderInfo.orders = state.orderInfo.orders.map((order) =>
+        order._id === orderId
+          ? { ...order, orderStatus, paymentStatus }
+          : order,
+      );
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -39,7 +53,7 @@ const orderSlice = createSlice({
         state.loading = false;
         state.success = true;
         state.error = null;
-        state.selectedOrder = action.payload.data;
+        state.orderInfo.selectedOrder = action.payload.data;
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.loading = false;
@@ -56,7 +70,7 @@ const orderSlice = createSlice({
       .addCase(getMyOrders.fulfilled, (state, action) => {
         state.loading = false;
         state.orderInfo.orders = action.payload.data.orders || [];
-        state.totalPage = action.payload.data.totalPage;
+        state.totalPage = action.payload.data.totalPages;
         state.error = null;
       })
       .addCase(getMyOrders.rejected, (state, action) => {
@@ -101,5 +115,5 @@ const orderSlice = createSlice({
   },
 });
 
-export const { clearOrderState } = orderSlice.actions;
+export const { clearOrderState, orderStatusUpdated } = orderSlice.actions;
 export default orderSlice.reducer;

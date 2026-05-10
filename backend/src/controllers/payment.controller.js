@@ -4,6 +4,8 @@ import { Payment } from "../models/payment.model.js";
 import { ApiResponse } from "../utils/ApiRespone.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/AsyncHandler.js";
+import logger from "../utils/logger.js";
+import { getSocketServer } from "../utils/socket.js";
 
 // stripe instance
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -34,7 +36,7 @@ const createStripePayment = asyncHandler(async (req, res) => {
   // Prevent duplicate payments for completed orders
   const existingPayment = await Payment.findOne({
     orderId,
-    method: "stripe", 
+    method: "stripe",
     status: "COMPLETED",
   });
 
@@ -117,8 +119,8 @@ const createStripePayment = asyncHandler(async (req, res) => {
       new ApiResponse(
         200,
         { url: session.url, sessionId: session.id },
-        "Stripe checkout session created successfully"
-      )
+        "Stripe checkout session created successfully",
+      ),
     );
 });
 
@@ -128,7 +130,7 @@ const webhookEndpoints = asyncHandler(async (req, res) => {
 
   // validate signature
   if (!sig) {
-    console.error("No stripe-signature header found");
+    logger.error("No stripe-signature header found");
     return res.status(400).send("Webhook Error: No signature header");
   }
 
@@ -137,11 +139,13 @@ const webhookEndpoints = asyncHandler(async (req, res) => {
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, WEBHOOK_SECRET);
   } catch (err) {
-    console.error("Stripe webhook signature verification failed:", err.message);
+    logger.error(
+      `Stripe webhook signature verification failed: ${err.message}`,
+    );
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  console.log(`Webhook received: ${event.type}`);
+  logger.info(`Webhook received: ${event.type}`);
 
   try {
     switch (event.type) {
@@ -176,7 +180,7 @@ const webhookEndpoints = asyncHandler(async (req, res) => {
         }
 
         if (!payment) {
-          console.error("Payment not found for session:", session.id);
+          logger.error(`Payment not found for session: ${session.id}`);
           // Don't throw error - return 200 so Stripe doesn't retry
           return res.status(200).json({
             received: true,
@@ -195,12 +199,21 @@ const webhookEndpoints = asyncHandler(async (req, res) => {
           order.paymentStatus = "PAID"; // or "COMPLETED" depending on your schema
           order.orderStatus = "CONFIRMED"; // Update order status as needed
           await order.save();
-          console.log(`Order ${order._id} updated to PAID`);
+          logger.info(`Order ${order._id} updated to PAID`);
+
+          const io = getSocketServer();
+          if (io) {
+            io.to(`user:${order.userId}`).emit("order-status-updated", {
+              orderId: order._id,
+              orderStatus: order.orderStatus,
+              paymentStatus: order.paymentStatus,
+            });
+          }
         } else {
-          console.warn(`Order not found for payment ${payment._id}`);
+          logger.warn(`Order not found for payment ${payment._id}`);
         }
 
-        console.log(`Payment ${payment._id} completed successfully`);
+        logger.info(`Payment ${payment._id} completed successfully`);
         break;
       }
 
@@ -216,9 +229,24 @@ const webhookEndpoints = asyncHandler(async (req, res) => {
         if (payment && payment.status === "PENDING") {
           payment.status = "FAILED";
           await payment.save();
-          console.log(
-            `Payment ${payment._id} marked as FAILED (session expired)`
+          logger.info(
+            `Payment ${payment._id} marked as FAILED (session expired)`,
           );
+
+          const order = await Order.findById(payment.orderId);
+          if (order) {
+            order.paymentStatus = "FAILED";
+            await order.save();
+
+            const io = getSocketServer();
+            if (io) {
+              io.to(`user:${order.userId}`).emit("order-status-updated", {
+                orderId: order._id,
+                orderStatus: order.orderStatus,
+                paymentStatus: order.paymentStatus,
+              });
+            }
+          }
         }
         break;
       }
@@ -235,18 +263,33 @@ const webhookEndpoints = asyncHandler(async (req, res) => {
         if (payment) {
           payment.status = "FAILED";
           await payment.save();
-          console.log(`Payment ${payment._id} marked as FAILED`);
+          logger.info(`Payment ${payment._id} marked as FAILED`);
+
+          const order = await Order.findById(payment.orderId);
+          if (order) {
+            order.paymentStatus = "FAILED";
+            await order.save();
+
+            const io = getSocketServer();
+            if (io) {
+              io.to(`user:${order.userId}`).emit("order-status-updated", {
+                orderId: order._id,
+                orderStatus: order.orderStatus,
+                paymentStatus: order.paymentStatus,
+              });
+            }
+          }
         }
         break;
       }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        logger.info(`Unhandled event type: ${event.type}`);
     }
 
     return res.status(200).json({ received: true });
   } catch (error) {
-    console.error("Webhook processing failed:", error);
+    logger.error(`Webhook processing failed: ${error?.message || error}`);
     // Return 200 to prevent Stripe from retrying
     return res.status(200).json({
       received: true,

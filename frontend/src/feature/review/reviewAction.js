@@ -11,12 +11,10 @@ export const createReview = createAsyncThunk(
         comment,
       });
 
-      console.log("create review schema:: ", response.data.data);
-
       // check response status
       if (!response.data?.success) {
         return rejectWithValue(
-          response.data?.message || "Failed to delete review"
+          response.data?.message || "Failed to delete review",
         );
       }
 
@@ -24,10 +22,10 @@ export const createReview = createAsyncThunk(
     } catch (error) {
       console.error("Delete review error:", error);
       return rejectWithValue(
-        error.response?.data?.message || "Failed to create review"
+        error.response?.data?.message || "Failed to create review",
       );
     }
-  }
+  },
 );
 
 // get reviews for specific book
@@ -36,18 +34,16 @@ export const getReviewsByBookId = createAsyncThunk(
   async ({ slug, page }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(
-        `/review/book/${slug}?p=${page}`
+        `/review/book/${slug}?p=${page}`,
       );
-
-      console.log("Get reviews by book id:: ", response.data);
 
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch reviews"
+        error.response?.data?.message || "Failed to fetch reviews",
       );
     }
-  }
+  },
 );
 
 // get current user's reviews
@@ -59,10 +55,10 @@ export const getMyReviews = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch your reviews"
+        error.response?.data?.message || "Failed to fetch your reviews",
       );
     }
-  }
+  },
 );
 
 // update review
@@ -77,10 +73,10 @@ export const updateReview = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to update review"
+        error.response?.data?.message || "Failed to update review",
       );
     }
-  }
+  },
 );
 
 // delete review
@@ -89,14 +85,13 @@ export const deleteReview = createAsyncThunk(
   async ({ reviewId }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.delete(`/review/delete/${reviewId}`);
-      console.log("Delete action review response::", response.data);
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to delete review"
+        error.response?.data?.message || "Failed to delete review",
       );
     }
-  }
+  },
 );
 
 // get all reviews for testimonial
@@ -106,7 +101,7 @@ export const getTestimonialReviews = createAsyncThunk(
   async ({ currentPage }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(
-        `/review/allReview?p=${currentPage}`
+        `/review/allReview?p=${currentPage}`,
       );
       if (!response?.data?.success) {
         return rejectWithValue(response?.data?.message);
@@ -116,5 +111,5 @@ export const getTestimonialReviews = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
-  }
+  },
 );

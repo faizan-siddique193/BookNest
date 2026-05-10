@@ -27,7 +27,7 @@ const cartSlice = createSlice({
       const { bookId, quantity } = action.payload;
       if (state.cart) {
         const itemIndex = state.cart.items.findIndex(
-          (item) => item.bookId._id === bookId
+          (item) => item.bookId._id === bookId,
         );
         if (itemIndex > -1) {
           state.cart.items[itemIndex].quantity = quantity;
@@ -41,11 +41,10 @@ const cartSlice = createSlice({
     // Optimistic removal
     removeItemOptimistic: (state, action) => {
       const bookId = action.payload;
-      console.log("Optimistically removing bookId:", bookId);
 
       if (state.cart) {
         state.cart.items = state.cart.items.filter(
-          (item) => item.bookId._id !== bookId
+          (item) => item.bookId._id !== bookId,
         );
 
         // Recalculate total optimistically

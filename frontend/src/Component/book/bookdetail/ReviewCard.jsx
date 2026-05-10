@@ -23,7 +23,7 @@ const ReviewCard = ({ review }) => {
   const dispatch = useDispatch();
   const { slug } = useParams();
 
- /*  const timeAgo = formatDistanceToNow(new Date(review.createdAt) , {
+  /*  const timeAgo = formatDistanceToNow(new Date(review.createdAt) , {
     addSuffix: true,
   }) : "Unknown date";
  */
@@ -35,11 +35,8 @@ const ReviewCard = ({ review }) => {
     setIsDeleting(true);
     try {
       const response = await dispatch(
-        deleteReview({ reviewId: review._id })
+        deleteReview({ reviewId: review._id }),
       ).unwrap();
-
-      // DELETE THIS LOG
-      console.log("Delete review action response:: ", response);
       toast.success("Review deleted successfully");
     } catch (error) {
       toast.error(error || "Failed to delete review");
@@ -61,7 +58,7 @@ const ReviewCard = ({ review }) => {
           reviewId: review._id,
           rating: editedRating,
           comment: editedComment,
-        })
+        }),
       ).unwrap();
       toast.success("Review updated successfully");
       setIsEditing(false);
@@ -106,7 +103,7 @@ const ReviewCard = ({ review }) => {
                 ?.split(" ")
                 .map(
                   (word) =>
-                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
                 )
                 .join(" ") || "Anonymous"}
             </h3>

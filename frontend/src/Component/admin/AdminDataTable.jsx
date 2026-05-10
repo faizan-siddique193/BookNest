@@ -6,7 +6,6 @@ const AdminDataTable = ({ books, handleBookDelete }) => {
 
   const handleEditClick = (book) => {
     setbookEditData(book);
-    console.log("Book to edit:", book);
   };
 
   return (
@@ -90,8 +89,8 @@ const AdminDataTable = ({ books, handleBookDelete }) => {
                           book?.stock > 10
                             ? "bg-green-100 text-green-800"
                             : book?.stock > 0
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-red-100 text-red-800"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
                         }`}
                       >
                         {book?.stock}
@@ -101,7 +100,7 @@ const AdminDataTable = ({ books, handleBookDelete }) => {
                       <Link
                         to={`/admin/books/edit/${book?.slug}`}
                         className="p-1 rounded-full inline-block align-middle "
-                       state={{book}}
+                        state={{ book }}
                       >
                         <Edit className="h-4 w-4 sm:h-5 sm:w-5 text-accent hover:text-green-500 transition-colors duration-300" />
                       </Link>

@@ -33,15 +33,13 @@ const ReviewForm = () => {
   }, [rating, setValue]);
 
   const onSubmitHandler = async (data) => {
-    console.log("Review data:: ", data);
-
     try {
       await dispatch(
         createReview({
           slug,
           rating: data.rating,
           comment: data.comment,
-        })
+        }),
       ).unwrap();
       toast.success("Your review has been submitted successfully.");
       reset();
@@ -51,7 +49,6 @@ const ReviewForm = () => {
 
       dispatch(getReviewsByBookId({ slug }));
     } catch (error) {
-      console.log("Review error:: ", error);
       toast.error(error);
       setHover(0);
       setRating(0);

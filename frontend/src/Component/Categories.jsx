@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import Breadcrumb from "./book/booklisting/Breadcrumb";
 
-
 // book Categories
 const bookCategories = [
   {
@@ -59,10 +58,7 @@ const bookCategories = [
 
 const Categories = () => {
   return (
-    <section
-      id="categories"
-      className="  bg-background"
-    >
+    <section id="categories" className="  bg-background">
       <div className="text-primary pl-10 pt-4 mb-10">
         <Breadcrumb
           items={[
@@ -97,7 +93,7 @@ const Categories = () => {
                   <category.icon className="h-8 w-8 text-primary group-hover:text-accent transition-colors" />
                 </div>
               </div>
-              <h3 className="font-semibold text-primary mb-1">
+              <h3 className="font-semibold text-primary mb-1 text-base">
                 {category?.name}
               </h3>
               {/* TODO:OPTIONAL */}

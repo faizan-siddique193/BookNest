@@ -45,7 +45,6 @@ const Navbar = () => {
 
   // links
   const navLinks = [
- 
     {
       id: 1,
       title: "Books",
@@ -61,72 +60,78 @@ const Navbar = () => {
       title: "Best Seller",
       link: "/books/featured",
     },
+    {
+      id: 4,
+      title: "AI Concierge",
+      link: "/ai-concierge",
+    },
   ];
 
   return (
     <nav className="w-full bg-primary shadow-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo and Mobile Menu Button */}
-          <div className="flex items-center">
-            {/* Logo */}
-            <Link to="/" className="flex-shrink-0">
-              <h1 className="text-2xl font-bold text-accent hover:text-secondary transition-colors">
-                BookNest
-              </h1>
-            </Link>
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
+        {/* Main Navbar Row */}
+        <div className="flex items-center justify-between h-16 gap-4">
+          {/* Logo */}
+          <Link to="/" className="flex-shrink-0">
+            <h1 className="text-2xl font-bold text-accent hover:text-secondary transition-colors">
+              BookNest
+            </h1>
+          </Link>
+
+          {/* Desktop Navigation Links */}
+          <div className="hidden lg:flex gap-8">
+            {navLinks.map((navlink) => (
+              <Link
+                key={navlink.id}
+                to={navlink.link}
+                className="text-secondary hover:text-accent px-2 py-2 rounded-md text-base font-medium transition-colors"
+              >
+                {navlink.title}
+              </Link>
+            ))}
           </div>
 
-          {/* Navigation Links - Hidden on mobile */}
-          <div className="hidden md:flex ml-10">
-            <div className="flex items-center space-x-8">
-              {navLinks.map((navlink) => (
-                <Link
-                  key={navlink.id}
-                  to={navlink.link}
-                  className="text-secondary hover:text-accent px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  {navlink.title}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Search Bar - Hidden on mobile */}
-          <div className="hidden md:block w-1/3 mx-4">
+          {/* Desktop Search Bar */}
+          <div className="hidden lg:block flex-1 max-w-xs mx-4">
             <SearchBar />
           </div>
 
-          {/* Icons and Auth */}
-          <div className="flex items-center space-x-4">
+          {/* Right Side Icons and Auth */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            {/* Wishlist Icon */}
             <Link
               to="/wishlist"
-              className="p-2 rounded-full hover:bg-[#34495E] transition-colors"
+              className="p-2 rounded-full hover:bg-[#34495E] transition-colors flex-shrink-0"
               aria-label="Wishlist"
+              title="Wishlist"
             >
               <Heart className="h-5 w-5 text-secondary hover:text-accent" />
             </Link>
+
+            {/* Cart Icon */}
             <Link
               to="/cart"
-              className="p-2 rounded-full hover:bg-[#34495E] transition-colors relative"
+              className="p-2 rounded-full hover:bg-[#34495E] transition-colors relative flex-shrink-0"
               aria-label="Shopping Cart"
+              title="Shopping Cart"
             >
               <ShoppingCart className="h-5 w-5 text-secondary hover:text-accent" />
               {cart?.totalQuantity > 0 && (
-                <span className="absolute -top-1 -right-1 bg-accent text-secondary text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-accent text-secondary text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                   {cart.totalQuantity}
                 </span>
               )}
             </Link>
 
-            {/* User dropdown */}
-            <div className="ml-4 relative" ref={dropdownRef}>
+            {/* User Menu */}
+            <div className="relative flex-shrink-0" ref={dropdownRef}>
               {user ? (
                 <button
                   onClick={toggleDropdown}
-                  className="flex items-center space-x-2 p-1 rounded-full hover:bg-[#34495E] transition-colors duration-200"
+                  className="flex items-center gap-2 p-1 rounded-full hover:bg-[#34495E] transition-colors"
+                  title={user?.fullName}
                 >
-                  {/* Avatar */}
                   {user?.avatar ? (
                     <img
                       src={user.avatar}
@@ -134,7 +139,7 @@ const Navbar = () => {
                       className="h-8 w-8 rounded-lg object-cover border border-secondary"
                     />
                   ) : (
-                    <div className="h-8 w-8 rounded-lg bg-gray-200 flex items-center justify-center text-xs font-bold text-primary">
+                    <div className="h-8 w-8 rounded-lg bg-gray-300 flex items-center justify-center text-xs font-bold text-primary">
                       {user?.fullName
                         ?.split(" ")
                         .slice(0, 2)
@@ -142,13 +147,13 @@ const Navbar = () => {
                         .join("") || "U"}
                     </div>
                   )}
-                  <span className="hidden md:inline text-sm font-medium text-secondary">
+                  <span className="hidden sm:inline text-sm font-medium text-secondary whitespace-nowrap">
                     {user?.fullName
                       ?.split(" ")
                       .map(
                         (word) =>
                           word.charAt(0).toUpperCase() +
-                          word.slice(1).toLowerCase()
+                          word.slice(1).toLowerCase(),
                       )
                       .join(" ")}
                   </span>
@@ -156,40 +161,30 @@ const Navbar = () => {
               ) : (
                 <Link
                   to="/sign-in"
-                  className="flex items-center space-x-1 p-2 rounded-full hover:bg-[#34495E] transition-colors duration-200"
+                  className="flex items-center gap-2 p-2 rounded-full hover:bg-[#34495E] transition-colors"
                 >
                   <User className="h-5 w-5 text-secondary" />
-                  <span className="hidden md:inline text-sm font-medium text-secondary">
-                    Account
+                  <span className="hidden sm:inline text-sm font-medium text-secondary">
+                    Sign In
                   </span>
                 </Link>
               )}
-              {/* Dropdown would go here */}
+
+              {/* Dropdown Menu */}
               {isDropdownOpen && (
-                <div
-                  onClick={toggleDropdown}
-                  className={`
-          absolute top-20 right-0 w-56 bg-white shadow-xl rounded-xl px-0 py-2 space-y-1
-          transition-all duration-300 ease-in-out z-50
-          ${
-            isDropdownOpen
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 -translate-y-2 pointer-events-none"
-          }
-        `}
-                >
-                  {/* User Info Header */}
-                  <div className="px-4 py-3 border-b border-gray-100">
-                    <p className="text-xs font-semibold text-muted mb-1">
-                      ACCOUNT
+                <div className="absolute top-full right-0 w-56 bg-white shadow-xl rounded-xl mt-2 py-2 z-50">
+                  {/* User Info */}
+                  <div className="px-4 py-3 border-b border-gray-200">
+                    <p className="text-xs font-semibold text-muted uppercase">
+                      Account
                     </p>
-                    <p className="text-sm font-semibold text-primary">
+                    <p className="text-base font-semibold text-primary mt-1">
                       {user?.fullName
                         ?.split(" ")
                         .map(
                           (word) =>
                             word.charAt(0).toUpperCase() +
-                            word.slice(1).toLowerCase()
+                            word.slice(1).toLowerCase(),
                         )
                         .join(" ")}
                     </p>
@@ -201,14 +196,14 @@ const Navbar = () => {
                   {/* Menu Items */}
                   <Link
                     to="/user/profile"
-                    className="block px-4 py-3 hover:bg-background text-primary font-medium transition-colors duration-150 rounded-lg mx-2"
+                    className="block px-4 py-2 hover:bg-gray-100 text-primary font-medium text-sm transition-colors rounded-lg mx-1 my-1"
                   >
                     Profile
                   </Link>
 
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-4 py-3 hover:bg-danger/10 text-danger font-medium transition-colors duration-150 rounded-lg mx-2"
+                    className="w-full text-left px-4 py-2 hover:bg-danger/10 text-danger font-medium text-sm transition-colors rounded-lg mx-1"
                   >
                     Logout
                   </button>
@@ -218,22 +213,23 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile search bar - visible only on mobile */}
-        <div className="md:hidden my-3">
+        {/* Mobile Search Bar - Visible only on medium screens and below */}
+        <div className="lg:hidden pb-3">
           <SearchBar />
         </div>
-        <div className="md:hidden my-3">
-          <div className="">
-            <div className="flex items-center justify-evenly space-x-8">
-              {navLinks.map((navlink) => (
-                <Link
-                  to={navlink.link}
-                  className="text-secondary hover:text-accent px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  {navlink.title}
-                </Link>
-              ))}
-            </div>
+
+        {/* Mobile Navigation - Visible only on medium screens and below */}
+        <div className="lg:hidden pb-3">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            {navLinks.map((navlink) => (
+              <Link
+                key={navlink.id}
+                to={navlink.link}
+                className="text-secondary hover:text-accent px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                {navlink.title}
+              </Link>
+            ))}
           </div>
         </div>
       </div>

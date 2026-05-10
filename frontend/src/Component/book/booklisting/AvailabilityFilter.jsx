@@ -1,19 +1,18 @@
 // src/components/BookListing/AvailabilityFilter.jsx
-import React from 'react';
+import React from "react";
 
 const AvailabilityFilter = ({ value, onChange }) => {
   const options = [
-    { value: 'all', label: 'All' },
-    { value: 'in-stock', label: 'In Stock' },
-    { value: 'out-of-stock', label: 'Out of Stock' },
-    { value: 'pre-order', label: 'Pre-order' }
+    { value: "all", label: "All" },
+    { value: "in-stock", label: "In Stock" },
+    { value: "out-of-stock", label: "Out of Stock" },
   ];
 
   return (
     <div>
       <h3 className="font-medium text-primary mb-3">Availability</h3>
       <div className="space-y-2">
-        {options.map(option => (
+        {options.map((option) => (
           <label key={option.value} className="flex items-center">
             <input
               type="radio"

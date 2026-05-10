@@ -8,6 +8,7 @@ import {
   getBooksByCategory,
   getFeaturedBooks,
   getLatestBooks,
+  getAllBooksForAdmin,
 } from "../controllers/book.controller.js";
 import { verifyFirebaseToken } from "../middlewares/verifyFirrebaseToken.middleware.js";
 const bookRouter = Router();
@@ -21,6 +22,8 @@ bookRouter.route("/getbooks").get(getAllBooks);
 bookRouter.route("/get/featured").get(getFeaturedBooks);
 bookRouter.route("/get/latest").get(getLatestBooks);
 
-bookRouter.route("/admin/getbooks").get(verifyFirebaseToken, getAllBooks);
+bookRouter
+  .route("/admin/getbooks")
+  .get(verifyFirebaseToken, getAllBooksForAdmin);
 
 export default bookRouter;

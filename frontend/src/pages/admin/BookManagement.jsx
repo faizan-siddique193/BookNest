@@ -1,12 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Book, Plus, Loader2 } from "lucide-react";
+import { Book, Plus } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getBooks,
-  deleteBook,
-  getBooksForAdmin,
-} from "../../feature/book/bookAction";
+import { deleteBook, getBooksForAdmin } from "../../feature/book/bookAction";
 import { toast } from "react-toastify";
 import {
   AdminDataTable,
@@ -19,10 +15,11 @@ import Swal from "sweetalert2";
 
 const BookManagement = () => {
   const [token, setToken] = useState("");
+  const [adminPage, setAdminPage] = useState(1);
   const dispatch = useDispatch();
 
-  const { adminBooks, currentPage, totalPages, loading } = useSelector(
-    (state) => state.book
+  const { adminBooks, totalPages, loading } = useSelector(
+    (state) => state.book,
   );
 
   // Get current user token
@@ -38,12 +35,16 @@ const BookManagement = () => {
 
   // fetch books
   const fetchBooks = useCallback(async () => {
+    if (!token) return;
+
     try {
-      await dispatch(getBooksForAdmin({ token, currentPage })).unwrap();
+      await dispatch(
+        getBooksForAdmin({ token, currentPage: adminPage }),
+      ).unwrap();
     } catch (error) {
       toast.error("Something went wrong while fetching books");
     }
-  }, [dispatch, currentPage]);
+  }, [dispatch, token, adminPage]);
 
   useEffect(() => {
     fetchBooks();
@@ -70,13 +71,13 @@ const BookManagement = () => {
             Swal.fire(
               "Error",
               error?.message || "Failed to delete book",
-              "error"
+              "error",
             );
           }
         }
       });
     },
-    [dispatch, token, fetchBooks]
+    [dispatch, token, fetchBooks],
   );
 
   return (
@@ -104,11 +105,11 @@ const BookManagement = () => {
         <>
           <AdminDataTable books={adminBooks} handleBookDelete={handleDelete} />
           <Pagination
-            currentPage={currentPage}
+            currentPage={adminPage}
             totalPages={totalPages}
             onPageChange={(page) => {
-              // if you need to trigger page change from Redux
-              dispatch(getBooks({ page }));
+              if (page < 1 || page > totalPages) return;
+              setAdminPage(page);
             }}
           />
         </>

@@ -1,7 +1,7 @@
 // src/components/BookListing/FiltersSidebar.jsx
 import React from "react";
 import CategoryFilter from "./CategoryFilter";
-// import PriceSlider from "./PriceSlider";
+import PriceSlider from "./PriceSlider";
 import RatingFilter from "./RatingFilter";
 import AvailabilityFilter from "./AvailabilityFilter";
 import { Filter, X } from "lucide-react";
@@ -13,11 +13,11 @@ const FiltersSidebar = ({ categories, filters, onFilterChange }) => {
     <>
       {/* Mobile Filters Button */}
       <button
-        className="md:hidden flex items-center justify-center w-full py-3 px-4 rounded-lg bg-white border border-gray-200 text-primary shadow-sm mb-6"
+        className="md:hidden flex items-center justify-center w-full py-3 px-4 rounded-lg bg-white border border-gray-200 text-primary shadow-sm mb-6 hover:shadow-md transition-shadow"
         onClick={() => setMobileOpen(true)}
       >
         <Filter className="h-5 w-5 mr-2" />
-        <span className="font-medium">Filters</span>
+        <span className="font-semibold text-base">Filters</span>
       </button>
 
       {/* Filters Sidebar */}
@@ -36,9 +36,12 @@ const FiltersSidebar = ({ categories, filters, onFilterChange }) => {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="p-4 flex justify-between items-center border-b">
-            <h2 className="text-lg font-bold text-primary">Filters</h2>
-            <button onClick={() => setMobileOpen(false)}>
-              <X className="h-5 w-5 text-muted" />
+            <h2 className="text-xl font-bold text-primary">Filters</h2>
+            <button
+              onClick={() => setMobileOpen(false)}
+              className="p-1 hover:bg-gray-100 rounded transition-colors"
+            >
+              <X className="h-6 w-6 text-muted" />
             </button>
           </div>
 
@@ -48,22 +51,18 @@ const FiltersSidebar = ({ categories, filters, onFilterChange }) => {
               selected={filters.categories}
               onChange={(categories) => onFilterChange({ categories })}
             />
-
-                {/*TODO: PRICE SLIDER  */}
-           {/*  <PriceSlider
+            <PriceSlider
               value={filters.priceRange}
               onChange={(priceRange) => onFilterChange({ priceRange })}
-            /> */}
-{/* 
+            />
             <RatingFilter
               value={filters.rating}
               onChange={(rating) => onFilterChange({ rating })}
-            /> */}
-
-            {/* <AvailabilityFilter
+            />
+            <AvailabilityFilter
               value={filters.availability}
               onChange={(availability) => onFilterChange({ availability })}
-            /> */}
+            />
           </div>
         </div>
       </div>
@@ -76,21 +75,18 @@ const FiltersSidebar = ({ categories, filters, onFilterChange }) => {
             selected={filters.categories}
             onChange={(categories) => onFilterChange({ categories })}
           />
-          {/* TODO: PRICE SLIDER */}
-          {/* <PriceSlider
+          <PriceSlider
             value={filters.priceRange}
             onChange={(priceRange) => onFilterChange({ priceRange })}
-          /> */}
-
-          {/* <RatingFilter
+          />
+          <RatingFilter
             value={filters.rating}
             onChange={(rating) => onFilterChange({ rating })}
-          /> */}
-
-         {/*  <AvailabilityFilter
+          />
+          <AvailabilityFilter
             value={filters.availability}
             onChange={(availability) => onFilterChange({ availability })}
-          /> */}
+          />
         </div>
       </div>
     </>

@@ -1,26 +1,102 @@
-// src/components/admin/DashboardOverview.jsx
-import React from 'react';
-import { ArrowUp, BookOpen, ShoppingCart, User } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from "react";
+import { ArrowUp, BookOpen, ShoppingCart } from "lucide-react";
+import { axiosInstance } from "../../api/axiosInstance";
+import { getAuth, getIdToken, onAuthStateChanged } from "firebase/auth";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
 
-const DashboardOverview = ({ stats }) => {
-  const recentOrders = [
-    { id: '#ORD-1001', customer: 'John Doe', date: '2023-06-15', amount: '$42.97', status: 'Completed' },
-    { id: '#ORD-1002', customer: 'Jane Smith', date: '2023-06-14', amount: '$28.99', status: 'Shipped' },
-    { id: '#ORD-1003', customer: 'Robert Johnson', date: '2023-06-14', amount: '$35.50', status: 'Processing' },
-    { id: '#ORD-1004', customer: 'Emily Davis', date: '2023-06-13', amount: '$19.99', status: 'Completed' },
-    { id: '#ORD-1005', customer: 'Michael Wilson', date: '2023-06-12', amount: '$52.75', status: 'Shipped' }
-  ];
+const formatMonth = (entry) => {
+  if (!entry?._id) return "";
+  return `${entry._id.month}/${entry._id.year}`;
+};
+
+const DashboardOverview = () => {
+  const [analytics, setAnalytics] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { user } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    if (user?.role !== "admin") {
+      setLoading(false);
+      return;
+    }
+
+    const auth = getAuth();
+
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const token = await getIdToken(currentUser, { forceRefresh: true });
+        const response = await axiosInstance.get("/admin/analytics", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setAnalytics(response.data?.data);
+      } catch (error) {
+        toast.error(
+          error?.response?.data?.message || "Failed to load admin analytics",
+        );
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    return unsubscribe;
+  }, [user?.role]);
+
+  const stats = useMemo(() => {
+    if (!analytics) return [];
+    return [
+      {
+        label: "Total Revenue",
+        value: `$${analytics.totals.revenue.toFixed(2)}`,
+        change: "This year",
+      },
+      {
+        label: "Paid Orders",
+        value: analytics.totals.orders,
+        change: "All time",
+      },
+      {
+        label: "Top Sellers",
+        value: analytics.topSelling.length,
+        change: "Books",
+      },
+      {
+        label: "Low Stock",
+        value: analytics.lowStockBooks.length,
+        change: "Alerts",
+      },
+    ];
+  }, [analytics]);
 
   return (
     <div className="space-y-6">
-      {/* Stats Cards */}
+      {loading && !analytics ? (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <p className="text-sm text-muted">Loading dashboard analytics...</p>
+        </div>
+      ) : null}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
-          <div key={index} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div
+            key={index}
+            className="bg-white p-6 rounded-xl shadow-sm border border-gray-100"
+          >
             <div className="flex justify-between">
               <div>
                 <p className="text-sm text-muted">{stat.label}</p>
-                <p className="text-2xl font-bold text-primary mt-1">{stat.value}</p>
+                <p className="text-2xl font-bold text-primary mt-1">
+                  {stat.value}
+                </p>
               </div>
               <div className="flex items-start">
                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -33,139 +109,90 @@ const DashboardOverview = ({ stats }) => {
         ))}
       </div>
 
-      {/* Recent Orders */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-bold text-primary flex items-center">
-            <ShoppingCart className="h-5 w-5 mr-2" />
-            Recent Orders
-          </h3>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
-                  Order ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
-                  Customer
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
-                  Amount
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {recentOrders.map((order) => (
-                <tr key={order.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">
-                    {order.id}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-muted">
-                    {order.customer}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-muted">
-                    {order.date}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-primary font-medium">
-                    {order.amount}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      order.status === 'Completed' 
-                        ? 'bg-green-100 text-green-800' 
-                        : order.status === 'Shipped' 
-                          ? 'bg-blue-100 text-blue-800' 
-                          : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button className="text-accent hover:text-primary">
-                      View
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="p-4 border-t border-gray-200 text-right">
-          <Link
-            to="/admin/orders"
-            className="text-sm text-accent hover:text-primary font-medium"
-          >
-            View all orders →
-          </Link>
-        </div>
-      </div>
-
-      {/* Quick Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <h3 className="text-lg font-bold text-primary mb-4 flex items-center">
-            <BookOpen className="h-5 w-5 mr-2" />
-            Book Inventory Status
+            <ShoppingCart className="h-5 w-5 mr-2" />
+            Sales Revenue (Last 6 Months)
           </h3>
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm text-muted">Low Stock (≤ 5 items)</span>
-                <span className="text-sm font-medium text-primary">12 books</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-yellow-500 h-2 rounded-full" style={{ width: '15%' }}></div>
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="text-sm text-muted">Out of Stock</span>
-                <span className="text-sm font-medium text-primary">5 books</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-red-500 h-2 rounded-full" style={{ width: '8%' }}></div>
-              </div>
-            </div>
+          <div className="space-y-3">
+            {analytics?.revenueByMonth?.length ? (
+              analytics.revenueByMonth.map((entry) => (
+                <div
+                  key={`${entry._id.year}-${entry._id.month}`}
+                  className="flex justify-between"
+                >
+                  <span className="text-sm text-muted">
+                    {formatMonth(entry)}
+                  </span>
+                  <span className="text-sm font-semibold text-primary">
+                    ${entry.totalRevenue.toFixed(2)}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted">No revenue data yet.</p>
+            )}
           </div>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <h3 className="text-lg font-bold text-primary mb-4 flex items-center">
-            <User className="h-5 w-5 mr-2" />
-            Recent Customers
+            <BookOpen className="h-5 w-5 mr-2" />
+            Top Selling Books
           </h3>
           <div className="space-y-4">
-            {[
-              { name: 'John Doe', email: 'john@example.com', joined: '2 days ago' },
-              { name: 'Jane Smith', email: 'jane@example.com', joined: '3 days ago' },
-              { name: 'Robert Johnson', email: 'robert@example.com', joined: '5 days ago' }
-            ].map((customer, index) => (
-              <div key={index} className="flex items-center">
-                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center mr-4">
-                  {customer.name.charAt(0)}
+            {analytics?.topSelling?.length ? (
+              analytics.topSelling.map((book) => (
+                <div key={book.bookId} className="flex items-center gap-3">
+                  <img
+                    src={book.image}
+                    alt={book.title}
+                    className="w-10 h-12 rounded object-cover"
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-primary">
+                      {book.title}
+                    </p>
+                    <p className="text-xs text-muted">Sold: {book.totalSold}</p>
+                  </div>
+                  <span className="ml-auto text-xs text-muted">
+                    Stock: {book.stock}
+                  </span>
                 </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted">No sales yet.</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <h3 className="text-lg font-bold text-primary mb-4">
+          Low Stock Alerts
+        </h3>
+        {analytics?.lowStockBooks?.length ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {analytics.lowStockBooks.map((book) => (
+              <div key={book._id} className="flex items-center gap-3">
+                <img
+                  src={book.image}
+                  alt={book.title}
+                  className="w-10 h-12 rounded object-cover"
+                />
                 <div>
-                  <p className="font-medium text-primary">{customer.name}</p>
-                  <p className="text-sm text-muted">{customer.email}</p>
-                </div>
-                <div className="ml-auto text-sm text-muted">
-                  {customer.joined}
+                  <p className="text-sm font-medium text-primary">
+                    {book.title}
+                  </p>
+                  <p className="text-xs text-muted">Stock: {book.stock}</p>
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        ) : (
+          <p className="text-sm text-muted">No low stock alerts.</p>
+        )}
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import { ApiResponse } from "../utils/ApiRespone.js";
 import { asyncHandler } from "../utils/AsyncHandler.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
+import logger from "../utils/logger.js";
 
 // register user
 const registerUser = asyncHandler(async (req, res) => {
@@ -12,7 +13,9 @@ const registerUser = asyncHandler(async (req, res) => {
   const { uid, email, name: firbaseName } = req.user;
   const user = await User.findOne({ firebaseUserId: uid });
   if (user) {
-    return res.status(200).json(new ApiResponse("User already exists", user));
+    return res
+      .status(200)
+      .json(new ApiResponse(200, user, "User already exists"));
   }
   const name = fullName || firbaseName;
   const newUser = await User.create({
@@ -24,7 +27,7 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Something went wrong while creating user");
   }
   return res.json(
-    new ApiResponse(201, "User registered successfully", newUser)
+    new ApiResponse(201, newUser, "User registered successfully"),
   );
 });
 
@@ -32,14 +35,16 @@ const registerUser = asyncHandler(async (req, res) => {
 const loginUser = asyncHandler(async (req, res) => {
   const { uid, email } = req.user;
 
-  const user = await User.findOne({ firebaseUserId: uid } || email);
+  const user = await User.findOne({
+    $or: [{ firebaseUserId: uid }, { email }],
+  });
 
   if (!user) {
     throw new ApiError(404, "User was not found in the database");
   }
 
   return res.json(
-    new ApiResponse(200, { message: "User fetched successfully", user })
+    new ApiResponse(200, { message: "User fetched successfully", user }),
   );
 });
 
@@ -82,7 +87,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   const updatedUser = await User.findOneAndUpdate(
     { firebaseUserId: uid },
     updateData,
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   );
 
   if (!updatedUser) {
@@ -90,7 +95,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   }
 
   return res.json(
-    new ApiResponse(200, updatedUser, "Profile updated successfully")
+    new ApiResponse(200, updatedUser, "Profile updated successfully"),
   );
 });
 
@@ -108,7 +113,6 @@ const updateProfileAvatar = asyncHandler(async (req, res) => {
 
   try {
     const filePath = req.file.path;
-    console.log("Avatar file path:", filePath);
 
     // Upload to Cloudinary
     const avatarUrl = await uploadOnCloudinary(filePath);
@@ -121,7 +125,7 @@ const updateProfileAvatar = asyncHandler(async (req, res) => {
     const user = await User.findOneAndUpdate(
       { firebaseUserId: uid },
       { avatar: avatarUrl.url },
-      { new: true }
+      { new: true },
     );
 
     if (!user) {
@@ -138,7 +142,7 @@ const updateProfileAvatar = asyncHandler(async (req, res) => {
 
     return res.json(new ApiResponse(200, user, "Avatar updated successfully"));
   } catch (error) {
-    console.error("Avatar upload error:", error);
+    logger.error(`Avatar upload error: ${error?.message || "Unknown error"}`);
     throw new ApiError(500, error.message || "Failed to update avatar");
   }
 });

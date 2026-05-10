@@ -43,7 +43,6 @@ const AddComment = () => {
   });
 
   const onSubmit = (data) => {
-    console.log("Form Submitted:", data);
     reset(); // Reset the form after submission
   };
 

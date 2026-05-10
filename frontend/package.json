@@ -30,6 +30,7 @@
     "react-toastify": "^11.0.5",
     "react-typed": "^2.0.12",
     "redux-persist": "^6.0.0",
+    "socket.io-client": "^4.8.3",
     "sweetalert2": "^11.22.4"
   },
   "devDependencies": {

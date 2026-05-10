@@ -26,8 +26,8 @@ const AddBook = () => {
     try {
       const response = await fetch(
         `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
-          trimmedQuery
-        )}`
+          trimmedQuery,
+        )}`,
       );
 
       const Books = await response.json();
@@ -104,7 +104,7 @@ const AddBook = () => {
       setImagePreview(
         book.imageLinks?.large
           ? book.imageLinks.large.replace("http://", "https://")
-          : imageUrl
+          : imageUrl,
       );
     }
   }, [book, setValue]);
@@ -112,8 +112,6 @@ const AddBook = () => {
   // Submit handler
   const onSubmit = async (data) => {
     try {
-      console.log("data to submit:", data);
-
       const payload = {
         ...data,
         price: Number(data.price),

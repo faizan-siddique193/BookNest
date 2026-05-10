@@ -2,10 +2,12 @@ import mongoose from "mongoose";
 import { Cart } from "../models/cart.model.js";
 import { Book } from "../models/book.model.js";
 import { Order } from "../models/order.model.js";
+import { Notification } from "../models/notification.model.js";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiRespone.js";
 import { asyncHandler } from "../utils/AsyncHandler.js";
+import { getSocketServer } from "../utils/socket.js";
 
 // create order
 const placeOrder = asyncHandler(async (req, res) => {
@@ -19,8 +21,6 @@ const placeOrder = asyncHandler(async (req, res) => {
     country,
     paymentMethod,
   } = req.body;
-  console.log("Address fields:: ", req.body);
-
   const userId = req.user.user_id;
 
   if (
@@ -94,20 +94,53 @@ const placeOrder = asyncHandler(async (req, res) => {
             expiresAt: new Date(Date.now() + orderDurationMinutes * 60 * 1000),
           },
         ],
-        { session }
+        { session },
       );
 
-      //   decrement in the stock
+      // Decrement stock; fail fast if any item lacks inventory
       for (const item of orderItems) {
-        await Book.updateOne(
+        const updateResult = await Book.updateOne(
           { _id: item.bookId, stock: { $gte: item.quantity } },
           { $inc: { stock: -item.quantity } },
-          { session }
+          { session },
         );
+
+        if (updateResult.modifiedCount === 0) {
+          throw new ApiError(409, "Insufficient stock for one or more items");
+        }
       }
 
       //    Clear the cart after successfull order
       await Cart.deleteOne({ userId }, { session });
+
+      const io = getSocketServer();
+      if (io) {
+        const adminNotification = {
+          type: "order-created",
+          title: "New order placed",
+          message: `Order ${order[0]._id} was placed successfully.`,
+          orderId: order[0]._id,
+          userId,
+          createdAt: new Date().toISOString(),
+        };
+
+        io.to(`user:${userId}`).emit("order-created", {
+          orderId: order[0]._id,
+          orderStatus: order[0].orderStatus,
+          paymentStatus: order[0].paymentStatus,
+        });
+
+        io.to("admins").emit("admin-notification", adminNotification);
+      }
+
+      await Notification.create({
+        recipientRole: "admin",
+        type: "order-created",
+        title: "New order placed",
+        message: `Order ${order[0]._id} was placed successfully.`,
+        orderId: order[0]._id,
+        userId,
+      });
 
       return res
         .status(201)
@@ -145,8 +178,8 @@ const getMyOrders = asyncHandler(async (req, res) => {
         totalPages: Math.ceil(totalOrders / limit),
         totalOrders,
       },
-      "Orders fetched successfully"
-    )
+      "Orders fetched successfully",
+    ),
   );
 });
 
@@ -157,7 +190,7 @@ const getOrderById = asyncHandler(async (req, res) => {
 
   const order = await Order.findById(orderId).populate(
     "items.bookId",
-    "title author price"
+    "title author price",
   );
   if (!order) throw new ApiError(404, "Order not found");
 
@@ -190,6 +223,33 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
 
   order.orderStatus = orderStatus.toUpperCase();
   await order.save();
+
+  const io = getSocketServer();
+  if (io) {
+    io.to("admins").emit("admin-notification", {
+      type: "order-status-updated",
+      title: "Order status updated",
+      message: `Order ${order._id} is now ${order.orderStatus}.`,
+      orderId: order._id,
+      userId: order.userId,
+      createdAt: new Date().toISOString(),
+    });
+
+    io.to(`user:${order.userId}`).emit("order-status-updated", {
+      orderId: order._id,
+      orderStatus: order.orderStatus,
+      paymentStatus: order.paymentStatus,
+    });
+  }
+
+  await Notification.create({
+    recipientRole: "admin",
+    type: "order-status-updated",
+    title: "Order status updated",
+    message: `Order ${order._id} is now ${order.orderStatus}.`,
+    orderId: order._id,
+    userId: order.userId,
+  });
 
   return res
     .status(200)

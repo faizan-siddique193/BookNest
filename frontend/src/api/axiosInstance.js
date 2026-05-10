@@ -50,11 +50,22 @@ const getToken = async () => {
 axiosInstance.interceptors.request.use(
   async (config) => {
     try {
-    
+      const authHeaderValue =
+        config.headers?.Authorization ||
+        config.headers?.authorization ||
+        config.headers?.get?.("Authorization") ||
+        config.headers?.get?.("authorization");
+
+      const hasAuthHeader = Boolean(authHeaderValue);
+
+      if (hasAuthHeader) {
+        return config;
+      }
+
       // Skip token for public endpoints (optional)
       const publicEndpoints = ["/auth/login", "/auth/register", "/books"];
       const isPublicEndpoint = publicEndpoints.some((endpoint) =>
-        config.url?.includes(endpoint)
+        config.url?.includes(endpoint),
       );
 
       if (isPublicEndpoint) {
@@ -72,12 +83,11 @@ axiosInstance.interceptors.request.use(
 
       return config;
     } catch (error) {
-     
       // Decide whether to proceed without token or reject
       // For protected routes, you might want to reject here
       if (config.url?.includes("/cart") || config.url?.includes("/order")) {
         return Promise.reject({
-          message: "Authentication required",
+          message: error?.message || "Authentication required",
           error,
         });
       }
@@ -88,7 +98,7 @@ axiosInstance.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor - handle token expiration
@@ -105,8 +115,6 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-      
-
         // Force refresh the token
         const user = auth.currentUser;
         if (user) {
@@ -116,12 +124,12 @@ axiosInstance.interceptors.response.use(
           return axiosInstance(originalRequest);
         } else {
           // Redirect to login page
-          window.location.href = "/login";
+          window.location.href = "/sign-in";
         }
       } catch (refreshError) {
         console.error("Token refresh failed:", refreshError);
         // Redirect to login
-        window.location.href = "/login";
+        window.location.href = "/sign-in";
         return Promise.reject(refreshError);
       }
     }
@@ -132,7 +140,7 @@ axiosInstance.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export { axiosInstance };

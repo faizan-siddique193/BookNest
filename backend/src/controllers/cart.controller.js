@@ -23,7 +23,7 @@ const addToCart = asyncHandler(async (req, res) => {
   } else {
     // Check if item already exists
     const itemIndex = cart.items.findIndex(
-      (item) => item.bookId.toString() === bookId
+      (item) => item.bookId.toString() === bookId,
     );
 
     if (itemIndex > -1) {
@@ -48,13 +48,6 @@ const updateCart = asyncHandler(async (req, res) => {
   const { bookId, quantity } = req.body;
   const userId = req.user.user_id;
 
-  console.log(
-    "Update Cart called with bookId:",
-    bookId,
-    "and quantity:",
-    quantity
-  );
-
   if (!bookId || quantity === undefined) {
     throw new ApiError(400, "Book ID and quantity are required");
   }
@@ -66,25 +59,18 @@ const updateCart = asyncHandler(async (req, res) => {
   }
 
   const itemIndex = cart.items.findIndex(
-    (item) => item.bookId.toString() === bookId
+    (item) => item.bookId.toString() === bookId,
   );
 
   if (itemIndex > -1) {
     // Set the quantity to the specific value
     cart.items[itemIndex].quantity = Number(quantity);
 
-    // TODO: Recalculate total
-    /*  cart.total = cart.items.reduce((acc, item) => {
-      const price = Number(item.bookId?.price) || 0;
-      const qty = Number(item.quantity) || 0;
-      return acc + price * qty;
-    }, 0); */
-
     await cart.save();
 
     cart = await Cart.findOne({ userId }).populate("items.bookId");
     return res.json(
-      new ApiResponse(200, cart, "Item quantity updated successfully")
+      new ApiResponse(200, cart, "Item quantity updated successfully"),
     );
   } else {
     throw new ApiError(404, "Item not found in cart");
@@ -119,7 +105,7 @@ const deleteCartItem = asyncHandler(async (req, res) => {
   let cart = await Cart.findOneAndUpdate(
     { userId },
     { $pull: { items: { bookId } } }, // Remove only the matching item
-    { new: true } // Return the updated cart
+    { new: true }, // Return the updated cart
   );
 
   if (!cart) {

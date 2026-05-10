@@ -1,10 +1,10 @@
 // src/components/BookListing/CategoryFilter.jsx
-import React from 'react';
+import React from "react";
 
 const CategoryFilter = ({ categories, selected, onChange }) => {
   const handleChange = (category) => {
     if (selected.includes(category)) {
-      onChange(selected.filter(c => c !== category));
+      onChange(selected.filter((c) => c !== category));
     } else {
       onChange([...selected, category]);
     }
@@ -14,17 +14,24 @@ const CategoryFilter = ({ categories, selected, onChange }) => {
     <div className="mb-8">
       <h3 className="font-medium text-primary mb-3">Categories</h3>
       <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
-        {categories.map(category => (
-          <label key={category} className="flex items-center">
-            <input
-              type="checkbox"
-              className="h-4 w-4 text-accent rounded border-gray-300 focus:ring-accent"
-              checked={selected.includes(category)}
-              onChange={() => handleChange(category)}
-            />
-            <span className="ml-2 text-sm text-muted">{category}</span>
-          </label>
-        ))}
+        {categories.map((category) => {
+          const value =
+            typeof category === "string" ? category : category.value;
+          const label =
+            typeof category === "string" ? category : category.label;
+
+          return (
+            <label key={value} className="flex items-center">
+              <input
+                type="checkbox"
+                className="h-4 w-4 text-accent rounded border-gray-300 focus:ring-accent"
+                checked={selected.includes(value)}
+                onChange={() => handleChange(value)}
+              />
+              <span className="ml-2 text-sm text-muted">{label}</span>
+            </label>
+          );
+        })}
       </div>
     </div>
   );

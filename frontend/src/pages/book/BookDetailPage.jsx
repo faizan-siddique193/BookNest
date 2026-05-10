@@ -11,6 +11,7 @@ import {
   ChevronDown,
   Plus,
   Minus,
+  Sparkles,
 } from "lucide-react";
 import {
   AddComment,
@@ -21,7 +22,7 @@ import {
   ReviewCard,
 } from "../../Component/index";
 import { useDispatch, useSelector } from "react-redux";
-import { getBookById } from "../../feature/book/bookAction";
+import { getBookById, getBookSummary } from "../../feature/book/bookAction";
 import { toast } from "react-toastify";
 import {
   addToCart,
@@ -44,6 +45,8 @@ const BookDetailPage = () => {
   const [activeTab, setActiveTab] = useState("description");
   const [quantity, setQuantity] = useState(0);
   const [book, setBook] = useState(null);
+  const [aiSummary, setAiSummary] = useState(null);
+  const [aiSummaryLoading, setAiSummaryLoading] = useState(false);
   const { slug } = useParams();
   const { bookReviews, currentPage, totalPages, totalReviews, hasMore } =
     useSelector((state) => state.review);
@@ -55,8 +58,7 @@ const BookDetailPage = () => {
   // add to wishlist
   const { wishlist } = useSelector((state) => state.wishlist);
   // get user
-  const {user} = useSelector((state)=>state.user)
-
+  const { user } = useSelector((state) => state.user);
 
   // Check if book is in wishlist
   const isInWishlist = (bookId) =>
@@ -88,7 +90,6 @@ const BookDetailPage = () => {
     const fetchBookAndReviews = async () => {
       try {
         const response = await dispatch(getBookById({ slug })).unwrap();
-        console.log("Book detail response:", response);
         setBook(response.data);
 
         // Fetch initial reviews with limit
@@ -100,13 +101,31 @@ const BookDetailPage = () => {
     fetchBookAndReviews();
   }, [slug, dispatch]);
 
+  // Fetch AI summary when tab changes
+  useEffect(() => {
+    if (activeTab === "ai-summary" && !aiSummary && slug) {
+      const fetchAiSummary = async () => {
+        setAiSummaryLoading(true);
+        try {
+          const response = await dispatch(getBookSummary({ slug })).unwrap();
+          setAiSummary(response.data);
+        } catch (error) {
+          console.error("Error fetching AI summary:", error);
+          toast.error("Failed to load AI summary");
+        } finally {
+          setAiSummaryLoading(false);
+        }
+      };
+      fetchAiSummary();
+    }
+  }, [activeTab, slug, aiSummary, dispatch]);
+
   // Fetch more reviews for infinite scroll
   const fetchMoreReviews = async () => {
     if (!hasMore) return;
     try {
-      console.log("Fetching more reviews for page:", currentPage + 1);
       await dispatch(
-        getReviewsByBookId({ slug, page: currentPage + 1 })
+        getReviewsByBookId({ slug, page: currentPage + 1 }),
       ).unwrap();
     } catch (error) {
       console.error("Error fetching more reviews:", error);
@@ -260,6 +279,17 @@ const BookDetailPage = () => {
                 Description
               </button>
               <button
+                className={`py-4 px-6 font-medium text-sm transition-colors flex items-center gap-2 ${
+                  activeTab === "ai-summary"
+                    ? "text-accent border-b-2 border-accent"
+                    : "text-muted hover:text-primary"
+                }`}
+                onClick={() => setActiveTab("ai-summary")}
+              >
+                <Sparkles className="h-4 w-4" />
+                AI Summary
+              </button>
+              <button
                 className={`py-4 px-6 font-medium text-sm transition-colors ${
                   activeTab === "reviews"
                     ? "text-accent border-b-2 border-accent"
@@ -277,6 +307,41 @@ const BookDetailPage = () => {
           <div className="p-6">
             {activeTab === "description" && (
               <BookDescription description={book?.description} />
+            )}
+
+            {activeTab === "ai-summary" && (
+              <div className="max-w-4xl">
+                {aiSummaryLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="flex items-center gap-2">
+                      <div className="animate-spin h-5 w-5 text-accent"></div>
+                      <span className="text-muted">
+                        Generating AI summary...
+                      </span>
+                    </div>
+                  </div>
+                ) : aiSummary ? (
+                  <div className="bg-gradient-to-br from-accent/5 to-primary/5 border border-accent/20 rounded-lg p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Sparkles className="h-5 w-5 text-accent" />
+                      <h3 className="text-lg font-bold text-primary">
+                        AI-Generated Summary
+                      </h3>
+                    </div>
+                    <p className="text-primary leading-relaxed whitespace-pre-wrap">
+                      {aiSummary.summary}
+                    </p>
+                    <p className="text-xs text-muted mt-4">
+                      This summary was generated using AI to help you understand
+                      the key aspects of this book.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-muted">Failed to load AI summary</p>
+                  </div>
+                )}
+              </div>
             )}
 
             {activeTab === "reviews" && (

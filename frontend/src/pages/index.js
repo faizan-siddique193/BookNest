@@ -9,6 +9,7 @@ import BooksByCategory from "./book/BooksByCategory";
 import FeaturedBooks from "./book/FeaturedBooks";
 import LatestBooks from "./book/LatestBooks";
 import WishlistPage from "./book/WishlistPage";
+import AIConcierge from "./AIConcierge";
 import ErrorPage from "./ErrorPage";
 import CheckoutPage from "./order/CheckoutPage";
 import OrderCancellation from "./order/OrderCancellation";
@@ -25,6 +26,7 @@ export {
   OrderConfirmation,
   CheckoutPage,
   WishlistPage,
+  AIConcierge,
   BooksByCategory,
   EditBook,
   SignUp,

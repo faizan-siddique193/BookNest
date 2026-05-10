@@ -6,8 +6,6 @@ const Wishlist = () => {
   const dispatch = useDispatch();
   const { wishlist } = useSelector((state) => state.wishlist);
 
-  console.log("Wishlist item in the user profile page:: ", wishlist);
-
   useEffect(() => {
     dispatch(getWishlistItem());
   }, [dispatch]);
@@ -16,10 +14,7 @@ const Wishlist = () => {
     <div className="grid grid-flow-row grid-cols-1 md:grid-cols-4 gap-4 ">
       {wishlist &&
         wishlist.map((book) => (
-          <div
-            key={book.bookId}
-            className=" h-54 rounded-lg"
-          >
+          <div key={book.bookId} className=" h-54 rounded-lg">
             <img
               className="w-full h-full object-cover rounded"
               src={book.image}

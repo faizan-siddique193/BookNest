@@ -1,18 +1,25 @@
 import React from "react";
 import BookCard from "./BookCard";
-import { BookOpen } from "lucide-react";
 
 const BookGrid = ({ books, viewMode, className, user }) => {
-  // delete this log
-  console.log("Books in BookGrid component:", user);
+  const isListView = viewMode === "list";
+
   return (
-    // Example parent component grid layout
     <div
-      className={`grid grid-cols-2  md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 p-4 ${className}`}
+      className={`grid gap-6 p-4 ${
+        isListView
+          ? "grid-cols-1"
+          : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+      } ${className || ""}`}
     >
       {Array.isArray(books) ? (
         books.map((book) => (
-          <BookCard key={book._id} book={book} token={user} />
+          <BookCard
+            key={book._id}
+            book={book}
+            viewMode={viewMode}
+            user={user}
+          />
         ))
       ) : (
         <p>No books found or invalid data format.</p>

@@ -8,10 +8,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { Wishlist } from "../../Component/index";
 import Orders from "../../Component/customer/orders";
 import { getMyOrders } from "../../feature/order/orderAction";
+import { addToCart } from "../../feature/cart/cartAction";
 import { getUserProfile } from "../../feature/user/userAction";
 import { getAuth, getIdToken } from "firebase/auth";
 import { toast } from "react-toastify";
-
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState("profile");
@@ -19,7 +19,7 @@ const ProfilePage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [token, setToken] = useState(null);
   const { loading, user } = useSelector((state) => state.user);
-  const { orders } = useSelector((state) => state.order);
+  const { orderInfo, totalPage } = useSelector((state) => state.order);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -58,17 +58,39 @@ const ProfilePage = () => {
     setEditMode(false);
   };
 
-  /*   useEffect(() => {
+  useEffect(() => {
+    if (activeTab !== "orders" || !token) return;
+
     const fetchOrders = async () => {
       try {
-        await dispatch(getMyOrders({ currentPage })).unwrap();
+        await dispatch(getMyOrders({ currentPage, token })).unwrap();
       } catch (error) {
-        toast.error(error || "Something went wrong while getting orders");
+        const message =
+          typeof error === "string"
+            ? error
+            : error?.message ||
+              error?.response?.data?.message ||
+              "Something went wrong while getting orders";
+        toast.error(message);
       }
     };
 
     fetchOrders();
-  }, [dispatch, currentPage]); */
+  }, [dispatch, currentPage, activeTab, token]);
+
+  const handleReorder = async (order) => {
+    if (!order?.items?.length) return;
+    try {
+      for (const item of order.items) {
+        await dispatch(
+          addToCart({ bookId: item.bookId?._id, quantity: item.quantity }),
+        ).unwrap();
+      }
+      toast.success("Items added to cart");
+    } catch (error) {
+      toast.error("Failed to reorder items");
+    }
+  };
 
   return (
     <div className="bg-background min-h-screen py-8">
@@ -154,7 +176,10 @@ const ProfilePage = () => {
                       <Package className="h-5 w-5 mr-2" />
                       My Orders
                     </h2>
-                    <Orders orders={""} />
+                    <Orders
+                      orders={orderInfo.orders}
+                      onReorder={handleReorder}
+                    />
                   </div>
                 )}
 

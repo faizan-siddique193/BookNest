@@ -3,15 +3,21 @@ import { PanelLeft, Search, Bell, LogOut } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { userLogout } from "../../feature/auth/authAction";
-import { toast } from "react-toastify";
+import { axiosInstance } from "../../api/axiosInstance";
+import { auth } from "../../config/firebase";
+import { getIdToken } from "firebase/auth";
+import { getSocket } from "../../utils/socket";
 
 const AdminNavbar = ({ onToggleSidebar }) => {
   const [toggleSidebar, setToggleSidebar] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef(null); // <-- Add ref
   const { user } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const socket = getSocket();
 
   const handleToggleSidebar = () => {
     const newValue = !toggleSidebar;
@@ -25,7 +31,53 @@ const AdminNavbar = ({ onToggleSidebar }) => {
   };
 
   const toggleDropdown = () => {
-    setIsDropdownOpen((prev) => !prev);
+    setIsDropdownOpen((prev) => {
+      const nextState = !prev;
+      if (nextState) {
+        void markNotificationsAsRead();
+      }
+      return nextState;
+    });
+  };
+
+  const loadNotifications = async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) return;
+
+    const token = await getIdToken(currentUser, { forceRefresh: true });
+    const response = await axiosInstance.get("/admin/notifications?limit=6", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    setNotifications(response.data?.data?.notifications || []);
+    setUnreadCount(response.data?.data?.unreadCount || 0);
+  };
+
+  const markNotificationsAsRead = async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser || unreadCount === 0) return;
+
+    try {
+      const token = await getIdToken(currentUser, { forceRefresh: true });
+      await axiosInstance.patch(
+        "/admin/notifications/read-all",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      setNotifications((current) =>
+        current.map((notification) => ({ ...notification, isRead: true })),
+      );
+      setUnreadCount(0);
+    } catch (error) {
+      console.error("Failed to mark notifications as read:", error);
+    }
   };
 
   // Close dropdown when clicking outside
@@ -41,6 +93,45 @@ const AdminNavbar = ({ onToggleSidebar }) => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    if (!user || user.role !== "admin") return;
+
+    loadNotifications().catch((error) => {
+      console.error("Failed to load admin notifications:", error);
+    });
+
+    const joinAdminRoom = () => {
+      if (socket.connected) {
+        socket.emit("join-admin");
+      }
+    };
+
+    joinAdminRoom();
+
+    const handleNotification = (payload) => {
+      setNotifications((current) => {
+        const next = [
+          {
+            ...payload,
+            isRead: false,
+            createdAt: payload.createdAt || new Date().toISOString(),
+          },
+          ...current,
+        ].slice(0, 6);
+        return next;
+      });
+      setUnreadCount((current) => current + 1);
+    };
+
+    socket.on("connect", joinAdminRoom);
+    socket.on("admin-notification", handleNotification);
+
+    return () => {
+      socket.off("connect", joinAdminRoom);
+      socket.off("admin-notification", handleNotification);
+    };
+  }, [socket, user]);
 
   return (
     <nav className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 sm:px-6 sm:py-4 bg-white border-gray-200 gap-3 sm:gap-0">
@@ -95,10 +186,20 @@ const AdminNavbar = ({ onToggleSidebar }) => {
       </div>
 
       {/* Right section - admin profile and notifications */}
-      <div className="hidden sm:flex items-center gap-4 relative" ref={dropdownRef}>
-        <button className="p-2 rounded-full hover:bg-gray-100 relative">
+      <div
+        className="hidden sm:flex items-center gap-4 relative"
+        ref={dropdownRef}
+      >
+        <button
+          className="p-2 rounded-full hover:bg-gray-100 relative"
+          onClick={toggleDropdown}
+        >
           <Bell className="w-5 h-5 text-gray-600" />
-          <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+          {unreadCount > 0 && (
+            <span className="absolute top-0 right-0 min-w-4 h-4 px-1 bg-red-500 rounded-full text-[10px] leading-4 text-white flex items-center justify-center">
+              {unreadCount}
+            </span>
+          )}
         </button>
 
         <button
@@ -129,7 +230,7 @@ const AdminNavbar = ({ onToggleSidebar }) => {
                 ?.split(" ")
                 .map(
                   (word) =>
-                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
                 )
                 .join(" ") || "Admin"}
             </p>
@@ -142,10 +243,49 @@ const AdminNavbar = ({ onToggleSidebar }) => {
         {/* Dropdown Menu */}
         {isDropdownOpen && (
           <div className="absolute top-20 right-0 w-56 bg-white shadow-xl rounded-xl px-0 py-2 space-y-1 z-50 border border-gray-200">
+            <div className="px-4 py-3 border-b border-gray-100">
+              <p className="text-xs font-semibold text-muted mb-1">
+                NOTIFICATIONS
+              </p>
+              <p className="text-sm font-semibold text-primary">
+                {unreadCount
+                  ? `${unreadCount} unread alert(s)`
+                  : "No new alerts"}
+              </p>
+            </div>
+
+            {notifications.length ? (
+              notifications.map((notification, index) => (
+                <div
+                  key={`${notification.orderId}-${index}`}
+                  className={`px-4 py-3 rounded-lg mx-2 border ${
+                    notification.isRead
+                      ? "border-transparent hover:bg-background"
+                      : "border-accent/20 bg-accent/5"
+                  }`}
+                >
+                  <p className="text-sm font-medium text-primary">
+                    {notification.title}
+                  </p>
+                  <p className="text-xs text-muted mt-1">
+                    {notification.message}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <div className="px-4 py-3 text-sm text-muted">
+                Notifications will appear here when orders change.
+              </div>
+            )}
+
             {/* User Info Header */}
             <div className="px-4 py-3 border-b border-gray-100">
-              <p className="text-xs font-semibold text-muted mb-1">ADMIN ACCOUNT</p>
-              <p className="text-sm font-semibold text-primary">{user?.fullName}</p>
+              <p className="text-xs font-semibold text-muted mb-1">
+                ADMIN ACCOUNT
+              </p>
+              <p className="text-sm font-semibold text-primary">
+                {user?.fullName}
+              </p>
               <p className="text-xs text-muted mt-1 truncate">{user?.email}</p>
             </div>
 

@@ -1,22 +1,32 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { getOrderById } from "../../feature/order/orderAction.js";
+import { onAuthStateChanged, getIdToken } from "firebase/auth";
+import { auth } from "../../config/firebase";
 
 const OrderCancellation = () => {
   const { orderId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [token, setToken] = useState(null);
 
   const loading = useSelector((state) => state.order.loading);
   const selectedOrder = useSelector(
-    (state) => state.order.orderInfo.selectedOrder
+    (state) => state.order.orderInfo.selectedOrder,
   );
-  // try auth token from store or localStorage (adjust to your app)
-  const token =
-    useSelector((state) => state.auth?.token) || localStorage.getItem("token");
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const currentUserToken = await getIdToken(user, { forceRefresh: true });
+        setToken(currentUserToken);
+      }
+    });
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
+    if (!token) return;
     if (orderId) {
       dispatch(getOrderById({ orderId, token }));
     }
@@ -41,7 +51,7 @@ const OrderCancellation = () => {
             <div className="mb-4 text-left border rounded p-4 bg-gray-50">
               <p className="text-sm text-gray-700">
                 <strong>Status:</strong>{" "}
-                <span className="capitalize">{selectedOrder.status}</span>
+                <span className="capitalize">{selectedOrder.orderStatus}</span>
               </p>
               <p className="text-sm text-gray-700">
                 <strong>Items:</strong> {selectedOrder.items?.length || 0}

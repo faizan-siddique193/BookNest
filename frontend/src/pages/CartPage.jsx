@@ -27,7 +27,7 @@ const CartPage = () => {
 
       try {
         await dispatch(
-          updateCartItemQuantity({ bookId, quantity: newQuantity })
+          updateCartItemQuantity({ bookId, quantity: newQuantity }),
         ).unwrap();
       } catch (error) {
         // Revert on error
@@ -35,14 +35,12 @@ const CartPage = () => {
         toast.error(error?.message || "Failed to update cart");
       }
     },
-    [dispatch]
+    [dispatch],
   );
 
   // Handle item removal with optimistic updates
   const handleRemoveItem = useCallback(
     async (bookId) => {
-      // Optimistic update
-      console.log("delete quantity for bookId:", bookId._id);
       // Optimistic update
       dispatch(removeItemOptimistic({ bookId: bookId._id }));
 
@@ -54,7 +52,7 @@ const CartPage = () => {
         toast.error(error?.message || "Failed to remove book from cart");
       }
     },
-    [dispatch]
+    [dispatch],
   );
 
   // get cart items on mount

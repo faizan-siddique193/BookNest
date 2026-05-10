@@ -1,4 +1,3 @@
-
 # 📚 BookNest E-Commerce App
 
 An online bookstore built with **MERN stack** (MongoDB, Express, React, Node.js) where users can browse books, manage their cart, and place orders using **Stripe payments** or **Cash on Delivery**.
@@ -7,29 +6,32 @@ An online bookstore built with **MERN stack** (MongoDB, Express, React, Node.js)
 
 ## 🚀 Features
 
-* **Authentication & Authorization** (Signup / Login with JWT)
-* **Book Management**
+- **Authentication & Authorization** (Signup / Login with JWT)
+- **Book Management**
+  - Browse available books
+  - Filter & Search (category, price, sort)
 
-  * Browse available books
-  * Filter & Search
-* **Shopping Cart**
+- **Shopping Cart**
+  - Add / Remove / Update items
+  - Persist cart with **Redux Persist**
 
-  * Add / Remove / Update items
-  * Persist cart with **Redux Persist**
-* **Checkout Process**
+- **Checkout Process**
+  - Shipping information form
+  - Payment method selection (Stripe / Cash-on-Delivery)
+  - Order summary & confirmation page
 
-  * Shipping information form
-  * Payment method selection (Stripe / Cash-on-Delivery)
-  * Order summary & confirmation page
-* **Order Management**
+- **Order Management**
+  - Place order & clear cart
+  - Orders expire if unpaid (cron job based auto-cancel)
+  - View past orders
 
-  * Place order & clear cart
-  * Orders expire if unpaid (cron job based auto-cancel)
-  * View past orders
-* **Admin Features** (optional if you plan)
+- **Admin Features** (optional if you plan)
+  - Add / Update / Delete books
+  - Manage orders & inventory
 
-  * Add / Update / Delete books
-  * Manage orders & inventory
+- **AI Concierge**
+  - Natural-language book discovery
+  - Smart recommendations based on your query
 
 ---
 
@@ -37,17 +39,17 @@ An online bookstore built with **MERN stack** (MongoDB, Express, React, Node.js)
 
 **Frontend**
 
-* React
-* Redux Toolkit + Redux Persist
-* React Hook Form
-* TailwindCSS  + Lucide Icons
+- React
+- Redux Toolkit + Redux Persist
+- React Hook Form
+- TailwindCSS + Lucide Icons
 
 **Backend**
 
-* Node.js + Express.js
-* MongoDB + Mongoose
-* Stripe API (for card payments)
-* Cron jobs for auto-canceling unpaid orders
+- Node.js + Express.js
+- MongoDB + Mongoose
+- Stripe API (for card payments)
+- Cron jobs for auto-canceling unpaid orders
 
 ---
 
@@ -69,7 +71,6 @@ BookStore/
 │       ├── middlewares/                # Express middlewares
 │       ├── models/                      # Database models
 │       ├── routes/                      # Express routes
-│       ├── secret/                      # Secret keys (service accounts)
 │       └── utils/                       # Utility functions (logger, errors, etc.)
 │
 ├── frontend/                          # Frontend folder
@@ -100,7 +101,7 @@ BookStore/
 │       │   └── customer/                 # Customer-specific components
 │       ├── config/                       # App configuration
 │       ├── constant/                     # App constants
-│       ├── features/                     # Redux features or hooks
+│       ├── feature/                      # Redux features or hooks
 │       └── pages/                        # Pages
 │           ├── admin/                    # Admin pages
 │           ├── customer/                 # Customer pages
@@ -140,13 +141,12 @@ cd frontend
 npm install
 ```
 
-
-
 Run frontend:
 
 ```bash
-npm dev
+npm run dev
 ```
+
 ---
 
 ## 👨‍💻 Author
@@ -154,4 +154,3 @@ npm dev
 Developed by **Faizan Siddique** 🚀
 
 ---
-

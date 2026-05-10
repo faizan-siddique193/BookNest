@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Search, X } from "lucide-react";
-import { setSearchItem, clearFilters } from "../feature/book/bookSlice";
+import { setSearchItem } from "../feature/book/bookSlice";
 
 const SearchBar = () => {
   const dispatch = useDispatch();
@@ -12,13 +12,13 @@ const SearchBar = () => {
   };
 
   const handleClear = () => {
-    dispatch(clearFilters());
+    dispatch(setSearchItem(""));
   };
 
   return (
     <div className="border rounded-lg relative flex items-center bg-white">
       {/* search icon */}
-      <Search className="text-[#E67E22] absolute left-2 top-3 w-4 h-4" />
+      <Search className="text-[#E67E22] absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" />
 
       {/* search input */}
       <input
@@ -26,16 +26,16 @@ const SearchBar = () => {
         type="text"
         placeholder="Search by title, author, category..."
         onChange={handleChange}
-        className="w-full py-2 pl-8 pr-8 rounded-lg outline-none text-primary focus:ring-2 ring-[#E67E22] ring-offset-2"
+        className="w-full py-3 pl-10 pr-10 rounded-lg outline-none text-base text-primary placeholder-gray-400 focus:ring-2 ring-[#E67E22] ring-offset-2"
       />
 
       {/* clear (X) button — only visible when query isn't empty */}
       {query && (
         <button
           onClick={handleClear}
-          className="absolute right-2 text-gray-400 hover:text-gray-600"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
         >
-          <X size={16} />
+          <X size={20} />
         </button>
       )}
     </div>

@@ -7,36 +7,40 @@ export const createOrder = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.post("/order/create", data);
-      console.log("Order response at order action:: ", response.data.data);
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Order creation failed"
+        error.response?.data?.message || "Order creation failed",
       );
     }
-  }
+  },
 );
 
 // Get My Orders
 export const getMyOrders = createAsyncThunk(
   "order/getMyOrders",
-  async ({ currentPage }, { rejectWithValue }) => {
+  async ({ currentPage, token }, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(
-        `/order/get/orders?p=${currentPage}`
+        `/order/get/orders?p=${currentPage}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
-
-      // delete this controller
-
-      console.log("Response:: ", response);
 
       return response.data;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch orders"
-      );
+      const apiMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        error?.message ||
+        "Failed to fetch orders";
+
+      return rejectWithValue(apiMessage);
     }
-  }
+  },
 );
 
 // Get Order By ID
@@ -52,10 +56,10 @@ export const getOrderById = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch order"
+        error.response?.data?.message || "Failed to fetch order",
       );
     }
-  }
+  },
 );
 
 // Update Order Status
@@ -69,8 +73,8 @@ export const updateOrderStatus = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to update order status"
+        error.response?.data?.message || "Failed to update order status",
       );
     }
-  }
+  },
 );

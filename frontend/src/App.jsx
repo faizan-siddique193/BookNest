@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./layout/Layout.jsx";
 import {
   SignUp,
@@ -19,6 +19,8 @@ import {
   OrderCancellation,
   ErrorPage,
   BookDetailPage,
+  AIConcierge,
+  DashboardOverview,
 } from "./pages/index.js";
 import Home from "./pages/Home.jsx";
 import CartPage from "./pages/CartPage.jsx";
@@ -36,6 +38,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { Loading } from "./Component/index.js";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./config/firebase.js";
+import { getSocket } from "./utils/socket.js";
+import { orderStatusUpdated } from "./feature/order/orderSlice.js";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -67,6 +71,31 @@ const App = () => {
     }
   }, [dispatch, user]);
 
+  useEffect(() => {
+    const socket = getSocket();
+
+    if (!user && socket.connected) {
+      socket.disconnect();
+      return;
+    }
+
+    if (user && !socket.connected) {
+      socket.connect();
+      socket.emit("join", user.firebaseUserId || user.uid);
+      if (user.role === "admin") {
+        socket.emit("join-admin");
+      }
+    }
+
+    socket.on("order-status-updated", (payload) => {
+      dispatch(orderStatusUpdated(payload));
+    });
+
+    return () => {
+      socket.off("order-status-updated");
+    };
+  }, [dispatch, user]);
+
   if (initializing) {
     return <Loading />;
   }
@@ -79,6 +108,10 @@ const App = () => {
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/unauthorized" element={<ErrorPage />} />
+          <Route
+            path="/customer/profile"
+            element={<Navigate to="/user/profile" replace />}
+          />
 
           {/* Main application routes with Layout - Customers only */}
           <Route
@@ -104,6 +137,9 @@ const App = () => {
 
             {/* Categories */}
             <Route path="/categories" element={<Categories />} />
+
+            {/* AI Concierge */}
+            <Route path="/ai-concierge" element={<AIConcierge />} />
 
             {/* Protected user routes */}
             <Route
@@ -173,6 +209,8 @@ const App = () => {
               </ProtectedRoute>
             }
           >
+            <Route index element={<DashboardOverview />} />
+            <Route path="/admin/dashboard" element={<DashboardOverview />} />
             {/* Admin Profile */}
             <Route
               path="/admin/profile"

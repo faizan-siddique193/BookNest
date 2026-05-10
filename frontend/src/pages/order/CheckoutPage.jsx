@@ -33,7 +33,7 @@ const CheckoutPage = () => {
     try {
       // Step 1: Create order on backend
       const orderResponse = await dispatch(
-        createOrder({ ...shippingFormData, paymentMethod })
+        createOrder({ ...shippingFormData, paymentMethod }),
       ).unwrap();
 
       const orderId = orderResponse.data._id;
@@ -42,7 +42,6 @@ const CheckoutPage = () => {
       if (paymentMethod === "cash-on-delivery") {
         navigate(`/order-confirmation/${orderId}`);
         dispatch(clearCart());
-        localStorage.removeItem("persist:cart");
         setOrderSuccess(true);
         return;
       }
@@ -50,12 +49,11 @@ const CheckoutPage = () => {
       // Step 3: Handle Stripe payment
       if (paymentMethod === "stripe") {
         const response = await dispatch(
-          startStripePayment({ orderId })
+          startStripePayment({ orderId }),
         ).unwrap();
 
         // clear cart
         dispatch(clearCart());
-        localStorage.removeItem("persist:cart");
 
         //  Access the url from response.data
         if (!response.data?.url) {
